@@ -35,6 +35,8 @@ class PersonRecordMapperTest {
         assertEquals(2_000_102_078L, bob.uniqueId)
         assertEquals(51_788L, bob.entityRecordId)
         assertTrue(bob.entityRecordOffset != null)
+        assertEquals("0a8000f4", bob.entityRecordTypeTag)
+        assertNull(bob.entityRecordLength)
 
         val missing = index.entries.single { it.name == "Unresolved Player" }
         assertNull(missing.entityRecordId)

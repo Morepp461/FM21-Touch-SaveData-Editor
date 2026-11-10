@@ -206,10 +206,15 @@ private fun EditorHome() {
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                 ) {
                     Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("EDITOR SELURUH DATABASE", style = MaterialTheme.typography.labelMedium,
+                        Text("FOOTBALL MANAGEMENT SAVE DATA", style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                        Text(if (parsed == null) "Kelola seluruh isi kariermu." else parsed.manifest.saveName,
+                        Text(if (parsed == null) "Buka dan analisis save FM21 Touch." else parsed.manifest.saveName,
                             style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                        Text("MODE HANYA-BACA", style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                        Text("Periksa database, telusuri komponen, bandingkan save, dan ekspor salinan tanpa mengubah file asli.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(status, style = MaterialTheme.typography.bodySmall,
                             color = if (status.startsWith("Gagal")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                         Button(

@@ -19,6 +19,7 @@ Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file sav
 - Menampilkan daftar komponen utama dan komponen di dalam arsip.
 - Mengekstrak komponen Zstandard multi-frame dengan pemeriksaan panjang dan batas data.
 - Menjelajahi komponen dengan pencarian, filter kategori, dan pemuatan bertahap.
+- Menjelajahi indeks orang dengan pencarian nama/UID/entity ID serta filter entri terhubung dan belum terpetakan.
 - Membandingkan dua save melalui hash SHA-256, jumlah byte yang berubah, dan posisi perbedaan pertama.
 - Memetakan UID pada indeks nama ke entity record person secara hanya-baca.
 - Memvalidasi seluruh komponen save dengan dekompresi penuh sebelum membuat salinan FMV tanpa perubahan.

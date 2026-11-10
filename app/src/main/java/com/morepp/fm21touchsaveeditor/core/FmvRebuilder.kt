@@ -98,11 +98,6 @@ object FmvRebuilder {
         var dataOffset = 0L
 
         encoded.forEachIndexed { index, item ->
-            val nextFramePrefix = if (index < encoded.lastIndex) {
-                littleEndianU32(encoded[index + 1].firstFrameSize.toLong())
-            } else {
-                footerPrefix.copyOfRange(0, 4)
-            }
             val memberOffset = dataOffset
             val storedLength = item.frameStream.size.toLong() + 4L
             metadata[item.member.name] = NewMetadata(

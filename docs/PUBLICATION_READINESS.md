@@ -17,6 +17,14 @@ This checklist is intentionally strict. A successful APK build is not equivalent
 - [ ] Verify large career saves on a low-memory device.
 - [ ] Verify Storage Access Framework import/export on Android 8, 10, 13 and 16.
 
+## Latest CI candidate (10 November 2026)
+
+- Commit `71f78082297df18f49133bda93fa370acac07c21` on `main`.
+- Android build, Python read-only diagnostics, Kotlin unit tests, package compatibility checks, and artifact uploads completed successfully in GitHub Actions run `42844299542`.
+- CI artifacts: debug APK ZIP and unsigned release APK/AAB ZIP. The release outputs are unsigned because no private release keystore is configured.
+- The Android API 26 emulator launch smoke test is still running; do not mark it passed until its job reports success.
+- Temporary extracted person-database files are now deleted after indexing, and temporary exported cache files are deleted after the document-picker callback.
+
 ## Save format and data integrity
 
 - [x] Read-only FMF/FMV parser for observed FM21 Touch 21.4.x save layout.

@@ -7,9 +7,9 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 
 | Stage | Status | Acceptance criteria |
 |---|---|---|
-| FMU Container Parser | Implemented; CI build/tests pass, device validation pending | Validate header/footer, decode manifest and enumerate all 852 members |
-| Component Extractor | Implemented; CI build/tests pass, device validation pending | Stream Zstandard members to a new file and verify frame prefixes, plaintext lengths and boundaries |
-| Player Record Mapping | Name/UID-to-person entity mapping implemented; player classification pending | Map name index entries to entity IDs; classify players vs staff and verify against in-game data |
+| FMU Container Parser | Implemented; real-save and CI tests pass; Android 8 device coverage pending | Validate header/footer, decode manifest and enumerate all 852 members |
+| Component Extractor | Implemented; synthetic multi-frame and real-save extraction checks pass; Android 8 device coverage pending | Stream Zstandard members to a new file and verify frame prefixes, plaintext lengths and boundaries |
+| Player Record Mapping | Name/UID-to-person entity mapping implemented; ambiguity QA added; player classification pending | Map name index entries to entity IDs; classify players vs staff and verify against in-game data |
 | CA / PA Editor | Not implemented | Edit correct player records and persist values through a verified rebuild |
 | Player Attributes Editor | Not implemented | Map all target attributes, scales and ownership; preserve unrelated bytes |
 | Club Finance Editor | Not implemented | Verify club balance and transfer-budget field semantics |
@@ -30,6 +30,13 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 - Component browser now has search, horizontally scrollable category filters and incremental loading (40 at a time).
 - People and comparison workflows have separate screens; the app remains read-only.
 - Compact-screen layout uses scrollable filters and cards with clearer hierarchy.
+
+## App and UI status
+- App version 0.5.0, minimum Android API 26, target SDK 35.
+- Overview, People, Compare and Files navigation tabs are implemented.
+- Component browser includes category filters, search and incremental loading.
+- Dark motorsport-inspired Material 3 theme is implemented.
+- Current release remains read-only. A successful CI build is not the same as device QA on Android 8 or an in-game save round-trip.
 
 ## Player/person mapping findings
 - `game_db/.dat` name index yielded 17,486 entries in the supplied save.

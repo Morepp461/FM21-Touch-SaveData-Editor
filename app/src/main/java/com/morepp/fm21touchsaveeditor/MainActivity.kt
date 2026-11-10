@@ -100,6 +100,7 @@ private fun EditorHome() {
             }.onSuccess { status = it }
                 .onFailure { status = "Ekspor gagal: ${it.message}" }
         }
+        payload?.delete()
         pendingExport = null
     }
 
@@ -287,8 +288,12 @@ private fun EditorHome() {
                                                 runCatching {
                                                     val member = parsed.manifest.members.first { it.name == "game_db/.dat" }
                                                     val file = File(context.cacheDir, "fm21_components/game_db_person_map.dat")
-                                                    parsed.extractToFile(member, file)
-                                                    PersonRecordMapper.map(file.readBytes())
+                                                    try {
+                                                        parsed.extractToFile(member, file)
+                                                        PersonRecordMapper.map(file.readBytes())
+                                                    } finally {
+                                                        file.delete()
+                                                    }
                                                 }
                                             }
                                             result.onSuccess {
@@ -375,8 +380,12 @@ private fun EditorHome() {
                                                 runCatching {
                                                     val member = parsed.manifest.members.first { it.name == "game_db/.dat" }
                                                     val file = File(context.cacheDir, "fm21_components/game_db_person_map.dat")
-                                                    parsed.extractToFile(member, file)
-                                                    PersonRecordMapper.map(file.readBytes())
+                                                    try {
+                                                        parsed.extractToFile(member, file)
+                                                        PersonRecordMapper.map(file.readBytes())
+                                                    } finally {
+                                                        file.delete()
+                                                    }
                                                 }
                                             }
                                             result.onSuccess { personIndex = it; status = "Indeks orang selesai" }

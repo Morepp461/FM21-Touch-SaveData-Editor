@@ -472,7 +472,7 @@ private fun EditorHome() {
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         if (person.entityRecordTypeTag != null) {
-                                            Text("Jenis data: ${person.entityRecordTypeTag}",
+                                            Text("Tag record mentah: ${person.entityRecordTypeTag}",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }

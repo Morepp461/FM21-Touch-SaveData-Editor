@@ -17,6 +17,6 @@ class MainActivityLaunchTest {
     fun launchesAndShowsSaveEditorHomeOnApi26Plus() {
         composeRule.onNodeWithText("FM21 Touch Save Editor").assertExists()
         composeRule.onNodeWithText("Buka save FMV").assertExists()
-        composeRule.onNodeWithText("Supported minimum: Android 8.0 (API 26)").assertExists()
+        composeRule.onNodeWithText("FULL DATABASE EDITOR").assertExists()
     }
 }

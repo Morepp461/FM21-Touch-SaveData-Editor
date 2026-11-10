@@ -20,7 +20,7 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 ## Android release engineering progress
 - App version code/name advanced to 7 / 0.7.0.
 - CI builds debug and release APK/AAB variants; release signing is enabled only when private keystore secrets are configured.
-- Added an Android 8.0 / API 26 emulator launch smoke test using an instrumentation test. Latest verified API 26 emulator smoke test passed on commit `320c7019`; a newer test run is in progress.
+- Added an Android 8.0 / API 26 emulator launch smoke test using an instrumentation test. Latest verified API 26 emulator smoke test passed on commit `b27ff756` (workflow run `42806431538`).
 - The current CI release APK/AAB are unsigned because no private release keystore is configured; publication signing must use a private keystore outside the repository.
 - These checks improve Android compatibility confidence but do not replace real-device testing on Android 8 and newer versions.
 

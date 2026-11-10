@@ -68,9 +68,16 @@ object FmvRebuilder {
                     plainLength = member.plainLength
                 )
             } else {
-                val frames = replacement.asList().chunked(FRAME_PLAIN_BYTES).map { chunk ->
-                    Zstd.compress(chunk.toByteArray(), COMPRESSION_LEVEL)
-                }.ifEmpty { listOf(Zstd.compress(ByteArray(0), COMPRESSION_LEVEL)) }
+                val frames = ArrayList<ByteArray>()
+                var chunkStart = 0
+                while (chunkStart < replacement.size) {
+                    val chunkEnd = minOf(chunkStart + FRAME_PLAIN_BYTES, replacement.size)
+                    frames += Zstd.compress(replacement.copyOfRange(chunkStart, chunkEnd), COMPRESSION_LEVEL)
+                    chunkStart = chunkEnd
+                }
+                if (frames.isEmpty()) {
+                    throw FmvFormatException("Empty component replacement is not supported: ${member.name}")
+                }
                 val stream = ByteArrayOutputStream()
                 frames.forEachIndexed { index, frame ->
                     stream.write(frame)
@@ -87,7 +94,6 @@ object FmvRebuilder {
 
         val output = ByteArrayOutputStream()
         val originalHeader = source.originalHeader()
-        output.write(originalHeader)
         val metadata = HashMap<String, NewMetadata>()
         var dataOffset = 0L
 
@@ -98,8 +104,6 @@ object FmvRebuilder {
                 footerPrefix.copyOfRange(0, 4)
             }
             val memberOffset = dataOffset
-            output.write(item.frameStream)
-            output.write(nextFramePrefix)
             val storedLength = item.frameStream.size.toLong() + 4L
             metadata[item.member.name] = NewMetadata(
                 offset = memberOffset,
@@ -127,7 +131,6 @@ object FmvRebuilder {
 
         val header = originalHeader
         putU32(header, 9, footerOffset - 9L)
-        output.reset()
         output.write(header)
         encoded.forEachIndexed { index, item ->
             output.write(item.frameStream)

@@ -14,7 +14,7 @@ class PersonRecordMapperTest {
         val data = ByteArrayOutputStream()
 
         // Person entity row: entity ID, duplicated unique ID, then opaque row fields.
-        data.write(le32(51_788))
+        data.write(le32(51_788L))
         data.write(le32(2_000_102_078L))
         data.write(le32(2_000_102_078L))
         data.write(byteArrayOf(0x0a, 0x80.toByte(), 0x00, 0xf4.toByte(), 0x01))

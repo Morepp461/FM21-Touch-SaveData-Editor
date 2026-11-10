@@ -86,8 +86,8 @@ class FmvRebuilderTest {
         val metadata = LinkedHashMap<String, Triple<Long, Long, Long>>()
         var offset = 0L
         encoded.forEach { (member, stream, plainLength) ->
-            metadata[member.name] = Triple(offset, stream.size().toLong() + 4L, plainLength)
-            offset += stream.size().toLong() + 4L
+            metadata[member.name] = Triple(offset, stream.size.toLong() + 4L, plainLength)
+            offset += stream.size.toLong() + 4L
         }
 
         val manifest = ByteArrayOutputStream()

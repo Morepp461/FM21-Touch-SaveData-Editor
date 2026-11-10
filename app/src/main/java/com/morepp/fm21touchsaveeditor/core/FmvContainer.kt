@@ -111,8 +111,7 @@ class FmvContainer(private val bytes: ByteArray) {
 
         while (written < canonical.plainLength) {
             if (cursor >= end - 4) throw FmvFormatException("Missing Zstandard frame: ${member.name}")
-            val remaining = bytes.copyOfRange(cursor, end)
-            val frameSize = Zstd.findFrameCompressedSize(remaining)
+            val frameSize = zstdFrameSize(bytes, cursor, end)
             if (Zstd.isError(frameSize) || frameSize <= 0 || frameSize > (end - cursor - 4).toLong()) {
                 throw FmvFormatException("Invalid Zstandard frame boundary: ${member.name}")
             }
@@ -145,8 +144,8 @@ class FmvContainer(private val bytes: ByteArray) {
                 if (declaredNextSize <= 0 || declaredNextSize > (end - nextStart).toLong()) {
                     throw FmvFormatException("Invalid next-frame length in ${member.name}")
                 }
-                val actualNextSize = Zstd.findFrameCompressedSize(bytes.copyOfRange(nextStart, end))
-                if (Zstd.isError(actualNextSize) || actualNextSize != declaredNextSize) {
+                val actualNextSize = zstdFrameSize(bytes, nextStart, end)
+                if (actualNextSize.toLong() != declaredNextSize) {
                     throw FmvFormatException("Next-frame length prefix mismatch in ${member.name}")
                 }
                 cursor = nextStart
@@ -284,6 +283,46 @@ class FmvContainer(private val bytes: ByteArray) {
             }
             throw FmvFormatException("Manifest member path is malformed")
         }
+    }
+
+    /** Parse one standard Zstandard frame boundary without scanning compressed payload for magic bytes. */
+    private fun zstdFrameSize(data: ByteArray, start: Int, limit: Int): Int {
+        if (start < 0 || start + 5 > limit || limit > data.size ||
+            data[start] != 0x28.toByte() || data[start + 1] != 0xb5.toByte() ||
+            data[start + 2] != 0x2f.toByte() || data[start + 3] != 0xfd.toByte()) {
+            throw FmvFormatException("Invalid Zstandard frame magic")
+        }
+        var p = start + 4
+        val descriptor = data[p++].toInt() and 0xff
+        if (descriptor and 0x18 != 0) throw FmvFormatException("Reserved Zstandard frame bits are set")
+        val singleSegment = descriptor and 0x20 != 0
+        val hasChecksum = descriptor and 0x04 != 0
+        val dictionaryFlag = descriptor and 0x03
+        val contentSizeFlag = descriptor ushr 6
+        if (!singleSegment) p += 1
+        p += when (dictionaryFlag) { 0 -> 0; 1 -> 1; 2 -> 2; else -> 4 }
+        p += when (contentSizeFlag) { 0 -> if (singleSegment) 1 else 0; 1 -> 2; 2 -> 4; else -> 8 }
+        if (p > limit) throw FmvFormatException("Truncated Zstandard frame header")
+        var lastBlock = false
+        while (!lastBlock) {
+            if (p + 3 > limit) throw FmvFormatException("Truncated Zstandard block header")
+            val header = (data[p].toInt() and 0xff) or
+                ((data[p + 1].toInt() and 0xff) shl 8) or
+                ((data[p + 2].toInt() and 0xff) shl 16)
+            p += 3
+            lastBlock = header and 1 != 0
+            val blockType = (header ushr 1) and 3
+            val blockSize = header ushr 3
+            if (blockType == 3) throw FmvFormatException("Reserved Zstandard block type")
+            val payloadSize = if (blockType == 1) 1 else blockSize
+            if (p.toLong() + payloadSize > limit.toLong()) {
+                throw FmvFormatException("Zstandard block exceeds component boundary")
+            }
+            p += payloadSize
+        }
+        if (hasChecksum) p += 4
+        if (p > limit) throw FmvFormatException("Truncated Zstandard frame checksum")
+        return p - start
     }
 
     private fun littleEndianU32(data: ByteArray, at: Int): Long =

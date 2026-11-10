@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
 }
 
 private enum class EditorTab(val title: String) {
-    OVERVIEW("Overview"), PEOPLE("People"), COMPARE("Compare"), COMPONENTS("Files")
+    OVERVIEW("Ringkasan"), PEOPLE("Orang"), COMPARE("Perbandingan"), COMPONENTS("Berkas")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -166,7 +166,7 @@ private fun EditorHome() {
             TopAppBar(
                 title = {
                     Column {
-                        Text("FM21 Touch Save Editor", fontWeight = FontWeight.SemiBold)
+                        Text("Editor Save FM21 Touch", fontWeight = FontWeight.SemiBold)
                         Text("Football Manager Touch 2021", style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -186,9 +186,9 @@ private fun EditorHome() {
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
                 ) {
                     Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("FULL DATABASE EDITOR", style = MaterialTheme.typography.labelMedium,
+                        Text("EDITOR SELURUH DATABASE", style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                        Text(if (parsed == null) "Your career, clearly organised." else parsed.manifest.saveName,
+                        Text(if (parsed == null) "Kelola seluruh isi kariermu." else parsed.manifest.saveName,
                             style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                         Text(status, style = MaterialTheme.typography.bodySmall,
                             color = if (status.startsWith("Gagal")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
@@ -206,9 +206,9 @@ private fun EditorHome() {
             if (parsed != null) {
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                        SummaryMetric("Database", parsed.gameVersion ?: "Unknown", Modifier.weight(1f))
-                        SummaryMetric("Components", allMembers.size.toString(), Modifier.weight(1f))
-                        SummaryMetric("Archives", parsed.manifest.nested.size.toString(), Modifier.weight(1f))
+                        SummaryMetric("Basis Data", parsed.gameVersion ?: "Tidak diketahui", Modifier.weight(1f))
+                        SummaryMetric("Komponen", allMembers.size.toString(), Modifier.weight(1f))
+                        SummaryMetric("Arsip", parsed.manifest.nested.size.toString(), Modifier.weight(1f))
                     }
                 }
                 item {
@@ -231,25 +231,25 @@ private fun EditorHome() {
                 when (selectedTab) {
                     EditorTab.OVERVIEW -> {
                         item {
-                            SectionHeading("Career workspace", "Save integrity and available tools")
+                            SectionHeading("Ruang Kerja Karier", "Pemeriksaan save dan alat yang tersedia")
                             Card(Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Text("Container information", style = MaterialTheme.typography.titleMedium)
+                                    Text("Informasi berkas save", style = MaterialTheme.typography.titleMedium)
                                     InfoLine("Save", parsed.manifest.saveName)
-                                    InfoLine("Database version", parsed.gameVersion ?: "Not detected")
-                                    InfoLine("Top-level components", parsed.manifest.topLevel.size.toString())
-                                    InfoLine("Nested components", parsed.manifest.nested.size.toString())
-                                    InfoLine("Footer offset", parsed.manifest.footerOffset.toString())
+                                    InfoLine("Versi basis data", parsed.gameVersion ?: "Tidak terdeteksi")
+                                    InfoLine("Komponen utama", parsed.manifest.topLevel.size.toString())
+                                    InfoLine("Komponen di dalam arsip", parsed.manifest.nested.size.toString())
+                                    InfoLine("Posisi footer", parsed.manifest.footerOffset.toString())
                                 }
                             }
                         }
                         item {
-                            SectionHeading("Database tools", "Read-only analysis until record layouts are proven")
+                            SectionHeading("Alat basis data", "Analisis hanya-baca sampai struktur data terbukti")
                             ToolCard(
-                                title = "Person record mapping",
+                                title = "Pemetaan data orang",
                                 description = personIndex?.let { "${it.scannedNameEntries} names · ${it.mappedEntries} linked · ${it.unresolvedEntries} unresolved" }
-                                    ?: "Connect names to internal person records",
-                                action = if (personIndex == null) "Build mapping" else "Open mapping",
+                                    ?: "Hubungkan nama dengan data identitas internal",
+                                action = if (personIndex == null) "Buat pemetaan" else "Buka pemetaan",
                                 enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" },
                                 onClick = {
                                     if (personIndex != null) {
@@ -268,19 +268,19 @@ private fun EditorHome() {
                                             }
                                             result.onSuccess {
                                                 personIndex = it
-                                                status = "Person index selesai. Player classification belum diverifikasi."
+                                                status = "Indeks orang selesai. Klasifikasi pemain dan staf belum diverifikasi."
                                                 selectedTab = EditorTab.PEOPLE
-                                            }.onFailure { status = "Person mapping gagal: ${it.message}" }
+                                            }.onFailure { status = "Pemetaan data orang gagal: ${it.message}" }
                                             busy = false
                                         }
                                     }
                                 }
                             )
                             ToolCard(
-                                title = "Save comparison",
+                                title = "Perbandingan save",
                                 description = comparisonContainer?.let { "Pembanding: ${it.manifest.saveName}" }
-                                    ?: "Compare two career saves to locate changed components",
-                                action = if (comparisonContainer == null) "Choose comparison save" else "Open comparison",
+                                    ?: "Bandingkan dua save dari karier yang sama untuk menemukan komponen yang berubah",
+                                action = if (comparisonContainer == null) "Pilih save pembanding" else "Buka perbandingan",
                                 enabled = !busy,
                                 onClick = {
                                     if (comparisonContainer == null) comparisonPicker.launch(arrayOf("*/*"))
@@ -288,15 +288,15 @@ private fun EditorHome() {
                                 }
                             )
                             ToolCard(
-                                title = "Component browser",
-                                description = "Search and export individual save components",
-                                action = "Browse files",
+                                title = "Penjelajah komponen",
+                                description = "Cari dan ekspor komponen dari file save",
+                                action = "Jelajahi berkas",
                                 enabled = true,
                                 onClick = { selectedTab = EditorTab.COMPONENTS }
                             )
                         }
                         item {
-                            Text("Player editing, finance editing and rebuilding stay locked until each field and round-trip rule is verified.",
+                            Text("Fitur edit pemain, keuangan, dan penyimpanan ulang masih dikunci sampai setiap field dan proses uji-balik terbukti aman.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
@@ -304,12 +304,12 @@ private fun EditorHome() {
 
                     EditorTab.PEOPLE -> {
                         item {
-                            SectionHeading("People index", "Person records are not yet classified as players or staff")
+                            SectionHeading("Indeks orang", "Data orang belum dipisahkan menjadi pemain dan staf")
                             if (personIndex == null) {
                                 ToolCard(
-                                    title = "Build person index",
-                                    description = "Extract game_db/.dat and scan its name index",
-                                    action = "Start scan",
+                                    title = "Buat indeks orang",
+                                    description = "Ekstrak game_db/.dat lalu pindai indeks nama",
+                                    action = "Mulai pemindaian",
                                     enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" },
                                     onClick = {
                                         busy = true
@@ -324,7 +324,7 @@ private fun EditorHome() {
                                                 }
                                             }
                                             result.onSuccess { personIndex = it; status = "Person index selesai" }
-                                                .onFailure { status = "Person mapping gagal: ${it.message}" }
+                                                .onFailure { status = "Pemetaan data orang gagal: ${it.message}" }
                                             busy = false
                                         }
                                     }
@@ -338,16 +338,16 @@ private fun EditorHome() {
                             }
                             item {
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    SummaryMetric("Names", index.scannedNameEntries.toString(), Modifier.weight(1f))
-                                    SummaryMetric("Linked", index.mappedEntries.toString(), Modifier.weight(1f))
-                                    SummaryMetric("Unresolved", index.unresolvedEntries.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Nama", index.scannedNameEntries.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Terhubung", index.mappedEntries.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Belum terpetakan", index.unresolvedEntries.toString(), Modifier.weight(1f))
                                 }
                             }
                             item {
                                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                     OutlinedTextField(
                                         value = personSearch, onValueChange = { personSearch = it },
-                                        label = { Text("Search person name") }, singleLine = true,
+                                        label = { Text("Cari nama pemain atau staf") }, singleLine = true,
                                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)
                                     )
                                     Text("Showing ${minOf(matches.size, 100)} of ${matches.size} results",
@@ -383,14 +383,14 @@ private fun EditorHome() {
                                                 exported.onSuccess {
                                                     pendingExport = it
                                                     exportPicker.launch(it.name)
-                                                    status = "Person mapping CSV ready to export"
-                                                }.onFailure { status = "CSV export preparation failed: ${it.message}" }
+                                                    status = "File CSV pemetaan orang siap diekspor"
+                                                }.onFailure { status = "Gagal menyiapkan ekspor CSV: ${it.message}" }
                                                 busy = false
                                             }
                                         },
                                         enabled = !busy,
                                         modifier = Modifier.fillMaxWidth()
-                                    ) { Text("Export complete mapping as CSV") }
+                                    ) { Text("Ekspor seluruh pemetaan ke CSV") }
                                 }
                             }
                             items(matches.take(100), key = { "person_${it.uniqueId}" }) { person ->
@@ -399,16 +399,16 @@ private fun EditorHome() {
                                         Text(person.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                                         Text("UID ${person.uniqueId} · Name ID ${person.nameIndexId}",
                                             style = MaterialTheme.typography.bodySmall)
-                                        Text("Entity record: ${person.entityRecordId ?: "Unresolved"}",
+                                        Text("Entity record: ${person.entityRecordId ?: "Belum terpetakan"}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         if (person.entityRecordTypeTag != null) {
-                                            Text("Record tag: ${person.entityRecordTypeTag}",
+                                            Text("Kode data: ${person.entityRecordTypeTag}",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                         if (person.entityRecordLength != null) {
-                                            Text("Observed adjacent-record span: ${person.entityRecordLength} bytes",
+                                            Text("Jarak data bersebelahan yang teramati: ${person.entityRecordLength} byte",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
@@ -424,17 +424,17 @@ private fun EditorHome() {
 
                     EditorTab.COMPARE -> {
                         item {
-                            SectionHeading("Save comparison", "Use two saves from the same career where possible")
+                            SectionHeading("Perbandingan save", "Gunakan dua file save dari karier yang sama jika memungkinkan")
                             OutlinedButton(
                                 onClick = { comparisonPicker.launch(arrayOf("*/*")) },
                                 enabled = !busy, modifier = Modifier.fillMaxWidth()
-                            ) { Text(if (comparisonContainer == null) "Choose second save" else "Change second save") }
+                            ) { Text(if (comparisonContainer == null) "Pilih save kedua" else "Ganti save kedua") }
                             comparisonContainer?.let { other ->
-                                Text("Comparing with: ${other.manifest.saveName}", style = MaterialTheme.typography.bodyMedium)
+                                Text("Dibandingkan dengan: ${other.manifest.saveName}", style = MaterialTheme.typography.bodyMedium)
                                 Button(
                                     onClick = {
                                         busy = true
-                                        status = "Comparing save components..."
+                                        status = "Membandingkan komponen save..."
                                         scope.launch {
                                             val result = withContext(Dispatchers.IO) {
                                                 runCatching {
@@ -443,20 +443,20 @@ private fun EditorHome() {
                                             }
                                             result.onSuccess { diffs ->
                                                 comparisonResults = diffs
-                                                status = "Comparison complete: ${diffs.count { !it.identical }} changed components"
-                                            }.onFailure { status = "Comparison failed: ${it.message}" }
+                                                status = "Perbandingan selesai: ${diffs.count { !it.identical }} komponen berubah"
+                                            }.onFailure { status = "Perbandingan gagal: ${it.message}" }
                                             busy = false
                                         }
                                     }, enabled = !busy, modifier = Modifier.fillMaxWidth()
-                                ) { Text(if (busy) "Comparing..." else "Compare saves") }
+                                ) { Text(if (busy) "Membandingkan..." else "Bandingkan save") }
                             }
                         }
                         if (comparisonResults.isNotEmpty()) {
                             val changed = comparisonResults.filter { !it.identical }
                             item {
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    SummaryMetric("Changed", changed.size.toString(), Modifier.weight(1f))
-                                    SummaryMetric("Compared", comparisonResults.size.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Berubah", changed.size.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Dibandingkan", comparisonResults.size.toString(), Modifier.weight(1f))
                                 }
                             }
                             item {
@@ -489,22 +489,22 @@ private fun EditorHome() {
                                             report.onSuccess {
                                                 pendingExport = it
                                                 exportPicker.launch(it.name)
-                                                status = "Comparison CSV ready to export"
-                                            }.onFailure { status = "Comparison report failed: ${it.message}" }
+                                                status = "File CSV perbandingan siap diekspor"
+                                            }.onFailure { status = "Gagal membuat laporan perbandingan: ${it.message}" }
                                             busy = false
                                         }
                                     },
                                     enabled = !busy,
                                     modifier = Modifier.fillMaxWidth()
-                                ) { Text("Export full comparison report (CSV)") }
+                                ) { Text("Ekspor laporan perbandingan lengkap (CSV)") }
                             }
                             items(changed.take(100), key = { "diff_${it.name}" }) { diff ->
                                 Card(Modifier.fillMaxWidth()) {
                                     Column(Modifier.padding(14.dp)) {
                                         Text(diff.name, fontWeight = FontWeight.SemiBold)
-                                        Text("${diff.beforeBytes} → ${diff.afterBytes} bytes · ${diff.changedBytesInCommonLength} bytes changed",
+                                        Text("${diff.beforeBytes} → ${diff.afterBytes} byte · ${diff.changedBytesInCommonLength} byte berubah",
                                             style = MaterialTheme.typography.bodySmall)
-                                        Text("First difference: ${diff.firstDifferenceOffset ?: "size only"}",
+                                        Text("Perbedaan pertama: ${diff.firstDifferenceOffset ?: "hanya ukuran"}",
                                             style = MaterialTheme.typography.labelSmall)
                                     }
                                 }
@@ -514,10 +514,10 @@ private fun EditorHome() {
 
                     EditorTab.COMPONENTS -> {
                         item {
-                            SectionHeading("Component browser", "${filteredMembers.size} matching components · ${allMembers.size} total")
+                            SectionHeading("Penjelajah komponen", "${filteredMembers.size} komponen ditemukan · ${allMembers.size} total")
                             OutlinedTextField(
                                 value = filterText, onValueChange = { filterText = it; componentLimit = 40 },
-                                label = { Text("Search file or archive name") }, singleLine = true,
+                                label = { Text("Cari nama berkas atau arsip") }, singleLine = true,
                                 modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)
                             )
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -529,7 +529,7 @@ private fun EditorHome() {
                                     )
                                 }
                             }
-                            Text("Showing ${minOf(componentLimit, filteredMembers.size)} of ${filteredMembers.size}",
+                            Text("Menampilkan ${minOf(componentLimit, filteredMembers.size)} dari ${filteredMembers.size}",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
@@ -537,7 +537,7 @@ private fun EditorHome() {
                             Card(Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                     Text(member.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                    Text("Plain ${member.plainLength} bytes · Stored ${member.storedLength} bytes",
+                                    Text("Ukuran asli ${member.plainLength} byte · Ukuran tersimpan ${member.storedLength} byte",
                                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     OutlinedButton(
                                         onClick = {
@@ -560,7 +560,7 @@ private fun EditorHome() {
                                             }
                                         },
                                         enabled = !busy
-                                    ) { Text("Export component") }
+                                    ) { Text("Ekspor komponen") }
                                 }
                             }
                         }
@@ -569,17 +569,17 @@ private fun EditorHome() {
                                 OutlinedButton(
                                     onClick = { componentLimit = (componentLimit + 40).coerceAtMost(filteredMembers.size) },
                                     modifier = Modifier.fillMaxWidth()
-                                ) { Text("Load 40 more") }
+                                ) { Text("Muat 40 lainnya") }
                             }
                         }
                     }
                 }
             } else {
                 item {
-                    SectionHeading("Get started", "Open a Football Manager Touch 2021 save file")
-                    Text("The editor reads the original save without changing it. Exported components are saved separately; the source career file is never overwritten.",
+                    SectionHeading("Mulai", "Buka file save Football Manager Touch 2021")
+                    Text("Aplikasi membaca file save asli tanpa mengubahnya. Komponen yang diekspor disimpan terpisah dan file karier sumber tidak pernah ditimpa.",
                         style = MaterialTheme.typography.bodyMedium)
-                    Text("Supported minimum: Android 8.0 (API 26)",
+                    Text("Minimum sistem: Android 8.0 (API 26)",
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                 }
             }
@@ -646,7 +646,7 @@ private fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 102
             if (count < 0) break
             total += count
             if (total > maxBytes) {
-                throw IllegalArgumentException("Save exceeds the current safe in-memory limit of 128 MB")
+                throw IllegalArgumentException("Ukuran save melewati batas aman pemrosesan saat ini, yaitu 128 MB")
             }
             output.write(buffer, 0, count)
         }

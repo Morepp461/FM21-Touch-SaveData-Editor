@@ -48,8 +48,15 @@ object PersonRecordMapper {
         val ambiguousUids = HashSet<Long>()
         var p = 4
         while (p <= gameDb.size - 13) {
-            val uid = u32(gameDb, p)
-            if (uid in wantedUids && u32(gameDb, p + 4) == uid) {
+            // Most bytes are not the start of a duplicated UID. Compare the
+            // two raw four-byte windows first to avoid allocating Long values
+            // and probing the UID set for every byte in a 69 MB database.
+            if (gameDb[p] == gameDb[p + 4] &&
+                gameDb[p + 1] == gameDb[p + 5] &&
+                gameDb[p + 2] == gameDb[p + 6] &&
+                gameDb[p + 3] == gameDb[p + 7]) {
+                val uid = u32(gameDb, p)
+                if (uid in wantedUids) {
                 val afterPair = u32(gameDb, p + 8)
                 val afterMarker = gameDb[p + 12].toInt() and 0xff
                 val isNameIndexCopy = afterPair == NAME_ENTRY_KIND && afterMarker == 0
@@ -67,6 +74,7 @@ object PersonRecordMapper {
                             ambiguousUids.add(uid)
                         }
                     }
+                }
                 }
             }
             p++
@@ -118,8 +126,11 @@ object PersonRecordMapper {
         var p = 0
         val last = data.size - (4 + MIN_NAME_BYTES + 21)
         while (p <= last) {
-            val nameLength = u32(data, p)
-            if (nameLength in MIN_NAME_BYTES.toLong()..MAX_NAME_BYTES.toLong()) {
+            val firstLengthByte = data[p].toInt() and 0xff
+            if (firstLengthByte in MIN_NAME_BYTES..MAX_NAME_BYTES &&
+                data[p + 1] == 0.toByte() && data[p + 2] == 0.toByte() &&
+                data[p + 3] == 0.toByte()) {
+                val nameLength = firstLengthByte.toLong()
                 val nameStart = p + 4
                 val tail = nameStart + nameLength.toInt()
                 if (tail + 21 <= data.size &&

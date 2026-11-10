@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.morepp.fm21touchsaveeditor.core.FmvContainer
 import com.morepp.fm21touchsaveeditor.core.FmvSaveComparator
+import com.morepp.fm21touchsaveeditor.core.PersonRecordIndex
+import com.morepp.fm21touchsaveeditor.core.PersonRecordMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +36,8 @@ private fun EditorHome() {
     var container by remember { mutableStateOf<FmvContainer?>(null) }
     var comparisonContainer by remember { mutableStateOf<FmvContainer?>(null) }
     var comparisonResults by remember { mutableStateOf(emptyList<com.morepp.fm21touchsaveeditor.core.MemberDiff>()) }
+    var personIndex by remember { mutableStateOf<PersonRecordIndex?>(null) }
+    var personSearch by remember { mutableStateOf("") }
     var status by remember { mutableStateOf("Belum ada save yang dibuka") }
     var busy by remember { mutableStateOf(false) }
     var pendingExport by remember { mutableStateOf<File?>(null) }
@@ -68,6 +72,8 @@ private fun EditorHome() {
                     container = it
                     comparisonContainer = null
                     comparisonResults = emptyList()
+                    personIndex = null
+                    personSearch = ""
                     status = "Valid: ${it.manifest.saveName}"
                 }.onFailure {
                     container = null
@@ -136,6 +142,66 @@ private fun EditorHome() {
                         }
                     }
                     Text("Komponen save", style = MaterialTheme.typography.titleMedium)
+                }
+                item {
+                    val gameDbMember = parsed.manifest.members.firstOrNull { it.name == "game_db/.dat" }
+                    Button(
+                        onClick = {
+                            val active = container ?: return@Button
+                            val member = active.manifest.members.firstOrNull { it.name == "game_db/.dat" } ?: return@Button
+                            busy = true
+                            status = "Membangun person record mapping dari game_db..."
+                            scope.launch {
+                                val result = withContext(Dispatchers.IO) {
+                                    runCatching {
+                                        val file = File(context.cacheDir, "fm21_components/game_db_person_map.dat")
+                                        active.extractToFile(member, file)
+                                        PersonRecordMapper.map(file.readBytes())
+                                    }
+                                }
+                                result.onSuccess { index ->
+                                    personIndex = index
+                                    status = "Person mapping selesai: ${index.mappedEntries} record terhubung"
+                                }.onFailure {
+                                    status = "Person mapping gagal: ${it.message}"
+                                }
+                                busy = false
+                            }
+                        },
+                        enabled = !busy && gameDbMember != null,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(if (busy) "Memproses..." else if (personIndex == null) "Build Player / Person Record Mapping" else "Rebuild Person Record Mapping") }
+                    personIndex?.let { index ->
+                        val visiblePeople = index.entries.filter {
+                            personSearch.isBlank() || it.name.contains(personSearch.trim(), ignoreCase = true)
+                        }.take(100)
+                        Card(Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text("Person Record Mapping", style = MaterialTheme.typography.titleLarge)
+                                Text("Name index: ${index.scannedNameEntries} · Entity records linked: ${index.mappedEntries} · Unresolved: ${index.unresolvedEntries}")
+                                OutlinedTextField(
+                                    value = personSearch,
+                                    onValueChange = { personSearch = it },
+                                    label = { Text("Search person name") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Text("Showing ${visiblePeople.size.coerceAtMost(100)} of ${index.entries.count { personSearch.isBlank() || it.name.contains(personSearch.trim(), ignoreCase = true) }} matches", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        items(visiblePeople, key = { "person_${it.uniqueId}" }) { person ->
+                            Card(Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(12.dp)) {
+                                    Text(person.name, style = MaterialTheme.typography.titleSmall)
+                                    Text("Unique ID: ${person.uniqueId} · Name index ID: ${person.nameIndexId}", style = MaterialTheme.typography.bodySmall)
+                                    Text("Entity record ID: ${person.entityRecordId ?: "unresolved"}", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                        item {
+                            Text("Mapping ini menghubungkan nama dan UID ke person entity record. Belum semua record terbukti sebagai pemain; CA/PA dan atribut belum ditafsirkan.", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
                 }
                 item {
                     OutlinedButton(

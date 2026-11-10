@@ -17,10 +17,18 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 | League Reputation Editor | Not implemented | Verify league IDs and reputation scale |
 | FMU Rebuilder | Not implemented | Rebuild valid container, preserve unknown sections and pass round-trip and game-load tests |
 
+## Android UI/UX progress
+- Replaced the long single-page component dump with Overview, People, Compare and Files tabs.
+- Added a save summary dashboard, status/progress feedback, and dedicated tool cards.
+- Component browser now has search, horizontally scrollable category filters and incremental loading (40 at a time).
+- People and comparison workflows have separate screens; the app remains read-only.
+- Compact-screen layout uses scrollable filters and cards with clearer hierarchy.
+
 ## Player/person mapping findings
 - `game_db/.dat` name index yielded 17,486 entries in the supplied save.
 - 15,235 unique IDs resolved to a person entity row; 2,251 remain unresolved.
 - The Android mapper is read-only and leaves ambiguous/unresolved links blank.
+- Record tags and adjacent-ID length observations are exploratory metadata only; they are not player classification or proof of a writable record schema.
 - This is a person mapping, not yet a verified player-only index. CA/PA and attribute offsets are not mapped.
 - See `docs/PLAYER_RECORD_MAPPING.md` for observed record layouts and examples.
 
@@ -50,3 +58,6 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 4. A save with a known club-finance change.
 
 Keep private save files out of public commits. Record file hashes and in-game observations for each fixture.
+
+## Full completion gate
+The editor is not complete until every requested field has a verified record owner, value encoding, range, and stable join key; edited saves rebuild successfully; untouched data remains preserved; and each test save opens in FM21 Touch. The current project has no validated write/rebuild path, so the CA/PA, attributes, finance, prize money, league reputation and FMV Rebuilder stages remain blocked rather than guessed.

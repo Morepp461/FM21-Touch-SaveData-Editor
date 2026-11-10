@@ -60,7 +60,7 @@ python tools/analyze_person_records.py before.fmv after.fmv --json person-record
 cd tools && python -m unittest -v
 ```
 
-The tool validates and extracts `game_db/.dat`, repeats the name/UID/entity join, reports tag and adjacent-ID span distributions, and compares mapped records by stable UID/entity ID. It never writes to either input save. It requires Python 3.10+, the system Zstandard library (`libzstd`), and the sibling `fm21_touch_container.py` helper.
+The tool validates and extracts `game_db/.dat`, repeats the name/UID/entity join, reports tag and adjacent-ID span distributions, and compares mapped records by stable UID/entity ID. It never writes to either input save. It requires Python 3.10+, NumPy (install with `python -m pip install -r tools/requirements.txt`), the system Zstandard library (`libzstd`), and the sibling `fm21_touch_container.py` helper. The UID scan uses a vectorized byte-stride view so the 69 MB database payload does not require a Python-level loop over every byte.
 
 The diagnostic was reproduced against both supplied private fixtures: 17,486 matching name/UID entries, 15,235 resolved entity joins in each save, all 15,235 entity IDs stable across the pair, zero ambiguous UIDs, and two changed mapped rows. Three synthetic unit tests pass.
 

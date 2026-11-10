@@ -51,6 +51,8 @@ dependencies {
     implementation("com.qyntrax:unzstd:0.1.0")
     testImplementation("com.github.luben:zstd-jni:1.5.6-9")
     testImplementation("junit:junit:4.13.2")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.12.01"))
+    debugImplementation(platform("androidx.compose:compose-bom:2024.12.01"))
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.7.6")

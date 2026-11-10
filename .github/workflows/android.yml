@@ -24,6 +24,20 @@ jobs:
           gradle-version: '8.9'
       - name: Build debug and release APKs and run unit tests
         run: gradle :app:assembleDebug :app:assembleRelease :app:testDebugUnitTest --stacktrace
+      - name: Verify Android package compatibility and runtime libraries
+        shell: bash
+        run: |
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          test -n "$AAPT"
+          BADGING="$("$AAPT" dump badging "$APK")"
+          echo "$BADGING" | grep -q "sdkVersion:'26'"
+          echo "$BADGING" | grep -q "targetSdkVersion:'35'"
+          if unzip -l "$APK" | grep -q 'libzstd-jni'; then
+            echo "Unexpected Zstandard JNI library found in runtime APK"
+            exit 1
+          fi
+          echo "Minimum SDK 26, target SDK 35, no zstd-jni runtime library."
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:

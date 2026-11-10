@@ -45,6 +45,7 @@ class FmvContainer(private val bytes: ByteArray) {
     }
 
     val manifest: FmvManifest
+    val gameVersion: String?
 
     init {
         if (bytes.size <= HEADER_SIZE ||
@@ -54,6 +55,7 @@ class FmvContainer(private val bytes: ByteArray) {
         }
         manifest = readManifest()
         validateManifestBounds()
+        gameVersion = readGameVersion()
     }
 
     /** Convenience in-memory extraction. Prefer extractToFile for large members on Android. */
@@ -155,6 +157,12 @@ class FmvContainer(private val bytes: ByteArray) {
             throw FmvFormatException("Member length/boundary mismatch: ${member.name}")
         }
         return written to frameCount
+    }
+
+    private fun readGameVersion(): String? {
+        val member = manifest.members.firstOrNull { it.name == "game_info/.dat" } ?: return null
+        val header = extract(member).take(128).toByteArray().toString(Charsets.ISO_8859_1)
+        return Regex("\\\\b\\\\d{2}\\\\.\\\\d+\\\\.\\\\d+-\\\\d+\\\\b").find(header)?.value
     }
 
     fun extractByName(name: String): ByteArray {

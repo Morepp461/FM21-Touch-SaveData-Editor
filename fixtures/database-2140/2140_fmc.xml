@@ -1,0 +1,14 @@
+<!--
+	The name of this file must be the same name as the folder containing the database.
+	This may or may not be the same as the actual name of the database.
+-->
+
+<properties version="1.0">
+	<translation id="name" type="use" translation_id="435397" value="[%string#1 - version, eg. 7.0.1] Update[COMMENT: database name for (7.0.1) update]" />
+	<translation id="description" type="use" translation_id="435398" value="Official [%string#1 - version, eg. 7.0.1] Update Database[COMMENT: database description for (7.0.1) update]"/>
+	<string id="author" value="Sports Interactive" />
+	<boolean id="fmc" value="true"/>
+	<boolean id="fmm" value="false"/>
+	<string id="version" value="21.4.0" translate="false"/>
+	<string id="required_version" value="21.3.1" translate="false"/>
+</properties>

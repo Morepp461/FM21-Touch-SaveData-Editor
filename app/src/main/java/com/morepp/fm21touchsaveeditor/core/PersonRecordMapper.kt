@@ -49,6 +49,7 @@ object PersonRecordMapper {
         names.forEach { wantedUids.add(it.uniqueId) }
 
         val resolved = HashMap<Long, Pair<Long, Int>>(names.size)
+        val ambiguousUids = HashSet<Long>()
         var p = 4
         while (p <= gameDb.size - 13) {
             val uid = u32(gameDb, p)
@@ -58,16 +59,13 @@ object PersonRecordMapper {
                 val isNameIndexCopy = afterPair == NAME_ENTRY_KIND && afterMarker == 0
                 if (!isNameIndexCopy) {
                     val entityId = u32(gameDb, p - 4)
-                    if (entityId in 1..MAX_ENTITY_RECORD_ID) {
+                    if (entityId in 1..MAX_ENTITY_RECORD_ID && uid !in ambiguousUids) {
                         val candidate = entityId to (p - 4)
                         val previous = resolved[uid]
                         if (previous == null) {
                             resolved[uid] = candidate
-                        } else if (previous.first != entityId || previous.second != p - 4) {
+                        } else if (previous != candidate) {
                             // Multiple different entity rows for one UID are ambiguous.
-                            resolved.remove(uid)
-                        }
-                    }
                 }
             }
             p++

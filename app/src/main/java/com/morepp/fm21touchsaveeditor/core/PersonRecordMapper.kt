@@ -4,10 +4,8 @@ package com.morepp.fm21touchsaveeditor.core
  * Evidence-based mapping between the TAD name index and person entity rows
  * observed in FM21 Touch 21.4.0 game_db/.dat.
  *
- * The index does not infer CA/PA or attribute offsets. It only links a name
- * entry's unique ID to the entity-record ID when the duplicated UID is found
- * in the separate person table. Entries without a matching entity row remain
- * unresolved instead of being guessed.
+ * This only links a name entry's unique ID to an entity-record ID. It does
+ * not infer player classification, CA/PA, attribute offsets or writable fields.
  */
 data class PersonRecordMapping(
     val name: String,
@@ -33,10 +31,6 @@ object PersonRecordMapper {
     private const val NAME_ENTRY_KIND = 5L
     private const val MAX_ENTITY_RECORD_ID = 1_000_000L
 
-    /**
-     * Reads the observed name-index records and resolves their UID against
-     * the duplicated-UID person rows in the same game_db payload.
-     */
     fun map(gameDb: ByteArray): PersonRecordIndex {
         if (gameDb.size < 64) throw FmvFormatException("game_db payload is too small")
 
@@ -57,6 +51,7 @@ object PersonRecordMapper {
                 val afterPair = u32(gameDb, p + 8)
                 val afterMarker = gameDb[p + 12].toInt() and 0xff
                 val isNameIndexCopy = afterPair == NAME_ENTRY_KIND && afterMarker == 0
+
                 if (!isNameIndexCopy) {
                     val entityId = u32(gameDb, p - 4)
                     if (entityId in 1..MAX_ENTITY_RECORD_ID && uid !in ambiguousUids) {
@@ -66,13 +61,17 @@ object PersonRecordMapper {
                             resolved[uid] = candidate
                         } else if (previous != candidate) {
                             // Multiple different entity rows for one UID are ambiguous.
+                            resolved.remove(uid)
+                            ambiguousUids.add(uid)
+                        }
+                    }
                 }
             }
             p++
         }
 
         val entries = names.map { name ->
-            val entity = resolved[name.uniqueId]
+            val entity = if (name.uniqueId in ambiguousUids) null else resolved[name.uniqueId]
             PersonRecordMapping(
                 name = name.name,
                 nameIndexId = name.localId,

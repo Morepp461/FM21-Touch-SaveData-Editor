@@ -49,3 +49,19 @@ The meaning of byte 69 is unknown. It must not be labelled as CA, PA, morale, ma
 Use a separate save copy for each experiment and change exactly one known in-game value where the game exposes it. Record the player's name, the old/new value shown in-game, and the save pair. A separate known-value fixture is needed for CA/PA, an individual attribute, club balance, transfer budget, prize money and league reputation.
 
 Until these fixtures exist, the Android app remains read-only for these fields. This is deliberate: a false edit that corrupts a career is worse than a disabled control.
+
+
+## Reproducible diagnostic tool
+
+A read-only Python diagnostic is included under `tools/`:
+
+```bash
+python tools/analyze_person_records.py before.fmv after.fmv --json person-record-report.json
+cd tools && python -m unittest -v
+```
+
+The tool validates and extracts `game_db/.dat`, repeats the name/UID/entity join, reports tag and adjacent-ID span distributions, and compares mapped records by stable UID/entity ID. It never writes to either input save. It requires Python 3.10+, NumPy (install with `python -m pip install -r tools/requirements.txt`), the system Zstandard library (`libzstd`), and the sibling `fm21_touch_container.py` helper. The UID scan uses a vectorized byte-stride view so the 69 MB database payload does not require a Python-level loop over every byte.
+
+The diagnostic was reproduced against both supplied private fixtures: 17,486 matching name/UID entries, 15,235 resolved entity joins in each save, all 15,235 entity IDs stable across the pair, zero ambiguous UIDs, and two changed mapped rows. Three synthetic unit tests pass.
+
+This improves reproducibility, not semantic certainty: player/staff classification and all editable fields remain unproven.

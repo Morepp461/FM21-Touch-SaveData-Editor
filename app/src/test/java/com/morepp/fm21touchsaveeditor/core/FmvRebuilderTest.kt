@@ -41,6 +41,37 @@ class FmvRebuilderTest {
         assertArrayEquals(replacement, rebuilt.extractByName("sample_a/.dat"))
         assertArrayEquals(originalB, rebuilt.extractByName("archive/sample_b/.dat"))
         assertArrayEquals(originalC, rebuilt.extractByName("archive/sample_c/.dat"))
+
+        // Untouched compressed streams and per-component metadata must survive
+        // the rebuild byte-for-byte, not merely decompress to equivalent data.
+        val sourceB = source.manifest.members.single { it.name == "archive/sample_b/.dat" }
+        val rebuiltB = rebuilt.manifest.members.single { it.name == sourceB.name }
+        assertArrayEquals(source.compressedFrameStream(sourceB), rebuilt.compressedFrameStream(rebuiltB))
+        assertArrayEquals(sourceB.stamp1, rebuiltB.stamp1)
+        assertArrayEquals(sourceB.stamp2, rebuiltB.stamp2)
+        val sourceC = source.manifest.members.single { it.name == "archive/sample_c/.dat" }
+        val rebuiltC = rebuilt.manifest.members.single { it.name == sourceC.name }
+        assertArrayEquals(source.compressedFrameStream(sourceC), rebuilt.compressedFrameStream(rebuiltC))
+        assertArrayEquals(sourceC.stamp1, rebuiltC.stamp1)
+        assertArrayEquals(sourceC.stamp2, rebuiltC.stamp2)
+    }
+
+    @Test
+    fun validatedUnchangedCopyPreservesEveryOriginalByte() {
+        val fixture = fixture(
+            listOf(
+                FixtureMember("top/.dat", chunks = listOf("top-level".toByteArray())),
+                FixtureMember("archive/child/.dat", "archive", listOf("nested".toByteArray()))
+            )
+        )
+        val source = FmvContainer(fixture)
+
+        val copy = FmvRebuilder.validatedUnchangedCopy(source)
+
+        assertArrayEquals(fixture, copy)
+        val reopened = FmvContainer(copy)
+        assertArrayEquals("top-level".toByteArray(), reopened.extractByName("top/.dat"))
+        assertArrayEquals("nested".toByteArray(), reopened.extractByName("archive/child/.dat"))
     }
 
     @Test

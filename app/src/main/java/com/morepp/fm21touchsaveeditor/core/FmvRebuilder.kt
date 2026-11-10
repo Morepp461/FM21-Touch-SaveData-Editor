@@ -35,11 +35,30 @@ object FmvRebuilder {
         val plainLength: Long
     )
 
+    /**
+     * Validate every component of an untouched save and return an exact byte-for-byte
+     * copy. This is the safe first export path while no semantic database fields
+     * have been proven writable.
+     */
+    fun validatedUnchangedCopy(source: FmvContainer): ByteArray {
+        val discard = object : java.io.OutputStream() {
+            override fun write(value: Int) = Unit
+            override fun write(buffer: ByteArray, offset: Int, length: Int) = Unit
+        }
+        source.manifest.members.forEach { member ->
+            val (written, _) = source.extract(member, discard)
+            if (written != member.plainLength) {
+                throw FmvFormatException("Source component failed integrity validation: ${member.name}")
+            }
+        }
+        return source.originalBytes()
+    }
+
     fun rebuild(
         source: FmvContainer,
         editedComponents: Map<String, ByteArray>
     ): ByteArray {
-        if (editedComponents.isEmpty()) return source.originalBytes()
+        if (editedComponents.isEmpty()) return validatedUnchangedCopy(source)
 
         val allMembers = source.manifest.members
         val byName = allMembers.associateBy { it.name }
@@ -149,10 +168,28 @@ object FmvRebuilder {
             override fun write(value: Int) = Unit
             override fun write(buffer: ByteArray, offset: Int, length: Int) = Unit
         }
+        val rebuiltByName = verified.manifest.members.associateBy { it.name }
+        if (rebuiltByName.size != allMembers.size || rebuiltByName.keys != byName.keys) {
+            throw FmvFormatException("Rebuilt component list does not match the source save")
+        }
         verified.manifest.members.forEach { member ->
             val (written, _) = verified.extract(member, discard)
             if (written != member.plainLength) {
                 throw FmvFormatException("Rebuilt component length verification failed: ${member.name}")
+            }
+        }
+
+        // Re-encoding one edited component must never silently rewrite any
+        // untouched component stream or its opaque metadata stamps.
+        allMembers.filterNot { it.name in editedComponents }.forEach { original ->
+            val rebuiltMember = rebuiltByName.getValue(original.name)
+            if (original.archive != rebuiltMember.archive ||
+                !original.stamp1.contentEquals(rebuiltMember.stamp1) ||
+                !original.stamp2.contentEquals(rebuiltMember.stamp2) ||
+                !source.compressedFrameStream(original).contentEquals(
+                    verified.compressedFrameStream(rebuiltMember)
+                )) {
+                throw FmvFormatException("Untouched component changed during rebuild: ${original.name}")
             }
         }
         editedComponents.forEach { (name, expected) ->

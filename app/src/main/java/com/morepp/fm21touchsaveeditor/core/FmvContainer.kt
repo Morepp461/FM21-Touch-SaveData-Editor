@@ -42,6 +42,8 @@ class FmvContainer(private val bytes: ByteArray) {
         private const val HEADER_SIZE = 30
         private const val MAX_MANIFEST_BYTES = 16L * 1024 * 1024
         private const val MAX_MEMBER_BYTES = 512L * 1024 * 1024
+        private const val MAX_FRAME_BYTES = 16L * 1024 * 1024
+        private const val MAX_IN_MEMORY_EXTRACT_BYTES = 16L * 1024 * 1024
         private const val MAX_MEMBERS = 20_000
     }
 
@@ -61,7 +63,10 @@ class FmvContainer(private val bytes: ByteArray) {
 
     /** Convenience in-memory extraction. Prefer extractToFile for large members on Android. */
     fun extract(member: FmvMember): ByteArray {
-        val output = ByteArrayOutputStream(member.plainLength.coerceAtMost(Int.MAX_VALUE.toLong()).toInt())
+        if (member.plainLength > MAX_IN_MEMORY_EXTRACT_BYTES) {
+            throw FmvFormatException("Component is too large for in-memory extraction; use extractToFile instead: ${member.name}")
+        }
+        val output = ByteArrayOutputStream(member.plainLength.toInt())
         extract(member, output)
         return output.toByteArray()
     }
@@ -120,7 +125,7 @@ class FmvContainer(private val bytes: ByteArray) {
             val frameEnd = cursor + frameSize.toInt()
             val frame = bytes.copyOfRange(cursor, frameEnd)
             val expected = ZstdDecompressor.getDecompressedSize(frame, 0, frame.size)
-            if (expected <= 0 || expected > MAX_MEMBER_BYTES ||
+            if (expected <= 0 || expected > MAX_FRAME_BYTES ||
                 written + expected > canonical.plainLength) {
                 throw FmvFormatException("Invalid decompressed frame size in ${member.name}: $expected")
             }
@@ -190,7 +195,7 @@ class FmvContainer(private val bytes: ByteArray) {
             throw FmvFormatException("Footer manifest is not a Zstandard frame")
         }
         val size = ZstdDecompressor.getDecompressedSize(frame, 0, frame.size)
-        if (size <= 0 || size > MAX_MANIFEST_BYTES) {
+        if (size <= 0 || size > MAX_MANIFEST_BYTES || size > MAX_FRAME_BYTES) {
             throw FmvFormatException("Invalid manifest size: $size")
         }
         val plain = try {

@@ -45,9 +45,12 @@ This checklist is intentionally strict. A successful APK build is not equivalent
 
 ## Public release
 
-- [ ] Choose final app name, icon, screenshots and store description.
+- [x] Add initial adaptive launcher icon (final marketing screenshots/store art still pending).
+- [x] Draft offline-first privacy policy.
+- [ ] Choose final store screenshots and store description.
 - [ ] Add privacy policy and support contact.
 - [ ] Generate and securely back up a release signing key outside GitHub.
+- [ ] Add `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` as private GitHub Actions secrets.
 - [ ] Sign release APK/AAB using private CI secrets or a secure local signing process.
 - [ ] Verify APK signature, package metadata and release checksum.
 - [ ] Complete Play Console target API, data safety and content declarations.

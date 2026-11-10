@@ -4,7 +4,7 @@ Android save inspector and in-progress database editor for Football Manager Touc
 
 ## Current build
 
-- App version: **0.5.0**
+- App version: **0.6.0**
 - Minimum Android: **8.0 (API 26)**
 - Target SDK: **35**
 - Runtime: Kotlin + Jetpack Compose
@@ -20,7 +20,7 @@ Android save inspector and in-progress database editor for Football Manager Touc
 - Two-save component comparison with SHA-256 hashes, changed-byte counts and first-difference offsets.
 - Read-only person name-index to entity-record UID mapping.
 - Dark motorsport-inspired UI with Overview, People, Compare and Files tabs.
-- Android CI builds debug APK and runs unit tests.
+- Android CI builds debug and unsigned release APKs, runs unit tests, and launches an API 26 emulator smoke test.
 
 ## Not implemented yet
 

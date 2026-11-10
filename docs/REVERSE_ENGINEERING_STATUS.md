@@ -31,3 +31,14 @@ A before/after match pair is not sufficient to identify a specific editable fiel
 ## Writer status
 
 There is no verified FM21 Touch 21.4.0 save rebuilder yet. The current Android app is deliberately read-only. Writing guessed offsets, guessed field scales, or guessed checksums would risk corrupting the career save.
+
+
+## Cross-save person identity evidence (Bolton fixtures)
+
+The two supplied saves contain the same 17,486 accepted name-index entries. The 15,235 UIDs that currently resolve to entity rows resolve to the same entity IDs in both saves, although their byte offsets move. This supports using the UID/entity ID as a cross-save join key; it does not prove player-vs-staff classification.
+
+For entity IDs whose next ID is contiguous, the observed adjacent record spans are predominantly 86 bytes (13,427 observations) and 135 bytes (1,517 observations). These are diagnostic observations, not confirmed record types.
+
+Only two mapped person records changed byte-for-byte after the match: Bozhidar Iskrenov and Luke Duzel, each at relative byte offset 69 (hex FF to hex 64). That byte's meaning remains unknown. It is not labelled as CA, PA, or an attribute.
+
+A separate FM26 parser's person/ability layout was investigated as a hypothesis but was not accepted for FM21 Touch: the tested FM26 54-byte attribute-block signature did not produce candidates in the supplied FM21 game_db payload. FM21 field offsets must be established from FM21-specific evidence.

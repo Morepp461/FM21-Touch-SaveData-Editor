@@ -74,6 +74,31 @@ class PersonRecordMapperTest {
         out.write(byteArrayOf(0x0a, 0x80.toByte(), 0x00, 0xf4.toByte(), 0x01))
     }
 
+
+    @Test
+    fun rejectsAmbiguousUidWhenItAppearsInDifferentEntityRows() {
+        val data = ByteArrayOutputStream()
+        val uid = 2_000_102_078L
+
+        // Two different entity IDs claim the same duplicated UID.
+        data.write(le32(51_788L))
+        data.write(le32(uid))
+        data.write(le32(uid))
+        data.write(byteArrayOf(0x0a, 0x80.toByte(), 0x00, 0xf4.toByte(), 0x01))
+        data.write(le32(51_789L))
+        data.write(le32(uid))
+        data.write(le32(uid))
+        data.write(byteArrayOf(0x0a, 0x80.toByte(), 0x00, 0xf4.toByte(), 0x01))
+        writeNameEntry(data, "Ambiguous Player", 26_630L, uid)
+
+        val index = PersonRecordMapper.map(data.toByteArray())
+        val player = index.entries.single()
+        assertEquals(0, index.mappedEntries)
+        assertEquals(1, index.unresolvedEntries)
+        assertNull(player.entityRecordId)
+        assertNull(player.entityRecordOffset)
+    }
+
     private fun writeNameEntry(out: ByteArrayOutputStream, name: String, localId: Long, uid: Long) {
         val bytes = name.toByteArray(Charsets.UTF_8)
         out.write(le32(bytes.size.toLong()))

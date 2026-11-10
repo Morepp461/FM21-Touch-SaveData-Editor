@@ -54,7 +54,7 @@ python tools/analyze_person_records.py before.fmv after.fmv --json person-record
 cd tools && python -m unittest -v
 ```
 
-These tools confirm stable person UID/entity joins and byte-level differences only. They do not classify players or identify editable fields.
+Install the Python dependency with `python -m pip install -r tools/requirements.txt` first. These tools confirm stable person UID/entity joins and byte-level differences only. They do not classify players or identify editable fields.
 
 ## Build locally
 

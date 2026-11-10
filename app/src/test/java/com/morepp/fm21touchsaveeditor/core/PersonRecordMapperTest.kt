@@ -64,7 +64,7 @@ class PersonRecordMapperTest {
         val error = org.junit.Assert.assertThrows(FmvFormatException::class.java) {
             PersonRecordMapper.map(ByteArray(128))
         }
-        assertTrue(error.message!!.contains("name-index"))
+        assertTrue(error.message!!.contains("name index"))
     }
 
     private fun writeEntityRow(out: ByteArrayOutputStream, entityId: Long, uid: Long) {

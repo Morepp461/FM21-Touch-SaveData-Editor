@@ -77,9 +77,26 @@ private fun EditorHome() {
         val payload = pendingExport
         if (uri != null && payload != null) {
             runCatching {
-                val output = context.contentResolver.openOutputStream(uri) ?: error("Tidak bisa menulis file")
+                val output = context.contentResolver.openOutputStream(uri)
+                    ?: error("Tidak bisa menulis file")
                 output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
-            }.onSuccess { status = "Komponen berhasil diekspor (${payload.length()} byte)" }
+
+                if (payload.extension.equals("fmv", ignoreCase = true)) {
+                    val savedBytes = context.contentResolver.openInputStream(uri)?.use { readSaveBytes(it) }
+                        ?: error("File hasil ekspor tidak bisa dibaca ulang")
+                    val reopened = FmvContainer(savedBytes)
+                    val expectedHash = java.security.MessageDigest.getInstance("SHA-256")
+                        .digest(payload.readBytes())
+                    val actualHash = java.security.MessageDigest.getInstance("SHA-256")
+                        .digest(savedBytes)
+                    if (!expectedHash.contentEquals(actualHash)) {
+                        error("Pemeriksaan SHA-256 gagal. File hasil ekspor tidak identik.")
+                    }
+                    "Salinan save berhasil disimpan dan diverifikasi: ${reopened.manifest.saveName}"
+                } else {
+                    "Komponen berhasil diekspor (${payload.length()} byte)"
+                }
+            }.onSuccess { status = it }
                 .onFailure { status = "Ekspor gagal: ${it.message}" }
         }
         pendingExport = null

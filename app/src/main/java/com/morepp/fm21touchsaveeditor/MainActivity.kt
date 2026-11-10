@@ -1,6 +1,7 @@
 package com.morepp.fm21touchsaveeditor
 
 import android.os.Bundle
+import java.io.File
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -32,13 +33,16 @@ private fun EditorHome() {
     var container by remember { mutableStateOf<FmvContainer?>(null) }
     var status by remember { mutableStateOf("Belum ada save yang dibuka") }
     var busy by remember { mutableStateOf(false) }
-    var pendingExport by remember { mutableStateOf<ByteArray?>(null) }
+    var pendingExport by remember { mutableStateOf<File?>(null) }
 
     val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
         val payload = pendingExport
         if (uri != null && payload != null) {
-            runCatching { context.contentResolver.openOutputStream(uri)?.use { it.write(payload) } ?: error("Tidak bisa menulis file") }
-                .onSuccess { status = "Komponen berhasil diekspor (${payload.size} bytes)" }
+            runCatching {
+                val output = context.contentResolver.openOutputStream(uri) ?: error("Tidak bisa menulis file")
+                output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
+            }
+                .onSuccess { status = "Komponen berhasil diekspor (${payload.length()} bytes)" }
                 .onFailure { status = "Ekspor gagal: ${it.message}" }
         }
         pendingExport = null
@@ -106,10 +110,17 @@ private fun EditorHome() {
                                 val active = container ?: return@OutlinedButton
                                 busy = true
                                 scope.launch {
-                                    val extracted = withContext(Dispatchers.IO) { runCatching { active.extract(member) } }
-                                    extracted.onSuccess { data ->
-                                        pendingExport = data
-                                        exportPicker.launch(member.name.replace("/", "_"))
+                                    val extracted = withContext(Dispatchers.IO) {
+                                        runCatching {
+                                            val safeName = member.name.replace("/", "_").replace("\\\\", "_")
+                                            val output = File(context.cacheDir, "fm21_components/$safeName")
+                                            active.extractToFile(member, output)
+                                            output
+                                        }
+                                    }
+                                    extracted.onSuccess { file ->
+                                        pendingExport = file
+                                        exportPicker.launch(file.name)
                                     }.onFailure { status = "Ekstraksi gagal: ${it.message}" }
                                     busy = false
                                 }

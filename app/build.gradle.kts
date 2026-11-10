@@ -7,13 +7,13 @@ val releaseKeystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
 
 android {
     namespace = "com.morepp.fm21touchsaveeditor"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.morepp.fm21touchsaveeditor"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 6
-        versionName = "0.6.0"
+        targetSdk = 36
+        versionCode = 7
+        versionName = "0.7.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {

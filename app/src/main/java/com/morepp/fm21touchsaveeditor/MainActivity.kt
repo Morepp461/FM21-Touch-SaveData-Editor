@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.morepp.fm21touchsaveeditor.core.FmvContainer
+import com.morepp.fm21touchsaveeditor.core.FmvRebuilder
 import com.morepp.fm21touchsaveeditor.core.FmvSaveComparator
 import com.morepp.fm21touchsaveeditor.core.PersonRecordIndex
 import com.morepp.fm21touchsaveeditor.core.PersonRecordMapper
@@ -293,6 +294,37 @@ private fun EditorHome() {
                                 action = "Jelajahi berkas",
                                 enabled = true,
                                 onClick = { selectedTab = EditorTab.COMPONENTS }
+                            )
+                            ToolCard(
+                                title = "Salinan save tervalidasi",
+                                description = "Periksa seluruh komponen, lalu ekspor salinan FMV identik tanpa mengubah file asli.",
+                                action = "Validasi & ekspor salinan",
+                                enabled = !busy,
+                                onClick = {
+                                    busy = true
+                                    status = "Memvalidasi seluruh komponen save..."
+                                    scope.launch {
+                                        val result = withContext(Dispatchers.IO) {
+                                            runCatching {
+                                                val bytes = FmvRebuilder.validatedUnchangedCopy(parsed)
+                                                val safeName = parsed.manifest.saveName
+                                                    .replace(Regex("[^A-Za-z0-9._-]+"), "_")
+                                                    .take(48)
+                                                    .ifBlank { "FM21_Save" }
+                                                File(context.cacheDir, "salinan_${safeName}.fmv").apply {
+                                                    parentFile?.mkdirs()
+                                                    writeBytes(bytes)
+                                                }
+                                            }
+                                        }
+                                        result.onSuccess { file ->
+                                            pendingExport = file
+                                            exportPicker.launch(file.name)
+                                            status = "Validasi berhasil. Pilih lokasi untuk menyimpan salinan FMV."
+                                        }.onFailure { status = "Validasi save gagal: ${it.message}" }
+                                        busy = false
+                                    }
+                                }
                             )
                         }
                         item {

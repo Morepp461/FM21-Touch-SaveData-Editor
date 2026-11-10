@@ -399,16 +399,16 @@ private fun EditorHome() {
                                         Text(person.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                                         Text("UID ${person.uniqueId} · ID nama ${person.nameIndexId}",
                                             style = MaterialTheme.typography.bodySmall)
-                                        Text("Entity record: ${person.entityRecordId ?: "Belum terpetakan"}",
+                                        Text("ID data internal: ${person.entityRecordId ?: "Belum terpetakan"}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         if (person.entityRecordTypeTag != null) {
-                                            Text("Kode data: ${person.entityRecordTypeTag}",
+                                            Text("Jenis data: ${person.entityRecordTypeTag}",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                         if (person.entityRecordLength != null) {
-                                            Text("Jarak data bersebelahan yang teramati: ${person.entityRecordLength} byte",
+                                            Text("Panjang data yang teramati: ${person.entityRecordLength} byte",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }

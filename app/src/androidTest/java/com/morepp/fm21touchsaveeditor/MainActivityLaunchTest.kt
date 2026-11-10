@@ -1,6 +1,6 @@
 package com.morepp.fm21touchsaveeditor
 
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -24,7 +24,7 @@ class MainActivityLaunchTest {
 
     @Test
     fun launchesAndShowsSaveEditorHomeOnApi26Plus() {
-        composeRule.onNodeWithText("FM21 Touch Save Editor").assertExists()
+        composeRule.onNodeWithText("FM21 Touch Save Editor").assertIsDisplayed()
         composeRule.onNodeWithText("Buka save FMV").assertExists()
         composeRule.onNodeWithText("FULL DATABASE EDITOR").assertExists()
     }

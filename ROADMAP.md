@@ -18,9 +18,9 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 | FMU Rebuilder | Not implemented | Rebuild valid container, preserve unknown sections and pass round-trip and game-load tests |
 
 ## Android release engineering progress
-- App version code/name advanced to 6 / 0.6.0.
-- CI builds debug and unsigned release APK variants separately.
-- Added an Android 8.0 / API 26 emulator launch smoke test using an instrumentation test.
+- App version code/name advanced to 7 / 0.7.0.
+- CI builds debug and release APK/AAB variants; release signing is enabled only when private keystore secrets are configured.
+- Added an Android 8.0 / API 26 emulator launch smoke test using an instrumentation test. Latest result is pending CI verification.
 - The release APK is unsigned; publication signing must use a private keystore outside the repository.
 - These checks improve Android compatibility confidence but do not replace real-device testing on Android 8 and newer versions.
 
@@ -32,7 +32,7 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 - Compact-screen layout uses scrollable filters and cards with clearer hierarchy.
 
 ## App and UI status
-- App version 0.6.0, minimum Android API 26, target SDK 35.
+- App version 0.7.0, minimum Android API 26, target SDK 36 (Android 16).
 - Overview, People, Compare and Files navigation tabs are implemented.
 - Component browser includes category filters, search and incremental loading.
 - Dark motorsport-inspired Material 3 theme is implemented.

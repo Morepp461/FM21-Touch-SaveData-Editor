@@ -22,8 +22,22 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Build debug and release APKs and run unit tests
-        run: gradle :app:assembleDebug :app:assembleRelease :app:testDebugUnitTest --stacktrace
+      - name: Prepare private release keystore
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        shell: bash
+        run: |
+          KEYSTORE_PATH="$RUNNER_TEMP/fm21-release.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          chmod 600 "$KEYSTORE_PATH"
+          echo "ANDROID_KEYSTORE_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+      - name: Build debug and release APK/AAB and run unit tests
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: gradle :app:assembleDebug :app:assembleRelease :app:bundleRelease :app:testDebugUnitTest --stacktrace
       - name: Verify Android package compatibility and runtime libraries
         shell: bash
         run: |
@@ -44,11 +58,29 @@ jobs:
           name: fm21-touch-save-editor-0.6.0-debug
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-      - name: Upload unsigned release APK
+      - name: Upload unsigned release APK and AAB
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 == '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: fm21-touch-save-editor-0.6.0-release-unsigned
-          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          name: fm21-touch-save-editor-0.6.0-unsigned
+          path: |
+            app/build/outputs/apk/release/app-release-unsigned.apk
+            app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+      - name: Verify signed release APK
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        shell: bash
+        run: |
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          "$APKSIGNER" verify --verbose app/build/outputs/apk/release/app-release.apk
+      - name: Upload signed release APK and AAB
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: fm21-touch-save-editor-0.6.0-signed
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
   android-api26-smoke:

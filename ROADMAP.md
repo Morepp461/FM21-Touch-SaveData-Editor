@@ -94,3 +94,12 @@ Aplikasi belum siap dipublikasikan sebagai editor save penuh. Daftar penghalang 
 7. Penandatanganan rilis dengan kunci privat milik pemilik aplikasi, kebijakan privasi, halaman dukungan, ikon, tangkapan layar, dan deskripsi toko aplikasi.
 
 Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh gerbang tersebut terpenuhi. Versi uji terbatas boleh dibagikan dengan label yang jelas bahwa fiturnya masih hanya-baca.
+
+
+## Kemajuan terbaru: jalur salinan save aman
+- Menambahkan pemeriksaan dekompresi penuh seluruh komponen sebelum mengekspor salinan save yang tidak diubah.
+- Menambahkan ekspor salinan FMV melalui Android Storage Access Framework; file sumber tidak ditimpa.
+- Setelah ekspor, aplikasi membuka ulang file tujuan, memvalidasi manifest dan komponen, lalu membandingkan SHA-256 dengan salinan sementara.
+- Menambahkan tes bahwa salinan tanpa perubahan identik byte per byte dengan file sumber.
+- Ini bukan editor field database dan tidak boleh dipasarkan sebagai fitur edit pemain/klub. Pemetaan field semantik dan validasi save hasil edit di game tetap menjadi gerbang terpisah.
+- Workflow CI diubah agar setiap commit memiliki grup concurrency sendiri sehingga pengujian tidak saling membatalkan ketika beberapa commit dikirim berurutan.

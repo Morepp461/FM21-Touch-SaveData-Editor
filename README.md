@@ -1,81 +1,127 @@
 # FM21 Touch SaveData Editor
 
-Android save inspector and in-progress database editor for Football Manager Touch 2021 saves (`*.fmv`).
+Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file save Football Manager Touch 2021 (`*.fmv`).
 
-## Current build
+> **Status saat ini: masih hanya-baca (read-only).** Aplikasi belum mengizinkan pengubahan data save. Fitur edit baru akan diaktifkan setelah struktur data, aturan validasi, proses penyimpanan ulang, dan hasil pemuatan di dalam game terbukti aman.
 
-- App version: **0.7.0**
-- Minimum Android: **8.0 (API 26)**
+## Versi dan dukungan Android
+
+- Versi aplikasi: **0.7.0**
+- Android minimum: **Android 8.0 (API 26)**
 - Target SDK: **36**
-- Runtime: Kotlin + Jetpack Compose
-- Zstandard: pure-Java decoder plus Android zstd-jni compression runtime
+- Teknologi: Kotlin + Jetpack Compose
+- Kompresi Zstandard: decoder Java murni dan runtime kompresi Android zstd-jni
 
-## Implemented
+## Fitur yang sudah tersedia
 
-- Android Storage Access Framework file selection and component export.
-- FMF/FMV header and footer-manifest validation for the observed FM21 Touch 21.4.0-0 save format.
-- Manifest listing of top-level and nested components.
-- Multi-frame Zstandard component extraction with length and boundary checks.
-- Searchable component browser with category filters and incremental loading.
-- Two-save component comparison with SHA-256 hashes, changed-byte counts and first-difference offsets.
-- Read-only person name-index to entity-record UID mapping.
-- Dark motorsport-inspired UI with Overview, People, Compare and Files tabs.
-- Branded adaptive launcher icon and offline-first privacy policy.
-- Android CI builds debug/release APK and AAB variants, runs unit tests, checks package SDK metadata, and launches an API 26 emulator smoke test.
-- Optional release signing through private GitHub Actions secrets; without a private keystore, CI artifacts remain unsigned.
+- Memilih file save melalui Android Storage Access Framework dan mengekspor komponen.
+- Memeriksa validitas header dan footer-manifest FMF/FMV pada format save FM21 Touch 21.4.0-0 yang sudah diamati.
+- Menampilkan daftar komponen utama dan komponen di dalam arsip.
+- Mengekstrak komponen Zstandard multi-frame dengan pemeriksaan panjang dan batas data.
+- Menjelajahi komponen dengan pencarian, filter kategori, dan pemuatan bertahap.
+- Membandingkan dua save melalui hash SHA-256, jumlah byte yang berubah, dan posisi perbedaan pertama.
+- Memetakan UID pada indeks nama ke entity record person secara hanya-baca.
+- Antarmuka gelap bertema motorsport dengan tab Ringkasan, Orang, Perbandingan, dan Berkas.
+- Ikon aplikasi adaptif dan kebijakan privasi yang mengutamakan penggunaan offline.
+- CI Android membangun APK debug/release dan AAB, menjalankan unit test, memeriksa metadata kompatibilitas paket, serta menyediakan uji emulator Android API 26.
+- Penandatanganan release opsional melalui GitHub Actions secrets pribadi. Tanpa keystore pribadi, hasil CI tetap berupa file unsigned (belum ditandatangani).
 
-## Not implemented yet
+## Fitur yang belum tersedia
 
-The app is still **read-only**. The following are not ready for editing:
+Aplikasi masih **read-only**. Hal-hal berikut belum siap diedit:
 
-- Player-only classification and verified player profile mapping.
-- Current Ability (CA) and Potential Ability (PA).
-- Visible and hidden player attributes.
-- Club balance and transfer budget.
-- Competition prize money.
-- League reputation.
-- FMV container rebuild and save-writing pipeline.
+- Klasifikasi person sebagai pemain, staf, pemain bebas, atau tipe lainnya.
+- Current Ability (CA) dan Potential Ability (PA).
+- Atribut pemain yang terlihat maupun tersembunyi.
+- Tanggal lahir, kewarganegaraan, tempat lahir, dan identitas personal lainnya.
+- Atribut dan kualifikasi staf.
+- Data semua klub, bukan hanya klub yang sedang dimainkan.
+- Keuangan klub, saldo, utang, anggaran, dan transfer budget.
+- Hadiah uang kompetisi (prize money).
+- Reputasi liga, klub, negara, dan kompetisi.
+- Pembangunan ulang container FMV dan proses penyimpanan save yang tervalidasi.
 
-The person index is not the same as a player list. It can include staff and other person records. Entity IDs, raw record tags and candidate record spans are diagnostic observations only; they are not permission to edit bytes.
+**Target produk adalah seluruh database di dalam save.** Pemain dan staf dari klub mana pun, termasuk klub yang tidak sedang dimainkan, harus bisa dicari dan dikelola setelah struktur datanya berhasil dipetakan. Konteks klub hanya boleh menjadi filter pencarian, bukan pembatas akses.
 
-## UI navigation
+Indeks person tidak sama dengan daftar pemain. Indeks tersebut dapat memuat staf dan jenis person lainnya. Entity ID, tag record mentah, serta perkiraan panjang record saat ini hanya digunakan untuk diagnostik, bukan sebagai dasar untuk mengubah byte.
 
-- **Overview**: save identity, database version, component counts and available tools.
-- **People**: build and search the person index. Results remain explicitly unclassified until player-vs-staff semantics are proven.
-- **Compare**: compare a second save, preferably from the same career.
-- **Files**: filter components by category, search archive paths and export individual components.
+## Navigasi aplikasi
 
-## Read-only research tools
+- **Ringkasan**: identitas save, versi database, jumlah komponen, dan alat yang tersedia.
+- **Orang**: membangun dan mencari indeks person. Hasil tetap ditandai belum terklasifikasi sampai struktur pemain dan staf terbukti.
+- **Perbandingan**: membandingkan save kedua, idealnya dari karier yang sama.
+- **Berkas**: memfilter komponen berdasarkan kategori, mencari jalur arsip, dan mengekspor komponen satu per satu.
 
-The `tools/` directory includes an FMV inspector and a cross-save person-record diagnostic. Keep private `.fmv` fixtures outside the repository, then run:
+## Alat riset read-only
+
+Direktori `tools/` berisi pemeriksa file FMV dan alat diagnostik untuk membandingkan record person antar-save.
+
+Simpan file fixture `.fmv` pribadi di luar repository, lalu jalankan:
 
 ```bash
-python tools/analyze_person_records.py before.fmv after.fmv --json person-record-report.json
+python tools/analyze_person_records.py sebelum.fmv sesudah.fmv --json laporan-person.json
 cd tools && python -m unittest -v
 ```
 
-Install the Python dependency with `python -m pip install -r tools/requirements.txt` first. These tools confirm stable person UID/entity joins and byte-level differences only. They do not classify players or identify editable fields.
+Pasang dependensi Python terlebih dahulu:
 
-## Build locally
+```bash
+python -m pip install -r tools/requirements.txt
+```
 
-Requirements: JDK 17, Android SDK 36, Android Gradle Plugin 8.9.1 and Gradle 8.11.1.
+Alat ini membantu memeriksa hubungan UID person dengan entity ID yang stabil serta perbedaan byte antar-save. Alat ini **belum** dapat memastikan apakah sebuah record adalah pemain atau staf, dan belum mengidentifikasi field yang aman untuk diedit.
+
+Kebutuhan alat:
+- Python 3.10 atau lebih baru.
+- NumPy sesuai versi pada `tools/requirements.txt`.
+- Library Zstandard sistem (`libzstd`).
+- File helper `tools/fm21_touch_container.py`.
+
+## Build aplikasi secara lokal
+
+Kebutuhan:
+- JDK 17.
+- Android SDK 36.
+- Android Gradle Plugin 8.9.1.
+- Gradle 8.11.1.
+
+Jalankan:
 
 ```bash
 gradle :app:assembleDebug :app:testDebugUnitTest
 ```
 
-APK output: `app/build/outputs/apk/debug/app-debug.apk`.
+Hasil APK debug berada di:
 
-For Play publication, configure the repository Actions secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` with a privately generated upload/release key. Never commit the keystore or its passwords. Without these secrets, CI intentionally publishes unsigned artifacts only.
+`app/build/outputs/apk/debug/app-debug.apk`
 
-## Safety and validation
+### Penandatanganan release
 
-- The original save is never overwritten.
-- No editor writes guessed offsets or unverified values.
-- The write gate rejects containers that have not passed write-validation.
-- Keep private save fixtures out of public commits.
-- A stage is complete only after synthetic tests, real-save validation, unchanged round-trip, controlled edit round-trip and an in-game load test pass.
+Untuk publikasi melalui Play Store, atur GitHub Actions secrets repository berikut menggunakan upload/release key yang dibuat dan disimpan secara pribadi:
 
-See `ROADMAP.md`, `docs/PLAYER_RECORD_MAPPING.md`, `docs/VALIDATION.md` and `docs/REVERSE_ENGINEERING_STATUS.md`.
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
 
-This is an independent community project and is not affiliated with Sports Interactive or SEGA.
+Jangan pernah memasukkan keystore atau password ke repository. Tanpa secrets tersebut, CI hanya menghasilkan file unsigned.
+
+## Keamanan dan validasi
+
+- File save asli tidak pernah ditimpa.
+- Aplikasi tidak boleh menulis menggunakan offset atau nilai yang masih berupa dugaan.
+- Gerbang penulisan harus menolak container yang belum lolos validasi penulisan.
+- Simpan fixture save pribadi di luar commit publik.
+- File hasil ekspor harus dibuka dan diperiksa ulang sebelum dinyatakan berhasil.
+- Suatu tahap baru boleh dinyatakan selesai setelah tes sintetis, validasi save asli, round-trip tanpa perubahan, round-trip dengan perubahan terkontrol, dan uji pemuatan di dalam game berhasil.
+
+## Dokumen proyek
+
+- `ROADMAP.md`: tahapan pengembangan dan status pekerjaan.
+- `docs/GLOBAL_EDITOR_SCOPE.md`: cakupan editor untuk seluruh database dalam save.
+- `docs/CROSS_SAVE_PERSON_RECORD_ANALYSIS.md`: hasil analisis person antar-save.
+- `docs/PLAYER_RECORD_MAPPING.md`: riset pemetaan record pemain/person.
+- `docs/VALIDATION.md`: aturan validasi.
+- `docs/REVERSE_ENGINEERING_STATUS.md`: status riset format save.
+
+Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sports Interactive maupun SEGA.

@@ -73,9 +73,8 @@ class FmvContainer(private val bytes: ByteArray) {
             if (expected < 0 || expected > MAX_MEMBER_BYTES) {
                 throw FmvFormatException("Unknown or excessive Zstandard frame size in ${member.name}")
             }
-            val decoded = Zstd.decompress(frame, expected.toInt())
-            if (Zstd.isError(decoded.size.toLong())) {
-                throw FmvFormatException("Zstandard decompression failed for ${member.name}")
+            val decoded = try { Zstd.decompress(frame, expected.toInt()) } catch (e: Exception) {
+                throw FmvFormatException("Zstandard decompression failed for ${member.name}: ${e.message}")
             }
             out.write(decoded)
             cursor += frameSize.toInt()

@@ -171,22 +171,28 @@ private fun EditorHome() {
                         enabled = !busy && gameDbMember != null,
                         modifier = Modifier.fillMaxWidth()
                     ) { Text(if (busy) "Memproses..." else if (personIndex == null) "Build Player / Person Record Mapping" else "Rebuild Person Record Mapping") }
-                    personIndex?.let { index ->
+                    if (personIndex != null) {
+                        val index = personIndex!!
+                        val matchingCount = index.entries.count {
+                            personSearch.isBlank() || it.name.contains(personSearch.trim(), ignoreCase = true)
+                        }
                         val visiblePeople = index.entries.filter {
                             personSearch.isBlank() || it.name.contains(personSearch.trim(), ignoreCase = true)
                         }.take(100)
-                        Card(Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text("Person Record Mapping", style = MaterialTheme.typography.titleLarge)
-                                Text("Name index: ${index.scannedNameEntries} · Entity records linked: ${index.mappedEntries} · Unresolved: ${index.unresolvedEntries}")
-                                OutlinedTextField(
-                                    value = personSearch,
-                                    onValueChange = { personSearch = it },
-                                    label = { Text("Search person name") },
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Text("Showing ${visiblePeople.size.coerceAtMost(100)} of ${index.entries.count { personSearch.isBlank() || it.name.contains(personSearch.trim(), ignoreCase = true) }} matches", style = MaterialTheme.typography.bodySmall)
+                        item {
+                            Card(Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text("Person Record Mapping", style = MaterialTheme.typography.titleLarge)
+                                    Text("Name index: ${index.scannedNameEntries} · Entity records linked: ${index.mappedEntries} · Unresolved: ${index.unresolvedEntries}")
+                                    OutlinedTextField(
+                                        value = personSearch,
+                                        onValueChange = { personSearch = it },
+                                        label = { Text("Search person name") },
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Text("Showing ${visiblePeople.size} of $matchingCount matches (max 100)", style = MaterialTheme.typography.bodySmall)
+                                }
                             }
                         }
                         items(visiblePeople, key = { "person_${it.uniqueId}" }) { person ->

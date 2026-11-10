@@ -18,7 +18,7 @@ Tahap hanya boleh dinyatakan selesai setelah diuji pada file save FM21 Touch asl
 | FMV Rebuilder | Initial experimental implementation; synthetic tests added; real-game validation pending | Rebuild valid container, preserve unknown sections and pass round-trip and game-load tests |
 
 ## Kemajuan persiapan rilis Android
-- App version code/name advanced to 7 / 0.7.0.
+- App version code/name advanced to 8 / 0.8.0-alpha.
 - CI builds debug and release APK/AAB variants; release signing is enabled only when private keystore secrets are configured.
 - Added an Android 8.0 / API 26 emulator launch smoke test using an instrumentation test. Latest verified API 26 emulator smoke test passed on commit `b27ff756` (workflow run `42806431538`).
 - The current CI release APK/AAB are unsigned because no private release keystore is configured; publication signing must use a private keystore outside the repository.
@@ -32,7 +32,7 @@ Tahap hanya boleh dinyatakan selesai setelah diuji pada file save FM21 Touch asl
 - Compact-screen layout uses scrollable filters and cards with clearer hierarchy.
 
 ## Status aplikasi dan antarmuka
-- App version 0.7.0, minimum Android API 26, target SDK 36 (Android 16).
+- App version 0.8.0-alpha, minimum Android API 26, target SDK 36 (Android 16).
 - Overview, People, Compare and Files navigation tabs are implemented.
 - Component browser includes category filters, search and incremental loading.
 - Dark motorsport-inspired Material 3 theme is implemented.

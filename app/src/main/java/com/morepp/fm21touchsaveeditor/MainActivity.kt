@@ -33,17 +33,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val colors = darkColorScheme(
-                primary = Color(0xFFE0443E),
-                secondary = Color(0xFFD7B56D),
-                background = Color(0xFF101114),
-                onBackground = Color(0xFFF3F1EC),
-                surface = Color(0xFF1B1D22),
-                onSurface = Color(0xFFF3F1EC),
-                surfaceVariant = Color(0xFF24262C),
-                onSurfaceVariant = Color(0xFF9A9DA6)
+                primary = Color(0xFF70C47A),
+                secondary = Color(0xFF9BCB9F),
+                background = Color(0xFF101713),
+                onBackground = Color(0xFFF1F5F1),
+                surface = Color(0xFF1B241E),
+                onSurface = Color(0xFFF1F5F1),
+                surfaceVariant = Color(0xFF26332A),
+                onSurfaceVariant = Color(0xFFA0ADA2)
             )
-            window.statusBarColor = android.graphics.Color.rgb(16, 17, 20)
-            window.navigationBarColor = android.graphics.Color.rgb(16, 17, 20)
+            window.statusBarColor = android.graphics.Color.rgb(16, 23, 19)
+            window.navigationBarColor = android.graphics.Color.rgb(16, 23, 19)
             MaterialTheme(colorScheme = colors) {
                 Surface(Modifier.fillMaxSize(), color = colors.background) { EditorHome() }
             }

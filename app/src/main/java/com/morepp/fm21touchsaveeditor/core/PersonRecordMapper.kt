@@ -13,7 +13,9 @@ data class PersonRecordMapping(
     val uniqueId: Long,
     val nameFlags: Long,
     val entityRecordId: Long?,
-    val entityRecordOffset: Int?
+    val entityRecordOffset: Int?,
+    val entityRecordTypeTag: String?,
+    val entityRecordLength: Int?
 ) {
     val isMapped: Boolean get() = entityRecordId != null && entityRecordOffset != null
 }
@@ -70,15 +72,28 @@ object PersonRecordMapper {
             p++
         }
 
+        val resolvedByEntityId = resolved.values.associateBy { it.first }
         val entries = names.map { name ->
             val entity = if (name.uniqueId in ambiguousUids) null else resolved[name.uniqueId]
+            val nextEntity = entity?.let { resolvedByEntityId[it.first + 1] }
+            val inferredLength = if (entity != null && nextEntity != null && nextEntity.second > entity.second) {
+                (nextEntity.second - entity.second).takeIf { it in 16..4096 }
+            } else null
+            val typeTag = entity?.let { record ->
+                if (record.second + 16 <= gameDb.size) {
+                    gameDb.copyOfRange(record.second + 12, record.second + 16)
+                        .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                } else null
+            }
             PersonRecordMapping(
                 name = name.name,
                 nameIndexId = name.localId,
                 uniqueId = name.uniqueId,
                 nameFlags = name.flags,
                 entityRecordId = entity?.first,
-                entityRecordOffset = entity?.second
+                entityRecordOffset = entity?.second,
+                entityRecordTypeTag = typeTag,
+                entityRecordLength = inferredLength
             )
         }
 

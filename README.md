@@ -1,21 +1,40 @@
 # FM21 Touch SaveData Editor
 
-Android project for inspecting Football Manager Touch 2021 save files (.fmv).
+Android application for inspecting Football Manager Touch 2021 save files (.fmv).
 
-## Current build state
-Alpha 0.3 development scaffold. The app includes:
+## Current version
+
+- App version: **0.5.0**
+- Minimum Android: **8.0 (API 26)**
+- Compile SDK: 35
+- Runtime: Android-compatible pure-Java Zstandard decoder
+- Current mode: **read-only**
+
+## Current app features
+
 - Android Storage Access Framework file picker.
 - FMF/FMV outer-header and footer-manifest validation.
-- Zstandard footer decoding and manifest parsing.
-- Listing of top-level and nested save components.
-- Component extraction core with length and boundary checks.
-- Typed domain models for the requested editor areas.
+- Zstandard footer and member decompression with length/boundary checks.
+- Overview dashboard with save name, database version and component counts.
+- Dedicated **Overview**, **People**, **Compare** and **Files** workspaces.
+- Person name-index to entity-record mapping research view.
+- Two-save component comparison.
+- Component search, category filters and incremental loading.
+- Export individual decompressed components without modifying the source save.
 
-## Important limitation
-The current app is read-only. Player record layouts, CA/PA and attribute offsets, club finance fields, prize-money records, league reputation fields, and a verified FMV rebuild procedure are not yet implemented. Do not edit or overwrite original save files. The app must not claim a save is editable until a rebuilt test save has been opened successfully in FM21 Touch 2021.
+## Reverse-engineering status
+
+The person-name index and candidate entity links are exploratory. Player-versus-staff classification, CA/PA, player attributes, club finances, prize money and league reputation are not yet proven. No save writer or validated FMV rebuilder is available.
+
+The app must not claim that a field is editable until its record owner, join key, byte encoding, scale and valid range are independently verified. A rebuilt test save must also reopen successfully in FM21 Touch 2021 before a write feature is marked complete.
 
 ## Build
+
 Open this repository in Android Studio with JDK 17 and Android SDK 35, then build the app module.
 
-## Test data
-Use private, user-owned save fixtures locally. Do not commit personal save files to this repository.
+GitHub Actions runs:
+`gradle :app:assembleDebug :app:testDebugUnitTest`
+
+## Test data and privacy
+
+Use private, user-owned save fixtures locally. Do not commit personal save files to this repository. The editor must never overwrite the original save; exports and future edited saves must use a separate destination.

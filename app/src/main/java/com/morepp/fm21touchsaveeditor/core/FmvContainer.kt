@@ -179,6 +179,32 @@ class FmvContainer(private val bytes: ByteArray) {
         return extract(member)
     }
 
+    internal fun originalBytes(): ByteArray = bytes.copyOf()
+
+    internal fun originalHeader(): ByteArray = bytes.copyOfRange(0, HEADER_SIZE)
+
+    /** Raw Zstandard frames and inter-frame size prefixes, excluding the next-member/footer prefix. */
+    internal fun compressedFrameStream(member: FmvMember): ByteArray {
+        val canonical = manifest.members.firstOrNull {
+            it.name == member.name && it.offset == member.offset &&
+                it.storedLength == member.storedLength && it.plainLength == member.plainLength
+        } ?: throw FmvFormatException("Member does not belong to this save: ${member.name}")
+        val start = HEADER_SIZE.toLong() + canonical.offset
+        val end = start + canonical.storedLength - 4L
+        if (start < HEADER_SIZE || end < start || end > bytes.size.toLong() ||
+            canonical.storedLength < 4L) {
+            throw FmvFormatException("Compressed member is outside data bounds: ${member.name}")
+        }
+        return bytes.copyOfRange(start.toInt(), end.toInt())
+    }
+
+    internal fun firstCompressedFrameSize(member: FmvMember): Int {
+        val stream = compressedFrameStream(member)
+        val size = zstdFrameSize(stream, 0, stream.size)
+        if (size <= 0) throw FmvFormatException("Invalid first compressed frame: ${member.name}")
+        return size
+    }
+
     private fun readManifest(): FmvManifest {
         val footer = lastIndexOf(bytes, FMF_PREFIX)
         if (footer < HEADER_SIZE) throw FmvFormatException("Footer manifest header not found")

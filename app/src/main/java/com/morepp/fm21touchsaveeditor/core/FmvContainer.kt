@@ -162,7 +162,7 @@ class FmvContainer(private val bytes: ByteArray) {
     private fun readGameVersion(): String? {
         val member = manifest.members.firstOrNull { it.name == "game_info/.dat" } ?: return null
         val header = extract(member).take(128).toByteArray().toString(Charsets.ISO_8859_1)
-        return Regex("\\\\b\\\\d{2}\\\\.\\\\d+\\\\.\\\\d+-\\\\d+\\\\b").find(header)?.value
+        return Regex("[0-9]{2}[.][0-9]+[.][0-9]+-[0-9]+").find(header)?.value
     }
 
     fun extractByName(name: String): ByteArray {

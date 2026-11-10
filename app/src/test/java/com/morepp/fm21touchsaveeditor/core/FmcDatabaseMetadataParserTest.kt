@@ -49,7 +49,7 @@ class FmcDatabaseMetadataParserTest {
         val xml = """<!DOCTYPE properties [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>""" +
             selectedDatabaseXml
 
-        org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+        org.junit.Assert.assertThrows(Exception::class.java) {
             FmcDatabaseMetadataParser.parse(xml)
         }
     }

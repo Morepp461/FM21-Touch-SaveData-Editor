@@ -40,7 +40,7 @@ These are product requirements and discovery targets. A category is not consider
 ## Screenshot-grounded research observations
 
 The supplied Bolton screenshots show:
-- Squad list pages with player names and positions, including Matt Gilks, Lukas Jensen, Billy Crellin, Shay Facey, Jak Hickman, Alex Baptiste, Liam Edwards, Ricardo Almeida Santos, Harry Brockbank, Ryan Delaney, Gethin Jones, M J Williams, Declan John, Brandon Comley, Andrew Tutte, Kieran Lee, George Thomason, Antoni Sarcevic, Ben Jackson, Lloyd Isgrove, Ronan Darcy, Ali Crawford, Marcus Maddison, Zack Elboune, Dennis Politic, Finlay Hurford-Lockett, Arthur Gnahoua, Daniel N'F... (verify exact spelling in-game), Eoin Doyle, and Oladapo Afolayan.
+- Squad list pages with player names and positions, including Matt Gilks, Lukas Jensen, Billy Crellin, Shay Facey, Jak Hickman, Alex Baptiste, Liam Edwards, Ricardo Almeida Santos, Harry Brockbank, Ryan Delaney, Gethin Jones, M J Williams, Declan John, Brandon Comley, Andrew Tutte, Kieran Lee, George Thomason, Antoni Sarcevic, Ben Jackson, Lloyd Isgrove, Ronan Darcy, Ali Crawford, Marcus Maddison, Zack Elboune, Dennis Politic, Finlay Hurford-Lockett, Arthur Gnahoua, Daniel Delfouneso, Eoin Doyle, and Oladapo Afolayan.
 - Staff list entries include Sharon Brittan (Chairman), Andrew Caton (Director of Football), Coach Morepp (Manager), Peter Atherton (Assistant Manager), Mark Litherland (Head of Youth Development), Matt Barrass (Head Physio), and Gary Clayton (Chief Scout).
 - Matt Gilks' player profile shows Current Ability 81 and Recommended Current Ability 80.
 - His visible attributes include goalkeeper, mental, physical, and technical categories. The screenshot is useful as a ground-truth UI reference, but it does not reveal binary offsets.

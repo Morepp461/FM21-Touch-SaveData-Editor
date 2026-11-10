@@ -459,6 +459,45 @@ private fun EditorHome() {
                                     SummaryMetric("Compared", comparisonResults.size.toString(), Modifier.weight(1f))
                                 }
                             }
+                            item {
+                                OutlinedButton(
+                                    onClick = {
+                                        busy = true
+                                        scope.launch {
+                                            val report = withContext(Dispatchers.IO) {
+                                                runCatching {
+                                                    val file = File(context.cacheDir, "fm21_save_comparison.csv")
+                                                    file.bufferedWriter(Charsets.UTF_8).use { writer ->
+                                                        writer.write("component,identical,before_bytes,after_bytes,changed_bytes_in_common_length,first_difference_offset,before_sha256,after_sha256")
+                                                        writer.newLine()
+                                                        comparisonResults.forEach { diff ->
+                                                            val cells = listOf(
+                                                                diff.name, diff.identical.toString(),
+                                                                diff.beforeBytes?.toString().orEmpty(),
+                                                                diff.afterBytes?.toString().orEmpty(),
+                                                                diff.changedBytesInCommonLength.toString(),
+                                                                diff.firstDifferenceOffset?.toString().orEmpty(),
+                                                                diff.beforeSha256.orEmpty(), diff.afterSha256.orEmpty()
+                                                            )
+                                                            writer.write(cells.joinToString(",") { csvEscape(it) })
+                                                            writer.newLine()
+                                                        }
+                                                    }
+                                                    file
+                                                }
+                                            }
+                                            report.onSuccess {
+                                                pendingExport = it
+                                                exportPicker.launch(it.name)
+                                                status = "Comparison CSV ready to export"
+                                            }.onFailure { status = "Comparison report failed: ${it.message}" }
+                                            busy = false
+                                        }
+                                    },
+                                    enabled = !busy,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text("Export full comparison report (CSV)") }
+                            }
                             items(changed.take(100), key = { "diff_${it.name}" }) { diff ->
                                 Card(Modifier.fillMaxWidth()) {
                                     Column(Modifier.padding(14.dp)) {

@@ -102,6 +102,18 @@ private fun EditorHome() {
                             Text(member.name, style = MaterialTheme.typography.titleSmall)
                             Text("Plain: ${member.plainLength} bytes · Stored: ${member.storedLength} bytes",
                                 style = MaterialTheme.typography.bodySmall)
+                            OutlinedButton(onClick = {
+                                val active = container ?: return@OutlinedButton
+                                busy = true
+                                scope.launch {
+                                    val extracted = withContext(Dispatchers.IO) { runCatching { active.extract(member) } }
+                                    extracted.onSuccess { data ->
+                                        pendingExport = data
+                                        exportPicker.launch(member.name.replace("/", "_"))
+                                    }.onFailure { status = "Ekstraksi gagal: ${it.message}" }
+                                    busy = false
+                                }
+                            }, enabled = !busy) { Text("Ekspor komponen") }
                         }
                     }
                 }

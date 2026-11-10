@@ -32,7 +32,7 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 - Compact-screen layout uses scrollable filters and cards with clearer hierarchy.
 
 ## App and UI status
-- App version 0.5.0, minimum Android API 26, target SDK 35.
+- App version 0.6.0, minimum Android API 26, target SDK 35.
 - Overview, People, Compare and Files navigation tabs are implemented.
 - Component browser includes category filters, search and incremental loading.
 - Dark motorsport-inspired Material 3 theme is implemented.

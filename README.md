@@ -4,9 +4,9 @@ Android save inspector and in-progress database editor for Football Manager Touc
 
 ## Current build
 
-- App version: **0.6.0**
+- App version: **0.7.0**
 - Minimum Android: **8.0 (API 26)**
-- Target SDK: **35**
+- Target SDK: **36**
 - Runtime: Kotlin + Jetpack Compose
 - Zstandard: pure-Java Android decoder (no zstd-jni runtime dependency)
 

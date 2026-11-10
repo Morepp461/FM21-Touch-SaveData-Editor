@@ -20,7 +20,9 @@ Android save inspector and in-progress database editor for Football Manager Touc
 - Two-save component comparison with SHA-256 hashes, changed-byte counts and first-difference offsets.
 - Read-only person name-index to entity-record UID mapping.
 - Dark motorsport-inspired UI with Overview, People, Compare and Files tabs.
-- Android CI builds debug and unsigned release APKs, runs unit tests, and launches an API 26 emulator smoke test.
+- Branded adaptive launcher icon and offline-first privacy policy.
+- Android CI builds debug/release APK and AAB variants, runs unit tests, checks package SDK metadata, and launches an API 26 emulator smoke test.
+- Optional release signing through private GitHub Actions secrets; without a private keystore, CI artifacts remain unsigned.
 
 ## Not implemented yet
 
@@ -52,6 +54,8 @@ gradle :app:assembleDebug :app:testDebugUnitTest
 ```
 
 APK output: `app/build/outputs/apk/debug/app-debug.apk`.
+
+For Play publication, configure the repository Actions secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` with a privately generated upload/release key. Never commit the keystore or its passwords. Without these secrets, CI intentionally publishes unsigned artifacts only.
 
 ## Safety and validation
 

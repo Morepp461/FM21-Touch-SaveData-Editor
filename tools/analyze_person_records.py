@@ -63,6 +63,8 @@ def map_entities(data: bytes, names: list[dict[str, Any]]) -> tuple[dict[int, di
     values = words[offsets]
     keep = np.isin(values, wanted, assume_unique=False)
     offsets, values = offsets[keep], values[keep]
+    valid = (offsets >= 4) & (offsets + 13 <= len(data))
+    offsets, values = offsets[valid], values[valid]
     if offsets.size == 0:
         return {}, set()
 

@@ -40,6 +40,24 @@ class FmvContainerTest {
         assertEquals(true, exception.message!!.contains("header"))
     }
 
+    @Test
+    fun comparatorFindsExactChangedByteAndOffset() {
+        val before = FmvContainer(fixture(listOf("abc".toByteArray())))
+        val after = FmvContainer(fixture(listOf("axc".toByteArray())))
+        val directory = java.io.File.createTempFile("fmv-diff", "test")
+        directory.delete()
+        directory.mkdirs()
+        try {
+            val result = FmvSaveComparator.compare(before, after, directory)
+            assertEquals(1, result.size)
+            assertEquals(false, result.single().identical)
+            assertEquals(1L, result.single().changedBytesInCommonLength)
+            assertEquals(1L, result.single().firstDifferenceOffset)
+        } finally {
+            directory.deleteRecursively()
+        }
+    }
+
     private fun fixture(chunks: List<ByteArray>): ByteArray {
         val compressed = chunks.map { Zstd.compress(it, 3) }
         val memberData = ByteArrayOutputStream()

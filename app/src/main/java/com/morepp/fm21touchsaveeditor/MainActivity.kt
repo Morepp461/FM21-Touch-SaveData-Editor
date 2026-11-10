@@ -65,6 +65,7 @@ private fun EditorHome() {
     var comparisonResults by remember { mutableStateOf(emptyList<com.morepp.fm21touchsaveeditor.core.MemberDiff>()) }
     var personIndex by remember { mutableStateOf<PersonRecordIndex?>(null) }
     var personSearch by remember { mutableStateOf("") }
+    var personStatusFilter by remember { mutableStateOf("Semua") }
     var status by remember { mutableStateOf("Belum ada save yang dibuka") }
     var busy by remember { mutableStateOf(false) }
     var pendingExport by remember { mutableStateOf<File?>(null) }
@@ -121,6 +122,7 @@ private fun EditorHome() {
                     comparisonResults = emptyList()
                     personIndex = null
                     personSearch = ""
+                    personStatusFilter = "Semua"
                     filterText = ""
                     selectedCategory = "Semua"
                     componentLimit = 40
@@ -382,8 +384,17 @@ private fun EditorHome() {
                         }
                         if (personIndex != null) {
                             val index = personIndex!!
-                            val matches = index.entries.filter {
-                                personSearch.isBlank() || it.name.contains(personSearch.trim(), ignoreCase = true)
+                            val matches = index.entries.filter { person ->
+                                val textMatch = personSearch.isBlank() ||
+                                    person.name.contains(personSearch.trim(), ignoreCase = true) ||
+                                    person.uniqueId.toString().contains(personSearch.trim()) ||
+                                    (person.entityRecordId?.toString()?.contains(personSearch.trim()) == true)
+                                val statusMatch = when (personStatusFilter) {
+                                    "Terhubung" -> person.isMapped
+                                    "Belum terpetakan" -> !person.isMapped
+                                    else -> true
+                                }
+                                textMatch && statusMatch
                             }
                             item {
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -396,10 +407,19 @@ private fun EditorHome() {
                                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                     OutlinedTextField(
                                         value = personSearch, onValueChange = { personSearch = it },
-                                        label = { Text("Cari nama pemain atau staf") }, singleLine = true,
+                                        label = { Text("Cari nama, UID, atau ID internal") }, singleLine = true,
                                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)
                                     )
-                                    Text("Menampilkan ${minOf(matches.size, 100)} dari ${matches.size} hasil",
+                                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        items(listOf("Semua", "Terhubung", "Belum terpetakan")) { filter ->
+                                            FilterChip(
+                                                selected = personStatusFilter == filter,
+                                                onClick = { personStatusFilter = filter },
+                                                label = { Text(filter) }
+                                            )
+                                        }
+                                    }
+                                    Text("Menampilkan ${minOf(matches.size, 100)} dari ${matches.size} hasil · filter: ${personStatusFilter}",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     OutlinedButton(

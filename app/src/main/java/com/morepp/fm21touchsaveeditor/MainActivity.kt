@@ -344,14 +344,54 @@ private fun EditorHome() {
                                 }
                             }
                             item {
-                                OutlinedTextField(
-                                    value = personSearch, onValueChange = { personSearch = it },
-                                    label = { Text("Search person name") }, singleLine = true,
-                                    modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)
-                                )
-                                Text("Showing ${minOf(matches.size, 100)} of ${matches.size} results",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedTextField(
+                                        value = personSearch, onValueChange = { personSearch = it },
+                                        label = { Text("Search person name") }, singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)
+                                    )
+                                    Text("Showing ${minOf(matches.size, 100)} of ${matches.size} results",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    OutlinedButton(
+                                        onClick = {
+                                            busy = true
+                                            scope.launch {
+                                                val exported = withContext(Dispatchers.IO) {
+                                                    runCatching {
+                                                        val file = File(context.cacheDir, "fm21_person_record_mapping.csv")
+                                                        file.parentFile?.mkdirs()
+                                                        file.bufferedWriter(Charsets.UTF_8).use { writer ->
+                                                            writer.write("name,unique_id,name_index_id,name_flags,entity_record_id,entity_record_offset,record_tag,record_length_bytes")
+                                                            writer.newLine()
+                                                            index.entries.forEach { person ->
+                                                                val cells = listOf(
+                                                                    person.name, person.uniqueId.toString(),
+                                                                    person.nameIndexId.toString(), person.nameFlags.toString(),
+                                                                    person.entityRecordId?.toString().orEmpty(),
+                                                                    person.entityRecordOffset?.toString().orEmpty(),
+                                                                    person.entityRecordTypeTag.orEmpty(),
+                                                                    person.entityRecordLength?.toString().orEmpty()
+                                                                )
+                                                                writer.write(cells.joinToString(",") { csvEscape(it) })
+                                                                writer.newLine()
+                                                            }
+                                                        }
+                                                        file
+                                                    }
+                                                }
+                                                exported.onSuccess {
+                                                    pendingExport = it
+                                                    exportPicker.launch(it.name)
+                                                    status = "Person mapping CSV ready to export"
+                                                }.onFailure { status = "CSV export preparation failed: ${it.message}" }
+                                                busy = false
+                                            }
+                                        },
+                                        enabled = !busy,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) { Text("Export complete mapping as CSV") }
+                                }
                             }
                             items(matches.take(100), key = { "person_${it.uniqueId}" }) { person ->
                                 Card(Modifier.fillMaxWidth()) {
@@ -362,6 +402,16 @@ private fun EditorHome() {
                                         Text("Entity record: ${person.entityRecordId ?: "Unresolved"}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        if (person.entityRecordTypeTag != null) {
+                                            Text("Record tag: ${person.entityRecordTypeTag}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                        if (person.entityRecordLength != null) {
+                                            Text("Observed adjacent-record span: ${person.entityRecordLength} bytes",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
                                         person.entityRecordTypeTag?.let { tag ->
                                             Text("Raw record tag: $tag · Diagnostic only",
                                                 style = MaterialTheme.typography.labelSmall,
@@ -574,3 +624,6 @@ private fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 102
         return output.toByteArray()
     }
 }
+
+private fun csvEscape(value: String): String =
+    "\"" + value.replace("\"", "\"\"") + "\""

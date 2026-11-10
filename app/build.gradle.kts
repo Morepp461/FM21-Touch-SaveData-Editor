@@ -27,7 +27,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-    implementation("com.github.luben:zstd-jni:1.5.6-9")
+    implementation("com.qyntrax:unzstd:0.1.0")
+    testImplementation("com.github.luben:zstd-jni:1.5.6-9")
     testImplementation("junit:junit:4.13.2")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

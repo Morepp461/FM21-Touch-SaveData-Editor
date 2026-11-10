@@ -43,6 +43,37 @@ class PersonRecordMapperTest {
         assertNull(missing.entityRecordOffset)
     }
 
+    @Test
+    fun ambiguousEntityRowsForSameUidRemainUnresolved() {
+        val data = ByteArrayOutputStream()
+        writeEntityRow(data, 51_788L, 2_000_102_078L)
+        writeEntityRow(data, 51_799L, 2_000_102_078L)
+        writeNameEntry(data, "Ambiguous Person", 26_630L, 2_000_102_078L)
+
+        val index = PersonRecordMapper.map(data.toByteArray())
+        val person = index.entries.single()
+        assertEquals(1, index.scannedNameEntries)
+        assertEquals(0, index.mappedEntries)
+        assertEquals(1, index.unresolvedEntries)
+        assertNull(person.entityRecordId)
+        assertNull(person.entityRecordOffset)
+    }
+
+    @Test
+    fun rejectsPayloadWithoutSupportedNameIndex() {
+        val error = org.junit.Assert.assertThrows(FmvFormatException::class.java) {
+            PersonRecordMapper.map(ByteArray(128))
+        }
+        assertTrue(error.message!!.contains("name-index"))
+    }
+
+    private fun writeEntityRow(out: ByteArrayOutputStream, entityId: Long, uid: Long) {
+        out.write(le32(entityId))
+        out.write(le32(uid))
+        out.write(le32(uid))
+        out.write(byteArrayOf(0x0a, 0x80.toByte(), 0x00, 0xf4.toByte(), 0x01))
+    }
+
     private fun writeNameEntry(out: ByteArrayOutputStream, name: String, localId: Long, uid: Long) {
         val bytes = name.toByteArray(Charsets.UTF_8)
         out.write(le32(bytes.size.toLong()))

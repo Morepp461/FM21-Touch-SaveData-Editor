@@ -17,6 +17,13 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 | League Reputation Editor | Not implemented | Verify league IDs and reputation scale |
 | FMU Rebuilder | Not implemented | Rebuild valid container, preserve unknown sections and pass round-trip and game-load tests |
 
+## Android release engineering progress
+- App version code/name advanced to 6 / 0.6.0.
+- CI builds debug and unsigned release APK variants separately.
+- Added an Android 8.0 / API 26 emulator launch smoke test using an instrumentation test.
+- The release APK is unsigned; publication signing must use a private keystore outside the repository.
+- These checks improve Android compatibility confidence but do not replace real-device testing on Android 8 and newer versions.
+
 ## Android UI/UX progress
 - Replaced the long single-page component dump with Overview, People, Compare and Files tabs.
 - Added a save summary dashboard, status/progress feedback, and dedicated tool cards.

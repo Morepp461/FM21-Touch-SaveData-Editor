@@ -104,3 +104,10 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Menambahkan tes bahwa salinan tanpa perubahan identik byte per byte dengan file sumber.
 - Ini bukan editor field database dan tidak boleh dipasarkan sebagai fitur edit pemain/klub. Pemetaan field semantik dan validasi save hasil edit di game tetap menjadi gerbang terpisah.
 - Workflow CI diubah agar setiap commit memiliki grup concurrency sendiri sehingga pengujian tidak saling membatalkan ketika beberapa commit dikirim berurutan.
+
+
+## Referensi fitur editor penuh
+- Blueprint parity FMRTE dan Pre-Game Editor: `docs/FMRTE_PRE_GAME_EDITOR_PARITY.md`.
+- Cakupan target meliputi pemain, staf, kontrak, klub, keuangan, kompetisi, negara, stadion, pencarian global, Mass Edit, Presets, Compare, Edit History/Undo, backup dan validasi.
+- Save Editor dan Pre-Game Database Editor dipisahkan sebagai dua mode produk karena format sumber dan jalur validasinya berbeda.
+- Blueprint tersebut adalah spesifikasi target, bukan klaim bahwa field sudah berhasil dipetakan atau dapat ditulis. Hanya field berstatus VERIFIED yang boleh dibuka untuk diedit.

@@ -5,8 +5,8 @@ This checklist is intentionally strict. A successful APK build is not equivalent
 ## Android package
 
 - [x] Minimum SDK is Android 8.0 / API 26.
-- [x] Pure-Java Zstandard runtime dependency; no Linux ARM64 JNI requirement.
-- [x] Version code/name: 6 / 0.6.0.
+- [x] Zstandard decoder plus Android zstd-jni compression runtime; packaged native libraries are verified in CI.
+- [x] Version code/name: 7 / 0.7.0.
 - [x] Debug APK build in CI.
 - [x] Unsigned release APK build in CI.
 - [x] Unit-test task in CI.
@@ -23,9 +23,9 @@ This checklist is intentionally strict. A successful APK build is not equivalent
 - [x] Manifest bounds and component metadata validation.
 - [x] Zstandard component extraction and plaintext length validation.
 - [x] Component comparison and export.
-- [ ] Rebuild the outer FMV container byte-for-byte when no edits are present.
-- [ ] Verify every untouched component remains byte-identical after rebuild.
-- [ ] Verify all frame prefixes, footer metadata and checksums/stamps after rebuild.
+- [x] Initial experimental FMV container rebuilder implementation added (not yet accepted for production writes).
+- [ ] Verify every untouched component remains byte-identical after Kotlin rebuild against real fixtures.
+- [ ] Verify all frame prefixes, footer metadata and checksums/stamps after Kotlin rebuild against real fixtures.
 - [ ] Open a rebuilt no-op save in FM21 Touch 2021.
 - [ ] Open an edited test save in FM21 Touch 2021.
 

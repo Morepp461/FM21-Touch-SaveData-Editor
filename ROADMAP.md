@@ -15,13 +15,13 @@ A stage is only marked Complete after tests against real FM21 Touch saves, inclu
 | Club Finance Editor | Not implemented | Verify club balance and transfer-budget field semantics |
 | Prize Money Editor | Not implemented | Verify competition, position and prize amount mapping |
 | League Reputation Editor | Not implemented | Verify league IDs and reputation scale |
-| FMU Rebuilder | Not implemented | Rebuild valid container, preserve unknown sections and pass round-trip and game-load tests |
+| FMV Rebuilder | Initial experimental implementation; synthetic tests added; real-game validation pending | Rebuild valid container, preserve unknown sections and pass round-trip and game-load tests |
 
 ## Android release engineering progress
 - App version code/name advanced to 7 / 0.7.0.
 - CI builds debug and release APK/AAB variants; release signing is enabled only when private keystore secrets are configured.
-- Added an Android 8.0 / API 26 emulator launch smoke test using an instrumentation test. Latest result is pending CI verification.
-- The release APK is unsigned; publication signing must use a private keystore outside the repository.
+- Added an Android 8.0 / API 26 emulator launch smoke test using an instrumentation test. Latest verified API 26 emulator smoke test passed on commit `320c7019`; a newer test run is in progress.
+- The current CI release APK/AAB are unsigned because no private release keystore is configured; publication signing must use a private keystore outside the repository.
 - These checks improve Android compatibility confidence but do not replace real-device testing on Android 8 and newer versions.
 
 ## Android UI/UX progress

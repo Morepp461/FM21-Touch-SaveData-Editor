@@ -27,7 +27,10 @@ The two supplied files were used as read-only fixtures. They are intentionally n
 - Component extractor: streaming output-to-file implemented; Android CI/build and on-device validation pending.
 - Component export: Android Storage Access Framework integration implemented; on-device validation pending.
 - Synthetic parser tests: added for one-frame and multi-frame components, plus invalid header handling.
-- Rebuilder: not implemented.
+- FMV rebuilder: initial Kotlin implementation added. It preserves untouched compressed member streams, rewrites the manifest and frame-size prefixes, reopens the output, and verifies decompressed component lengths plus edited payload hashes.
+- Synthetic Kotlin tests cover no-op byte preservation, edited component round-trip, nested members, multi-frame replacements, and rejection of unknown/empty replacements.
+- An independent Python implementation of the same observed container layout rebuilt both supplied 21.4.0-0 fixtures; all 852 components in each rebuilt output re-opened and extracted with declared lengths. This is structural evidence only, not a test of the Kotlin writer or an in-game load test.
+- Kotlin writer validation against the supplied original FMV fixtures and successful load of a rebuilt save in FM21 Touch remain pending.
 - Semantic record parsers: not yet verified.
 
 ## What the two-save comparison tells us

@@ -15,13 +15,13 @@ import hashlib
 import json
 import re
 import struct
+import numpy as np
 from pathlib import Path
 from typing import Any
 
 import fm21_touch_container as fmv
 
 NAME_CANDIDATE = re.compile(rb"(?=[\x02-\x60]\x00\x00\x00)")
-DUPLICATED_U32 = re.compile(rb"(?=(.{4})\1)", re.DOTALL)
 NAME_ENTRY_KIND = 5
 MAX_ENTITY_ID = 1_000_000
 
@@ -52,18 +52,31 @@ def parse_names(data: bytes) -> list[dict[str, Any]]:
 
 
 def map_entities(data: bytes, names: list[dict[str, Any]]) -> tuple[dict[int, dict[str, int]], set[int]]:
-    wanted = {row["uid"] for row in names}
+    """Vectorized byte-aligned UID scan; ambiguous UIDs remain unresolved."""
+    wanted = np.fromiter({row["uid"] for row in names}, dtype=np.uint32)
+    if len(data) < 8 or wanted.size == 0:
+        return {}, set()
+
+    # A strided uint32 view checks every byte offset without a Python byte loop.
+    words = np.ndarray(shape=(len(data) - 3,), dtype="<u4", buffer=data, strides=(1,))
+    offsets = np.flatnonzero(words[:-4] == words[4:])
+    values = words[offsets]
+    keep = np.isin(values, wanted, assume_unique=False)
+    offsets, values = offsets[keep], values[keep]
+    if offsets.size == 0:
+        return {}, set()
+
+    after_pair = np.fromiter((u32(data, int(p) + 8) for p in offsets), dtype=np.uint32, count=len(offsets))
+    after_marker = np.frombuffer(data, dtype=np.uint8)[offsets + 12]
+    keep = ~((after_pair == NAME_ENTRY_KIND) & (after_marker == 0))
+    offsets, values = offsets[keep], values[keep]
+    entity_ids = np.fromiter((u32(data, int(p) - 4) for p in offsets), dtype=np.uint32, count=len(offsets))
+
     candidates: dict[int, set[tuple[int, int]]] = collections.defaultdict(set)
-    for match in DUPLICATED_U32.finditer(data):
-        p = match.start()
-        uid = u32(data, p)
-        if uid not in wanted or p < 4 or p + 13 > len(data):
-            continue
-        if u32(data, p + 8) == NAME_ENTRY_KIND and data[p + 12] == 0:
-            continue
-        entity_id = u32(data, p - 4)
+    for uid, entity_id, offset in zip(values.tolist(), entity_ids.tolist(), offsets.tolist()):
         if 1 <= entity_id <= MAX_ENTITY_ID:
-            candidates[uid].add((entity_id, p - 4))
+            candidates[uid].add((entity_id, offset - 4))
+
     resolved, ambiguous = {}, set()
     for uid, rows in candidates.items():
         if len(rows) == 1:
@@ -72,7 +85,6 @@ def map_entities(data: bytes, names: list[dict[str, Any]]) -> tuple[dict[int, di
         elif len(rows) > 1:
             ambiguous.add(uid)
     return resolved, ambiguous
-
 
 def load_save(path: Path, zstd: Any) -> tuple[bytes, dict[str, Any]]:
     raw = path.read_bytes()

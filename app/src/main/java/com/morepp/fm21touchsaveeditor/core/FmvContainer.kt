@@ -81,7 +81,7 @@ class FmvContainer(private val bytes: ByteArray) {
         val startLong = HEADER_SIZE.toLong() + canonical.offset
         val endLong = startLong + canonical.storedLength
         if (startLong < HEADER_SIZE || endLong < startLong ||
-            endLong > manifest.footerOffset.toLong() ||
+            endLong > manifest.footerOffset.toLong() + 4L ||
             canonical.storedLength < 4 || endLong > bytes.size) {
             throw FmvFormatException("Member is outside data-region bounds: ${member.name}")
         }
@@ -210,7 +210,7 @@ class FmvContainer(private val bytes: ByteArray) {
                 throw FmvFormatException("Invalid or overlapping component: ${member.name}")
             }
             val end = member.offset + member.storedLength
-            if (end < member.offset || HEADER_SIZE.toLong() + end > manifest.footerOffset.toLong()) {
+            if (end < member.offset || HEADER_SIZE.toLong() + end > manifest.footerOffset.toLong() + 4L) {
                 throw FmvFormatException("Component points outside the data region: ${member.name}")
             }
             previousEnd = end

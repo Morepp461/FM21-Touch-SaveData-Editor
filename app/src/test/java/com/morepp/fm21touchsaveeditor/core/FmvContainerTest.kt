@@ -33,6 +33,28 @@ class FmvContainerTest {
     }
 
     @Test
+    fun noOpRebuildPreservesEveryOriginalByte() {
+        val fixture = fixture(listOf("unchanged FM21 component".toByteArray()))
+        val parsed = FmvContainer(fixture)
+        assertArrayEquals(fixture, FmvRebuilder.rebuild(parsed, emptyMap()))
+    }
+
+    @Test
+    fun rebuildsEditedComponentAndReopensTheContainer() {
+        val original = "original component payload".toByteArray()
+        val replacement = "edited component payload with a different length".toByteArray()
+        val fixture = fixture(listOf(original))
+        val parsed = FmvContainer(fixture)
+
+        val rebuiltBytes = FmvRebuilder.rebuild(parsed, mapOf("sample/.dat" to replacement))
+        val reopened = FmvContainer(rebuiltBytes)
+
+        assertArrayEquals(replacement, reopened.extractByName("sample/.dat"))
+        assertEquals(parsed.manifest.saveName, reopened.manifest.saveName)
+        assertEquals(parsed.manifest.members.size, reopened.manifest.members.size)
+    }
+
+    @Test
     fun rejectsInvalidHeader() {
         val exception = assertThrows(FmvFormatException::class.java) {
             FmvContainer(ByteArray(64))

@@ -1,6 +1,6 @@
 package com.morepp.fm21touchsaveeditor.core
 
-import com.github.luben.zstd.Zstd
+import com.qyntrax.unzstd.ZstdDecompressor
 import java.io.ByteArrayOutputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -35,6 +35,7 @@ class FmvFormatException(message: String) : Exception(message)
  * It never changes the source byte array. Manifest offsets are relative to byte 30.
  */
 class FmvContainer(private val bytes: ByteArray) {
+    private val zstdDecoder = ZstdDecompressor()
     companion object {
         private val FMF_PREFIX = byteArrayOf(0x02, 0x01, 0x66, 0x6d, 0x66, 0x2e, 0x08, 0x00, 0x00)
         private val ZSTD_MAGIC = byteArrayOf(0x28, 0xb5.toByte(), 0x2f, 0xfd.toByte())
@@ -118,14 +119,17 @@ class FmvContainer(private val bytes: ByteArray) {
 
             val frameEnd = cursor + frameSize.toInt()
             val frame = bytes.copyOfRange(cursor, frameEnd)
-            val expected = Zstd.decompressedSize(frame)
+            val expected = ZstdDecompressor.getDecompressedSize(frame, 0, frame.size)
             if (expected <= 0 || expected > MAX_MEMBER_BYTES ||
                 written + expected > canonical.plainLength) {
                 throw FmvFormatException("Invalid decompressed frame size in ${member.name}: $expected")
             }
 
             val decoded = try {
-                Zstd.decompress(frame, expected.toInt())
+                ByteArray(expected.toInt()).also { outputBuffer ->
+                    val decodedLength = zstdDecoder.decompress(frame, 0, frame.size, outputBuffer, 0, outputBuffer.size)
+                    if (decodedLength != outputBuffer.size) throw FmvFormatException("Zstandard output length mismatch in ${member.name}")
+                }
             } catch (e: Exception) {
                 throw FmvFormatException("Zstandard decompression failed for ${member.name}: ${e.message}")
             }
@@ -185,12 +189,15 @@ class FmvContainer(private val bytes: ByteArray) {
         if (!frame.copyOfRange(0, 4).contentEquals(ZSTD_MAGIC)) {
             throw FmvFormatException("Footer manifest is not a Zstandard frame")
         }
-        val size = Zstd.decompressedSize(frame)
+        val size = ZstdDecompressor.getDecompressedSize(frame, 0, frame.size)
         if (size <= 0 || size > MAX_MANIFEST_BYTES) {
             throw FmvFormatException("Invalid manifest size: $size")
         }
         val plain = try {
-            Zstd.decompress(frame, size.toInt())
+            ByteArray(size.toInt()).also { outputBuffer ->
+                val decodedLength = zstdDecoder.decompress(frame, 0, frame.size, outputBuffer, 0, outputBuffer.size)
+                if (decodedLength != outputBuffer.size) throw FmvFormatException("Manifest output length mismatch")
+            }
         } catch (e: Exception) {
             throw FmvFormatException("Manifest decompression failed: ${e.message}")
         }

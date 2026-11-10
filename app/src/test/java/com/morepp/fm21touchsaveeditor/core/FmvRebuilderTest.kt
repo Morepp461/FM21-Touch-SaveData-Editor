@@ -57,6 +57,24 @@ class FmvRebuilderTest {
     }
 
     @Test
+    fun validatedUnchangedCopyPreservesEveryOriginalByte() {
+        val fixture = fixture(
+            listOf(
+                FixtureMember("top/.dat", chunks = listOf("top-level".toByteArray())),
+                FixtureMember("archive/child/.dat", "archive", listOf("nested".toByteArray()))
+            )
+        )
+        val source = FmvContainer(fixture)
+
+        val copy = FmvRebuilder.validatedUnchangedCopy(source)
+
+        assertArrayEquals(fixture, copy)
+        val reopened = FmvContainer(copy)
+        assertArrayEquals("top-level".toByteArray(), reopened.extractByName("top/.dat"))
+        assertArrayEquals("nested".toByteArray(), reopened.extractByName("archive/child/.dat"))
+    }
+
+    @Test
     fun rebuildsEditedMemberUsingMultipleZstandardFrames() {
         val original = "small original".toByteArray()
         val replacementChunks = listOf(

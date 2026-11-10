@@ -47,7 +47,7 @@ The person index is not the same as a player list. It can include staff and othe
 
 ## Build locally
 
-Requirements: JDK 17, Android SDK 35 and Gradle 8.9.
+Requirements: JDK 17, Android SDK 36, Android Gradle Plugin 8.9.1 and Gradle 8.11.1.
 
 ```bash
 gradle :app:assembleDebug :app:testDebugUnitTest

@@ -6,7 +6,7 @@ Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file sav
 
 ## Versi dan dukungan Android
 
-- Versi aplikasi: **0.7.0**
+- Versi aplikasi: **0.8.0-alpha**
 - Android minimum: **Android 8.0 (API 26)**
 - Target SDK: **36**
 - Teknologi: Kotlin + Jetpack Compose

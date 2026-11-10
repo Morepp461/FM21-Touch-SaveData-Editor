@@ -7,12 +7,12 @@ import inventory_database_2140 as inventory
 
 class Database2140InventoryTest(unittest.TestCase):
     def test_entropy_of_uniform_byte_stream_is_zero(self):
-        self.assertEqual(0.0, inventory.entropy(b"\\x00" * 128))
+        self.assertEqual(0.0, inventory.entropy(bytes([0]) * 128))
 
     def test_profile_reports_hash_and_size_without_content(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "sample.dat"
-            path.write_bytes(b"FM21\\x00\\x01" * 20)
+            path.write_bytes(bytes([70, 77, 50, 49, 0, 1]) * 20)
             result = inventory.profile(path)
             self.assertEqual(path.name, result["file"])
             self.assertEqual(path.stat().st_size, result["size_bytes"])

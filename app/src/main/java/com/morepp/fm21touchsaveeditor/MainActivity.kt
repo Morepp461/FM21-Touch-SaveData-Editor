@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -409,8 +410,8 @@ private fun EditorHome() {
                                 label = { Text("Search file or archive name") }, singleLine = true,
                                 modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)
                             )
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                categories.forEach { category ->
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                items(categories) { category ->
                                     FilterChip(
                                         selected = selectedCategory == category,
                                         onClick = { selectedCategory = category; componentLimit = 40 },

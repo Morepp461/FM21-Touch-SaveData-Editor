@@ -27,7 +27,23 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme { EditorHome() } }
+        setContent {
+            val colors = darkColorScheme(
+                primary = Color(0xFFE0443E),
+                secondary = Color(0xFFD7B56D),
+                background = Color(0xFF101114),
+                onBackground = Color(0xFFF3F1EC),
+                surface = Color(0xFF1B1D22),
+                onSurface = Color(0xFFF3F1EC),
+                surfaceVariant = Color(0xFF24262C),
+                onSurfaceVariant = Color(0xFF9A9DA6)
+            )
+            window.statusBarColor = android.graphics.Color.rgb(16, 17, 20)
+            window.navigationBarColor = android.graphics.Color.rgb(16, 17, 20)
+            MaterialTheme(colorScheme = colors) {
+                Surface(Modifier.fillMaxSize(), color = colors.background) { EditorHome() }
+            }
+        }
     }
 }
 

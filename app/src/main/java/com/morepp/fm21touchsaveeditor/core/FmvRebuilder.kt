@@ -149,10 +149,28 @@ object FmvRebuilder {
             override fun write(value: Int) = Unit
             override fun write(buffer: ByteArray, offset: Int, length: Int) = Unit
         }
+        val rebuiltByName = verified.manifest.members.associateBy { it.name }
+        if (rebuiltByName.size != allMembers.size || rebuiltByName.keys != byName.keys) {
+            throw FmvFormatException("Rebuilt component list does not match the source save")
+        }
         verified.manifest.members.forEach { member ->
             val (written, _) = verified.extract(member, discard)
             if (written != member.plainLength) {
                 throw FmvFormatException("Rebuilt component length verification failed: ${member.name}")
+            }
+        }
+
+        // Re-encoding one edited component must never silently rewrite any
+        // untouched component stream or its opaque metadata stamps.
+        allMembers.filterNot { it.name in editedComponents }.forEach { original ->
+            val rebuiltMember = rebuiltByName.getValue(original.name)
+            if (original.archive != rebuiltMember.archive ||
+                !original.stamp1.contentEquals(rebuiltMember.stamp1) ||
+                !original.stamp2.contentEquals(rebuiltMember.stamp2) ||
+                !source.compressedFrameStream(original).contentEquals(
+                    verified.compressedFrameStream(rebuiltMember)
+                )) {
+                throw FmvFormatException("Untouched component changed during rebuild: ${original.name}")
             }
         }
         editedComponents.forEach { (name, expected) ->

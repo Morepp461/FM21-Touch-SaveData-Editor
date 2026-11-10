@@ -171,7 +171,8 @@ private fun EditorHome() {
                         enabled = !busy && gameDbMember != null,
                         modifier = Modifier.fillMaxWidth()
                     ) { Text(if (busy) "Memproses..." else if (personIndex == null) "Build Player / Person Record Mapping" else "Rebuild Person Record Mapping") }
-                    if (personIndex != null) {
+                }
+                if (personIndex != null) {
                         val index = personIndex!!
                         val matchingCount = index.entries.count {
                             personSearch.isBlank() || it.name.contains(personSearch.trim(), ignoreCase = true)
@@ -208,7 +209,6 @@ private fun EditorHome() {
                             Text("Mapping ini menghubungkan nama dan UID ke person entity record. Belum semua record terbukti sebagai pemain; CA/PA dan atribut belum ditafsirkan.", style = MaterialTheme.typography.bodySmall)
                         }
                     }
-                }
                 item {
                     OutlinedButton(
                         onClick = { comparisonPicker.launch(arrayOf("*/*")) },

@@ -45,6 +45,17 @@ The person index is not the same as a player list. It can include staff and othe
 - **Compare**: compare a second save, preferably from the same career.
 - **Files**: filter components by category, search archive paths and export individual components.
 
+## Read-only research tools
+
+The `tools/` directory includes an FMV inspector and a cross-save person-record diagnostic. Keep private `.fmv` fixtures outside the repository, then run:
+
+```bash
+python tools/analyze_person_records.py before.fmv after.fmv --json person-record-report.json
+cd tools && python -m unittest -v
+```
+
+These tools confirm stable person UID/entity joins and byte-level differences only. They do not classify players or identify editable fields.
+
 ## Build locally
 
 Requirements: JDK 17, Android SDK 36, Android Gradle Plugin 8.9.1 and Gradle 8.11.1.

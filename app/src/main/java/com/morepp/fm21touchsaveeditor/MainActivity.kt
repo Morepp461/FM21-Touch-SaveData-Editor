@@ -37,6 +37,7 @@ private fun EditorHome() {
     var status by remember { mutableStateOf("Belum ada save yang dibuka") }
     var busy by remember { mutableStateOf(false) }
     var pendingExport by remember { mutableStateOf<File?>(null) }
+    var filterText by remember { mutableStateOf("") }
 
     val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
         val payload = pendingExport
@@ -119,6 +120,10 @@ private fun EditorHome() {
                 Text(status, style = MaterialTheme.typography.bodyMedium)
             }
             container?.let { parsed ->
+                val visibleMembers = parsed.manifest.members.filter {
+                    filterText.isBlank() || it.name.contains(filterText.trim(), ignoreCase = true) ||
+                        (it.archive?.contains(filterText.trim(), ignoreCase = true) == true)
+                }
                 item {
                     Card(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(16.dp)) {
@@ -184,7 +189,17 @@ private fun EditorHome() {
                         }
                     }
                 }
-                items(parsed.manifest.members, key = { it.name }) { member ->
+                item {
+                    OutlinedTextField(
+                        value = filterText,
+                        onValueChange = { filterText = it },
+                        label = { Text("Filter component name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text("${visibleMembers.size} components found", style = MaterialTheme.typography.bodySmall)
+                }
+                items(visibleMembers, key = { it.name }) { member ->
                     Card(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(12.dp)) {
                             Text(member.name, style = MaterialTheme.typography.titleSmall)

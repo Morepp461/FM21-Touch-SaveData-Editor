@@ -35,11 +35,30 @@ object FmvRebuilder {
         val plainLength: Long
     )
 
+    /**
+     * Validate every component of an untouched save and return an exact byte-for-byte
+     * copy. This is the safe first export path while no semantic database fields
+     * have been proven writable.
+     */
+    fun validatedUnchangedCopy(source: FmvContainer): ByteArray {
+        val discard = object : java.io.OutputStream() {
+            override fun write(value: Int) = Unit
+            override fun write(buffer: ByteArray, offset: Int, length: Int) = Unit
+        }
+        source.manifest.members.forEach { member ->
+            val (written, _) = source.extract(member, discard)
+            if (written != member.plainLength) {
+                throw FmvFormatException("Source component failed integrity validation: ${member.name}")
+            }
+        }
+        return source.originalBytes()
+    }
+
     fun rebuild(
         source: FmvContainer,
         editedComponents: Map<String, ByteArray>
     ): ByteArray {
-        if (editedComponents.isEmpty()) return source.originalBytes()
+        if (editedComponents.isEmpty()) return validatedUnchangedCopy(source)
 
         val allMembers = source.manifest.members
         val byName = allMembers.associateBy { it.name }

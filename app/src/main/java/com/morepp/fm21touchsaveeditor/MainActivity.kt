@@ -247,7 +247,7 @@ private fun EditorHome() {
                             SectionHeading("Alat basis data", "Analisis hanya-baca sampai struktur data terbukti")
                             ToolCard(
                                 title = "Pemetaan data orang",
-                                description = personIndex?.let { "${it.scannedNameEntries} names · ${it.mappedEntries} linked · ${it.unresolvedEntries} unresolved" }
+                                description = personIndex?.let { "${it.scannedNameEntries} nama · ${it.mappedEntries} terhubung · ${it.unresolvedEntries} belum terpetakan" }
                                     ?: "Hubungkan nama dengan data identitas internal",
                                 action = if (personIndex == null) "Buat pemetaan" else "Buka pemetaan",
                                 enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" },
@@ -256,7 +256,7 @@ private fun EditorHome() {
                                         selectedTab = EditorTab.PEOPLE
                                     } else {
                                         busy = true
-                                        status = "Membangun person record mapping..."
+                                        status = "Menyusun pemetaan data orang..."
                                         scope.launch {
                                             val result = withContext(Dispatchers.IO) {
                                                 runCatching {
@@ -313,7 +313,7 @@ private fun EditorHome() {
                                     enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" },
                                     onClick = {
                                         busy = true
-                                        status = "Membangun person record mapping..."
+                                        status = "Menyusun pemetaan data orang..."
                                         scope.launch {
                                             val result = withContext(Dispatchers.IO) {
                                                 runCatching {
@@ -323,7 +323,7 @@ private fun EditorHome() {
                                                     PersonRecordMapper.map(file.readBytes())
                                                 }
                                             }
-                                            result.onSuccess { personIndex = it; status = "Person index selesai" }
+                                            result.onSuccess { personIndex = it; status = "Indeks orang selesai" }
                                                 .onFailure { status = "Pemetaan data orang gagal: ${it.message}" }
                                             busy = false
                                         }
@@ -350,7 +350,7 @@ private fun EditorHome() {
                                         label = { Text("Cari nama pemain atau staf") }, singleLine = true,
                                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)
                                     )
-                                    Text("Showing ${minOf(matches.size, 100)} of ${matches.size} results",
+                                    Text("Menampilkan ${minOf(matches.size, 100)} dari ${matches.size} hasil",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     OutlinedButton(
@@ -397,7 +397,7 @@ private fun EditorHome() {
                                 Card(Modifier.fillMaxWidth()) {
                                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                         Text(person.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                        Text("UID ${person.uniqueId} · Name ID ${person.nameIndexId}",
+                                        Text("UID ${person.uniqueId} · ID nama ${person.nameIndexId}",
                                             style = MaterialTheme.typography.bodySmall)
                                         Text("Entity record: ${person.entityRecordId ?: "Belum terpetakan"}",
                                             style = MaterialTheme.typography.bodySmall,
@@ -416,7 +416,7 @@ private fun EditorHome() {
                                 }
                             }
                             item {
-                                Text("Mapping ini belum membuktikan bahwa record merupakan pemain. CA, PA dan atribut belum tersedia untuk diedit.",
+                                Text("Pemetaan ini belum membuktikan bahwa data tersebut milik pemain. CA, PA, dan atribut belum tersedia untuk diedit.",
                                     style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }

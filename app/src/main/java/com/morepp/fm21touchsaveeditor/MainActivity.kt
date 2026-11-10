@@ -2,6 +2,8 @@ package com.morepp.fm21touchsaveeditor
 
 import android.os.Bundle
 import java.io.File
+import java.io.InputStream
+import java.io.ByteArrayOutputStream
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -89,8 +91,9 @@ private fun EditorHome() {
             scope.launch {
                 val result = withContext(Dispatchers.IO) {
                     runCatching {
-                        val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                        val input = context.contentResolver.openInputStream(uri)
                             ?: error("File tidak dapat dibaca")
+                        val bytes = readSaveBytes(input)
                         FmvContainer(bytes)
                     }
                 }
@@ -121,8 +124,9 @@ private fun EditorHome() {
             scope.launch {
                 val result = withContext(Dispatchers.IO) {
                     runCatching {
-                        val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                        val input = context.contentResolver.openInputStream(uri)
                             ?: error("File pembanding tidak dapat dibaca")
+                        val bytes = readSaveBytes(input)
                         FmvContainer(bytes)
                     }
                 }
@@ -358,6 +362,16 @@ private fun EditorHome() {
                                         Text("Entity record: ${person.entityRecordId ?: "Unresolved"}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        person.entityRecordTypeTag?.let { tag ->
+                                            Text("Raw record tag: $tag · Diagnostic only",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                        person.entityRecordLength?.let { length ->
+                                            Text("Candidate adjacent span: $length bytes · Not a verified schema",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
                                     }
                                 }
                             }
@@ -535,5 +549,28 @@ private fun ToolCard(
             Text(description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedButton(onClick = onClick, enabled = enabled) { Text(action) }
         }
+    }
+}
+
+
+/**
+ * Bounded file read for the current in-memory FMV parser.
+ * The source URI is never modified and oversized inputs fail before allocation grows unchecked.
+ */
+private fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 1024): ByteArray {
+    input.use { source ->
+        val output = ByteArrayOutputStream()
+        val buffer = ByteArray(64 * 1024)
+        var total = 0L
+        while (true) {
+            val count = source.read(buffer)
+            if (count < 0) break
+            total += count
+            if (total > maxBytes) {
+                throw IllegalArgumentException("Save exceeds the current safe in-memory limit of 128 MB")
+            }
+            output.write(buffer, 0, count)
+        }
+        return output.toByteArray()
     }
 }

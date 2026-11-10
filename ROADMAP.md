@@ -30,12 +30,13 @@ Tahap hanya boleh dinyatakan selesai setelah diuji pada file save FM21 Touch asl
 - Component browser now has search, horizontally scrollable category filters and incremental loading (40 at a time).
 - People and comparison workflows have separate screens; the app remains read-only.
 - Compact-screen layout uses scrollable filters and cards with clearer hierarchy.
+- Visual language corrected to match a football save-data editor: calm pitch-green accents, dark data panels, and dashboard-first information hierarchy.
 
 ## Status aplikasi dan antarmuka
 - App version 0.8.0-alpha, minimum Android API 26, target SDK 36 (Android 16).
 - Overview, People, Compare and Files navigation tabs are implemented.
 - Component browser includes category filters, search and incremental loading.
-- Dark motorsport-inspired Material 3 theme is implemented.
+- Dark Material 3 theme is implemented; the visual direction is football-management/data-studio (graphite panels with restrained pitch-green accents), not motorsport.
 - Current release remains read-only. A successful CI build is not the same as device QA on Android 8 or an in-game save round-trip.
 
 ## Temuan pemetaan pemain dan staf

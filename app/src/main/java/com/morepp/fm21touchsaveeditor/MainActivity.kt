@@ -92,6 +92,7 @@ private fun EditorHome() {
                     Card(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(16.dp)) {
                             Text(parsed.manifest.saveName, style = MaterialTheme.typography.titleLarge)
+                            Text("Database version: ${parsed.gameVersion ?: "unknown"}")
                             Text("Top-level: ${parsed.manifest.topLevel.size}")
                             Text("Nested: ${parsed.manifest.nested.size}")
                             Text("Total komponen: ${parsed.manifest.members.size}")

@@ -78,7 +78,7 @@ private fun EditorHome() {
             runCatching {
                 val output = context.contentResolver.openOutputStream(uri) ?: error("Tidak bisa menulis file")
                 output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
-            }.onSuccess { status = "Komponen berhasil diekspor (${payload.length()} bytes)" }
+            }.onSuccess { status = "Komponen berhasil diekspor (${payload.length()} byte)" }
                 .onFailure { status = "Ekspor gagal: ${it.message}" }
         }
         pendingExport = null
@@ -107,7 +107,7 @@ private fun EditorHome() {
                     selectedCategory = "Semua"
                     componentLimit = 40
                     selectedTab = EditorTab.OVERVIEW
-                    status = "Save tervalidasi: ${it.manifest.saveName}"
+                    status = "File save valid: ${it.manifest.saveName}"
                 }.onFailure {
                     container = null
                     status = "Gagal membaca save: ${it.message ?: "format tidak dikenali"}"
@@ -133,7 +133,7 @@ private fun EditorHome() {
                 result.onSuccess {
                     comparisonContainer = it
                     comparisonResults = emptyList()
-                    status = "Save pembanding valid: ${it.manifest.saveName}"
+                    status = "File pembanding valid: ${it.manifest.saveName}"
                 }.onFailure {
                     comparisonContainer = null
                     status = "Gagal membaca save pembanding: ${it.message}"
@@ -359,10 +359,10 @@ private fun EditorHome() {
                                             scope.launch {
                                                 val exported = withContext(Dispatchers.IO) {
                                                     runCatching {
-                                                        val file = File(context.cacheDir, "fm21_person_record_mapping.csv")
+                                                        val file = File(context.cacheDir, "pemetaan_data_orang_fm21.csv")
                                                         file.parentFile?.mkdirs()
                                                         file.bufferedWriter(Charsets.UTF_8).use { writer ->
-                                                            writer.write("name,unique_id,name_index_id,name_flags,entity_record_id,entity_record_offset,record_tag,record_length_bytes")
+                                                            writer.write("nama,uid,id_indeks_nama,flag_nama,id_data_internal,offset_data,kode_data,panjang_data_byte")
                                                             writer.newLine()
                                                             index.entries.forEach { person ->
                                                                 val cells = listOf(
@@ -466,9 +466,9 @@ private fun EditorHome() {
                                         scope.launch {
                                             val report = withContext(Dispatchers.IO) {
                                                 runCatching {
-                                                    val file = File(context.cacheDir, "fm21_save_comparison.csv")
+                                                    val file = File(context.cacheDir, "perbandingan_save_fm21.csv")
                                                     file.bufferedWriter(Charsets.UTF_8).use { writer ->
-                                                        writer.write("component,identical,before_bytes,after_bytes,changed_bytes_in_common_length,first_difference_offset,before_sha256,after_sha256")
+                                                        writer.write("komponen,identik,ukuran_awal_byte,ukuran_akhir_byte,byte_berubah,offset_perbedaan_pertama,sha256_awal,sha256_akhir")
                                                         writer.newLine()
                                                         comparisonResults.forEach { diff ->
                                                             val cells = listOf(

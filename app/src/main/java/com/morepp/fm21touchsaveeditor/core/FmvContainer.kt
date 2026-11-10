@@ -112,7 +112,7 @@ class FmvContainer(private val bytes: ByteArray) {
         while (written < canonical.plainLength) {
             if (cursor >= end - 4) throw FmvFormatException("Missing Zstandard frame: ${member.name}")
             val frameSize = zstdFrameSize(bytes, cursor, end)
-            if (Zstd.isError(frameSize) || frameSize <= 0 || frameSize > (end - cursor - 4).toLong()) {
+            if (frameSize <= 0 || frameSize > end - cursor - 4) {
                 throw FmvFormatException("Invalid Zstandard frame boundary: ${member.name}")
             }
 

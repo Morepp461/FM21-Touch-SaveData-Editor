@@ -202,6 +202,9 @@ private fun EditorHome() {
                                     Text(person.name, style = MaterialTheme.typography.titleSmall)
                                     Text("Unique ID: ${person.uniqueId} · Name index ID: ${person.nameIndexId}", style = MaterialTheme.typography.bodySmall)
                                     Text("Entity record ID: ${person.entityRecordId ?: "unresolved"}", style = MaterialTheme.typography.bodySmall)
+                                    if (person.entityRecordTypeTag != null) {
+                                        Text("Record tag: ${person.entityRecordTypeTag} · Length: ${person.entityRecordLength?.let { it.toString() + " bytes (adjacent ID verified)" } ?: "not inferred"}", style = MaterialTheme.typography.bodySmall)
+                                    }
                                 }
                             }
                         }

@@ -2,6 +2,8 @@
 
 ## Referensi dari game
 
+Empat screenshot yang sudah diberikan pengguna mencakup daftar pemain Bolton (gambar 1–2), daftar staf Bolton (gambar 3), dan profil Matt Gilks (gambar 4). Screenshot daftar pemain/staf diperlakukan sebagai daftar identitas untuk klasifikasi, sedangkan screenshot profil menjadi referensi nilai individual.
+
 Screenshot profil Bolton yang diberikan menunjukkan:
 - Nama yang tampil di game: **Matt Gilks**
 - Current Ability (CA): **81**
@@ -35,13 +37,14 @@ Tidak boleh:
 
 ## Eksperimen yang diperlukan
 
-1. Buka profil pemain dan pastikan identitas lengkap yang ditampilkan game (termasuk nama lengkap, nama panggilan, tanggal lahir, kewarganegaraan, dan klub).
-2. Jika nama tampilan memang alias dari nama database, kumpulkan bukti penghubung yang tidak ambigu. Jangan menyamakan Michael Gilkes dengan Matt Gilks hanya berdasarkan kemiripan ejaan.
-3. Buat salinan save sebelum eksperimen.
-4. Ubah satu nilai yang bisa diubah secara sah di dalam game, simpan, lalu buat pasangan save sebelum/sesudah. Untuk CA/PA, jika game tidak menyediakan cara mengubah nilai tersebut, dibutuhkan fixture terkontrol lain yang memang mengubah nilai itu.
-5. Bandingkan record berdasarkan UID/entity ID stabil, bukan offset.
-6. Ulangi dengan nilai lain dan pastikan perubahan yang terdeteksi konsisten.
-7. Baru setelah encoding dan rentang nilai terbukti, buat implementasi edit dengan preview diff, backup, validasi, dan uji load di FM21 Touch.
+1. Gunakan daftar pemain dan staf dari screenshot 1–3 sebagai label ground-truth untuk klasifikasi orang di save. Jangan meminta ulang screenshot yang sudah tersedia.
+2. Cocokkan nama lengkap, alias, tanggal lahir, kewarganegaraan, dan klub dari profil pemain/staf dengan entri database sebelum menetapkan UID.
+3. Jangan menyamakan Michael Gilkes dengan Matt Gilks hanya berdasarkan kemiripan ejaan. Perlu satu identitas tambahan yang cocok atau referensi database FM21 yang tepat.
+4. Buat salinan save sebelum eksperimen.
+5. Ubah satu nilai yang bisa diubah secara sah di dalam game, simpan, lalu buat pasangan save sebelum/sesudah. Untuk CA/PA, jika game tidak menyediakan cara mengubah nilai tersebut, dibutuhkan fixture terkontrol lain yang memang mengubah nilai itu.
+6. Bandingkan record berdasarkan UID/entity ID stabil, bukan offset.
+7. Ulangi dengan nilai lain dan pastikan perubahan yang terdeteksi konsisten.
+8. Baru setelah encoding dan rentang nilai terbukti, buat implementasi edit dengan preview diff, backup, validasi, dan uji load di FM21 Touch.
 
 ## Kesimpulan
 

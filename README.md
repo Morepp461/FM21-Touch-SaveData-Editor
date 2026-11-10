@@ -21,6 +21,8 @@ Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file sav
 - Menjelajahi komponen dengan pencarian, filter kategori, dan pemuatan bertahap.
 - Membandingkan dua save melalui hash SHA-256, jumlah byte yang berubah, dan posisi perbedaan pertama.
 - Memetakan UID pada indeks nama ke entity record person secara hanya-baca.
+- Memvalidasi seluruh komponen save dengan dekompresi penuh sebelum membuat salinan FMV tanpa perubahan.
+- Mengekspor salinan FMV ke lokasi pilihan pengguna melalui Android Storage Access Framework, lalu membuka ulang dan memverifikasi SHA-256 file hasil ekspor.
 - Antarmuka gelap bertema motorsport dengan tab Ringkasan, Orang, Perbandingan, dan Berkas.
 - Ikon aplikasi adaptif dan kebijakan privasi yang mengutamakan penggunaan offline.
 - CI Android membangun APK debug/release dan AAB, menjalankan unit test, memeriksa metadata kompatibilitas paket, serta menyediakan uji emulator Android API 26.
@@ -39,7 +41,8 @@ Aplikasi masih **read-only**. Hal-hal berikut belum siap diedit:
 - Keuangan klub, saldo, utang, anggaran, dan transfer budget.
 - Hadiah uang kompetisi (prize money).
 - Reputasi liga, klub, negara, dan kompetisi.
-- Pembangunan ulang container FMV dan proses penyimpanan save yang tervalidasi.
+- Pengeditan field database yang sudah dipetakan secara semantik.
+- Pembangunan ulang container FMV untuk perubahan data dan proses penyimpanan save hasil edit yang tervalidasi. Salinan tanpa perubahan sudah memiliki jalur validasi tersendiri.
 
 **Target produk adalah seluruh database di dalam save.** Pemain dan staf dari klub mana pun, termasuk klub yang tidak sedang dimainkan, harus bisa dicari dan dikelola setelah struktur datanya berhasil dipetakan. Konteks klub hanya boleh menjadi filter pencarian, bukan pembatas akses.
 

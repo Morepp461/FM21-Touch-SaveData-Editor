@@ -43,7 +43,7 @@ class PersonRecordMapperTest {
 
     private fun writeNameEntry(out: ByteArrayOutputStream, name: String, localId: Long, uid: Long) {
         val bytes = name.toByteArray(Charsets.UTF_8)
-        out.write(le32(bytes.size))
+        out.write(le32(bytes.size.toLong()))
         out.write(bytes)
         out.write(le32(0)) // observed flags field
         out.write(le32(localId))

@@ -24,8 +24,9 @@ class MainActivityLaunchTest {
 
     @Test
     fun launchesAndShowsSaveEditorHomeOnApi26Plus() {
-        composeRule.onNodeWithText("FM21 Touch Save Editor").assertIsDisplayed()
+        composeRule.onNodeWithText("Editor Save FM21 Touch").assertIsDisplayed()
         composeRule.onNodeWithText("Buka save FMV").assertExists()
-        composeRule.onNodeWithText("FULL DATABASE EDITOR").assertExists()
+        composeRule.onNodeWithText("FOOTBALL MANAGEMENT SAVE DATA").assertIsDisplayed()
+        composeRule.onNodeWithText("MODE HANYA-BACA").assertIsDisplayed()
     }
 }

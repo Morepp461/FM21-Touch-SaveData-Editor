@@ -412,16 +412,6 @@ private fun EditorHome() {
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
-                                        person.entityRecordTypeTag?.let { tag ->
-                                            Text("Raw record tag: $tag · Diagnostic only",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        }
-                                        person.entityRecordLength?.let { length ->
-                                            Text("Candidate adjacent span: $length bytes · Not a verified schema",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        }
                                     }
                                 }
                             }

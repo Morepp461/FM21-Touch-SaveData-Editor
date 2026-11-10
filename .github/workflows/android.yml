@@ -23,6 +23,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Python diagnostic dependencies
+        run: python -m pip install -r tools/requirements.txt
       - name: Test read-only person-record diagnostics
         run: python -m unittest discover -s tools -p 'test_*.py' -v
       - name: Set up JDK 17

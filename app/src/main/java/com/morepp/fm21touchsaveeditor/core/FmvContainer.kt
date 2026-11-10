@@ -2,6 +2,7 @@ package com.morepp.fm21touchsaveeditor.core
 
 import com.github.luben.zstd.Zstd
 import java.io.ByteArrayOutputStream
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -64,7 +65,22 @@ class FmvContainer(private val bytes: ByteArray) {
 
     fun extractToFile(member: FmvMember, output: File): Pair<Long, Int> {
         output.parentFile?.mkdirs()
-        FileOutputStream(output).use { sink -> return extract(member, sink) }
+        val temporary = File(output.parentFile, output.name + ".part")
+        try {
+            val result = FileOutputStream(temporary).use { raw ->
+                BufferedOutputStream(raw).use { sink -> extract(member, sink) }
+            }
+            if (output.exists() && !output.delete()) {
+                throw FmvFormatException("Cannot replace previous extracted component: ${output.name}")
+            }
+            if (!temporary.renameTo(output)) {
+                throw FmvFormatException("Cannot finalize extracted component: ${output.name}")
+            }
+            return result
+        } catch (error: Exception) {
+            temporary.delete()
+            throw error
+        }
     }
 
     /** Stream decompressed bytes without allocating the entire component in memory. */
@@ -272,5 +288,19 @@ class FmvContainer(private val bytes: ByteArray) {
             if (match) return i
         }
         return -1
+    }
+}
+
+data class TadHeaderInfo(val signature: String, val versionBytes: String, val preambleHex: String)
+
+object TadInspector {
+    fun inspect(bytes: ByteArray): TadHeaderInfo? {
+        if (bytes.size < 12 || bytes[0] != 0x03.toByte() || bytes[1] != 0x01.toByte() ||
+            String(bytes, 2, 4, Charsets.US_ASCII) != "tad.") return null
+        return TadHeaderInfo(
+            signature = "tad.",
+            versionBytes = "03 01",
+            preambleHex = bytes.take(48).joinToString(" ") { "%02x".format(it.toInt() and 255) }
+        )
     }
 }

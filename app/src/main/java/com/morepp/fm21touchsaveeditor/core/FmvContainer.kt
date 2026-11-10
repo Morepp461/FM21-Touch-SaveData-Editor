@@ -81,7 +81,7 @@ class FmvContainer(private val bytes: ByteArray) {
         val startLong = HEADER_SIZE.toLong() + canonical.offset
         val endLong = startLong + canonical.storedLength
         if (startLong < HEADER_SIZE || endLong < startLong ||
-            endLong + HEADER_SIZE > manifest.footerOffset.toLong() ||
+            endLong > manifest.footerOffset.toLong() ||
             canonical.storedLength < 4 || endLong > bytes.size) {
             throw FmvFormatException("Member is outside data-region bounds: ${member.name}")
         }

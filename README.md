@@ -120,6 +120,7 @@ Jangan pernah memasukkan keystore atau password ke repository. Tanpa secrets ter
 - `ROADMAP.md`: tahapan pengembangan dan status pekerjaan.
 - `docs/GLOBAL_EDITOR_SCOPE.md`: cakupan editor untuk seluruh database dalam save.
 - `docs/CROSS_SAVE_PERSON_RECORD_ANALYSIS.md`: hasil analisis person antar-save.
+- `docs/MATT_GILKS_CA_RESEARCH.md`: hasil pencarian identitas Matt Gilks dan status pemetaan CA/PA.
 - `docs/PLAYER_RECORD_MAPPING.md`: riset pemetaan record pemain/person.
 - `docs/VALIDATION.md`: aturan validasi.
 - `docs/REVERSE_ENGINEERING_STATUS.md`: status riset format save.

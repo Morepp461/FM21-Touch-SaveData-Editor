@@ -11,6 +11,7 @@ Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file sav
 - Target SDK: **36**
 - Teknologi: Kotlin + Jetpack Compose
 - Kompresi Zstandard: decoder Java murni dan runtime kompresi Android zstd-jni
+- Referensi metadata database aktif: **FM21 Touch 21.4.0** (`2140_fmc.xml`) saja
 
 ## Fitur yang sudah tersedia
 
@@ -24,6 +25,7 @@ Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file sav
 - Memetakan UID pada indeks nama ke entity record person secara hanya-baca.
 - Memvalidasi seluruh komponen save dengan dekompresi penuh sebelum membuat salinan FMV tanpa perubahan.
 - Mengekspor salinan FMV ke lokasi pilihan pengguna melalui Android Storage Access Framework, lalu membuka ulang dan memverifikasi SHA-256 file hasil ekspor.
+- Parser metadata FMC internal yang memvalidasi target database 21.4.0 dan menolak pemrosesan DTD/entity eksternal. Parser ini tidak memetakan struktur biner `.dat`.
 - Antarmuka gelap bergaya **Football Management Data Studio**: nuansa lapangan hijau yang kalem, panel data yang rapi, hierarki informasi jelas, dan tab Ringkasan, Orang, Perbandingan, serta Berkas.
 - Ikon aplikasi adaptif dan kebijakan privasi yang mengutamakan penggunaan offline.
 - CI Android membangun APK debug/release dan AAB, menjalankan unit test, memeriksa metadata kompatibilitas paket, serta menyediakan uji emulator Android API 26.
@@ -133,6 +135,7 @@ Jangan pernah memasukkan keystore atau password ke repository. Tanpa secrets ter
 ## Dokumen proyek
 
 - `ROADMAP.md`: tahapan pengembangan dan status pekerjaan.
+- `docs/DATABASE_METADATA.md`: referensi metadata database aktif 21.4.0.
 - `docs/GLOBAL_EDITOR_SCOPE.md`: cakupan editor untuk seluruh database dalam save.
 - `docs/CROSS_SAVE_PERSON_RECORD_ANALYSIS.md`: hasil analisis person antar-save.
 - `docs/MATT_GILKS_CA_RESEARCH.md`: hasil pencarian identitas Matt Gilks dan status pemetaan CA/PA.

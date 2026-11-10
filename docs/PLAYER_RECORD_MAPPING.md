@@ -65,3 +65,10 @@ These examples demonstrate the name-to-person-record join. The names are not har
 5. Confirm each field against more than one player and a second save before enabling edits.
 
 No save-writing code should use this mapping until the player classification and player-specific record layout are independently verified.
+
+
+## Additional record-shape observations
+
+The Android mapper now records the four-byte tag immediately following the duplicated UID pair. It also reports a record length only when the next mapped entity ID is exactly the current entity ID + 1 and the next mapped row offset is greater. The length is therefore a local adjacency observation, not a global fixed-size assumption.
+
+Initial analysis of the supplied save found two common distances between consecutively mapped entity IDs: 86 bytes and 135 bytes. The app exposes these as observations only. The tags and lengths have not yet been assigned semantic names such as player, staff, contract, CA or PA.

@@ -32,6 +32,17 @@ private fun EditorHome() {
     var container by remember { mutableStateOf<FmvContainer?>(null) }
     var status by remember { mutableStateOf("Belum ada save yang dibuka") }
     var busy by remember { mutableStateOf(false) }
+    var pendingExport by remember { mutableStateOf<ByteArray?>(null) }
+
+    val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+        val payload = pendingExport
+        if (uri != null && payload != null) {
+            runCatching { context.contentResolver.openOutputStream(uri)?.use { it.write(payload) } ?: error("Tidak bisa menulis file") }
+                .onSuccess { status = "Komponen berhasil diekspor (${payload.size} bytes)" }
+                .onFailure { status = "Ekspor gagal: ${it.message}" }
+        }
+        pendingExport = null
+    }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {

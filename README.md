@@ -24,7 +24,7 @@ Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file sav
 - Memetakan UID pada indeks nama ke entity record person secara hanya-baca.
 - Memvalidasi seluruh komponen save dengan dekompresi penuh sebelum membuat salinan FMV tanpa perubahan.
 - Mengekspor salinan FMV ke lokasi pilihan pengguna melalui Android Storage Access Framework, lalu membuka ulang dan memverifikasi SHA-256 file hasil ekspor.
-- Antarmuka gelap bertema motorsport dengan tab Ringkasan, Orang, Perbandingan, dan Berkas.
+- Antarmuka gelap bergaya **Football Management Data Studio**: nuansa lapangan hijau yang kalem, panel data yang rapi, hierarki informasi jelas, dan tab Ringkasan, Orang, Perbandingan, serta Berkas.
 - Ikon aplikasi adaptif dan kebijakan privasi yang mengutamakan penggunaan offline.
 - CI Android membangun APK debug/release dan AAB, menjalankan unit test, memeriksa metadata kompatibilitas paket, serta menyediakan uji emulator Android API 26.
 - Penandatanganan release opsional melalui GitHub Actions secrets pribadi. Tanpa keystore pribadi, hasil CI tetap berupa file unsigned (belum ditandatangani).
@@ -48,6 +48,17 @@ Aplikasi masih **read-only**. Hal-hal berikut belum siap diedit:
 **Target produk adalah seluruh database di dalam save.** Pemain dan staf dari klub mana pun, termasuk klub yang tidak sedang dimainkan, harus bisa dicari dan dikelola setelah struktur datanya berhasil dipetakan. Konteks klub hanya boleh menjadi filter pencarian, bukan pembatas akses.
 
 Indeks person tidak sama dengan daftar pemain. Indeks tersebut dapat memuat staf dan jenis person lainnya. Entity ID, tag record mentah, serta perkiraan panjang record saat ini hanya digunakan untuk diagnostik, bukan sebagai dasar untuk mengubah byte.
+
+## Arah desain UI/UX
+
+Aplikasi ini adalah alat pengelola dan editor database save game sepak bola, bukan aplikasi motorsport. Karena itu, identitas visualnya mengikuti konteks **football management**: tampilan dashboard manajerial, nuansa hijau lapangan yang tidak mencolok, latar gelap untuk kenyamanan membaca data, serta tabel dan panel informasi yang mengutamakan keterbacaan. UI harus terasa seperti perangkat analisis dan administrasi klub sepak bola, bukan tema balap atau siaran motorsport.
+
+Prioritas UX:
+- Pencarian global untuk pemain, staf, klub, liga, dan kompetisi di seluruh database save.
+- Profil pemain/staf dengan pengelompokan atribut yang mudah dipindai.
+- Filter klub, negara, posisi, dan jenis entitas tanpa membatasi cakupan database.
+- Form edit dengan validasi nilai, indikator perubahan, dan konfirmasi sebelum menulis save.
+- Navigasi satu tangan, kontrol yang nyaman di layar ponsel, serta status proses yang jelas.
 
 ## Navigasi aplikasi
 

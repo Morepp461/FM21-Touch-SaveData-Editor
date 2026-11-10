@@ -38,7 +38,7 @@ object PersonRecordMapper {
 
         val names = scanNameIndex(gameDb)
         if (names.isEmpty()) {
-            throw FmvFormatException("No supported FM21 person-name index entries were found")
+            throw FmvFormatException("No supported FM21 name-index entries were found")
         }
 
         val wantedUids = HashSet<Long>(names.size * 2)

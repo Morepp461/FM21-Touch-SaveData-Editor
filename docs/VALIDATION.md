@@ -46,3 +46,18 @@ No edited save may be exported until all of these pass:
 4. At least one known edit is applied to a copy.
 5. The edited copy reopens in the target game and the changed value is confirmed in-game.
 6. A second independent fixture confirms the field mapping.
+
+
+## 0.5.0 CI and UI validation
+
+- Android Gradle build: passed on GitHub Actions for commit `ab2bf12f`.
+- Unit tests: passed in the same CI job.
+- Debug APK artifact: generated successfully (9,576,146 bytes).
+- APK SHA-256: `b59a0f4d04d8d385717574e64c89fac6aee1c1ddace04924ab5e0dfcb2aaf616`.
+- Runtime APK contains AndroidX graphics native libraries; the Zstandard JNI runtime dependency is absent. Zstandard decoding uses the pure-Java implementation.
+- App minimum SDK remains API 26 (Android 8.0).
+- UI includes Overview, People, Compare and Files tabs, component category filters, search and incremental loading.
+
+Additional synthetic mapper tests were added for ambiguous UID matches and malformed payload rejection. A save-write policy test verifies that unvalidated containers are rejected.
+
+This CI result proves the source compiles and the automated unit tests pass. It does not prove installation on every Android 8 device, correct player classification, semantic field offsets, or a game-loadable rebuilt save.

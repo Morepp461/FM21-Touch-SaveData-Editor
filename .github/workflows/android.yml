@@ -53,11 +53,11 @@ jobs:
           BADGING="$("$AAPT" dump badging "$APK")"
           echo "$BADGING" | grep -q "sdkVersion:'26'"
           echo "$BADGING" | grep -q "targetSdkVersion:'36'"
-          if unzip -l "$APK" | grep -q 'libzstd-jni'; then
-            echo "Unexpected Zstandard JNI library found in runtime APK"
+          if ! unzip -l "$APK" | grep -Eq 'lib/(arm64-v8a|armeabi-v7a|x86|x86_64)/libzstd-jni.*\.so'; then
+            echo "Android Zstandard native runtime libraries are missing"
             exit 1
           fi
-          echo "Minimum SDK 26, target SDK 36, no zstd-jni runtime library."
+          echo "Minimum SDK 26, target SDK 36, Android Zstandard runtime libraries present."
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:

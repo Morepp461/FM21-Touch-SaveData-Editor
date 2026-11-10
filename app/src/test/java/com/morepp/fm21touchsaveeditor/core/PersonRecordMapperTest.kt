@@ -20,10 +20,10 @@ class PersonRecordMapperTest {
         data.write(byteArrayOf(0x0a, 0x80.toByte(), 0x00, 0xf4.toByte(), 0x01))
 
         // Name index entry which resolves to the entity row above.
-        writeNameEntry(data, "Bob Fullam", 26_630, 2_000_102_078L)
+        writeNameEntry(data, "Bob Fullam", 26_630L, 2_000_102_078L)
 
         // A second name index entry without an entity row must not be guessed.
-        writeNameEntry(data, "Unresolved Player", 26_631, 2_000_102_079L)
+        writeNameEntry(data, "Unresolved Player", 26_631L, 2_000_102_079L)
 
         val index = PersonRecordMapper.map(data.toByteArray())
         assertEquals(2, index.scannedNameEntries)
@@ -41,7 +41,7 @@ class PersonRecordMapperTest {
         assertNull(missing.entityRecordOffset)
     }
 
-    private fun writeNameEntry(out: ByteArrayOutputStream, name: String, localId: Int, uid: Long) {
+    private fun writeNameEntry(out: ByteArrayOutputStream, name: String, localId: Long, uid: Long) {
         val bytes = name.toByteArray(Charsets.UTF_8)
         out.write(le32(bytes.size))
         out.write(bytes)

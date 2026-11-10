@@ -57,7 +57,7 @@ jobs:
             echo "Unexpected Zstandard JNI library found in runtime APK"
             exit 1
           fi
-          echo "Minimum SDK 26, target SDK 35, no zstd-jni runtime library."
+          echo "Minimum SDK 26, target SDK 36, no zstd-jni runtime library."
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
@@ -68,7 +68,7 @@ jobs:
         if: env.HAS_RELEASE_KEYSTORE != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: fm21-touch-save-editor-0.6.0-unsigned
+          name: fm21-touch-save-editor-0.7.0-unsigned
           path: |
             app/build/outputs/apk/release/app-release-unsigned.apk
             app/build/outputs/bundle/release/app-release.aab
@@ -83,7 +83,7 @@ jobs:
         if: env.HAS_RELEASE_KEYSTORE == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: fm21-touch-save-editor-0.6.0-signed
+          name: fm21-touch-save-editor-0.7.0-signed
           path: |
             app/build/outputs/apk/release/app-release.apk
             app/build/outputs/bundle/release/app-release.aab

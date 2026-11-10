@@ -69,7 +69,7 @@ private fun EditorHome() {
     var pendingExport by remember { mutableStateOf<File?>(null) }
     var filterText by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf(EditorTab.OVERVIEW) }
-    var selectedCategory by remember { mutableStateOf("All") }
+    var selectedCategory by remember { mutableStateOf("Semua") }
     var componentLimit by remember { mutableIntStateOf(40) }
 
     val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
@@ -104,7 +104,7 @@ private fun EditorHome() {
                     personIndex = null
                     personSearch = ""
                     filterText = ""
-                    selectedCategory = "All"
+                    selectedCategory = "Semua"
                     componentLimit = 40
                     selectedTab = EditorTab.OVERVIEW
                     status = "Save tervalidasi: ${it.manifest.saveName}"
@@ -145,11 +145,11 @@ private fun EditorHome() {
 
     val parsed = container
     val allMembers = parsed?.manifest?.members.orEmpty()
-    val categories = listOf("All", "game_db", "comp_", "tc_", "history", "other")
+    val categories = listOf("Semua", "game_db", "comp_", "tc_", "history", "Lainnya")
     val filteredMembers = allMembers.filter { member ->
         val categoryMatch = when (selectedCategory) {
-            "All" -> true
-            "other" -> !member.name.startsWith("game_db/") &&
+            "Semua" -> true
+            "Lainnya" -> !member.name.startsWith("game_db/") &&
                 !member.name.startsWith("comp_") && !member.name.startsWith("tc_") &&
                 !member.name.contains("history", ignoreCase = true)
             "history" -> member.name.contains("history", ignoreCase = true)

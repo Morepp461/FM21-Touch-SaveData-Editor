@@ -77,7 +77,7 @@ class FmvContainer(private val bytes: ByteArray) {
     fun extractToFile(member: FmvMember, output: File): Pair<Long, Int> {
         val parent = output.absoluteFile.parentFile
             ?: throw FmvFormatException("Cannot resolve extraction directory: ${output.name}")
-        if (!parent.exists() && !parent.mkdirs() && !parent.isDirectory) {
+        if (!parent.isDirectory && !parent.mkdirs()) {
             throw FmvFormatException("Cannot create extraction directory: ${parent.name}")
         }
         val temporary = File.createTempFile("fmv-extract-", ".part", parent)

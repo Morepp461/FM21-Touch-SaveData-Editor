@@ -89,6 +89,14 @@ class FmvContainerTest {
     }
 
     @Test
+    fun rejectsDuplicateComponentNamesAsAmbiguous() {
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvContainer(duplicateNameFixture())
+        }
+        assertEquals(true, error.message!!.contains("duplicate component name"))
+    }
+
+    @Test
     fun rejectsInvalidHeader() {
         val exception = assertThrows(FmvFormatException::class.java) {
             FmvContainer(ByteArray(64))
@@ -112,6 +120,43 @@ class FmvContainerTest {
         } finally {
             directory.deleteRecursively()
         }
+    }
+
+    private fun duplicateNameFixture(): ByteArray {
+        val first = Zstd.compress("first".toByteArray(), 3)
+        val second = Zstd.compress("second".toByteArray(), 3)
+        val firstStored = first.size + 4
+        val secondStored = second.size + 4
+        val manifest = ByteArrayOutputStream()
+        writeString(manifest, "Duplicate Name Save")
+        manifest.write(le32(2))
+        repeat(2) { index ->
+            writeString(manifest, "sample")
+            writeString(manifest, ".dat")
+            manifest.write(le64(if (index == 0) 0 else firstStored.toLong()))
+            manifest.write(le64(if (index == 0) firstStored.toLong() else secondStored.toLong()))
+            manifest.write(le64(if (index == 0) 5 else 6))
+            manifest.write(ByteArray(16))
+        }
+        manifest.write(le32(0))
+        manifest.write(le32(0))
+        val manifestFrame = Zstd.compress(manifest.toByteArray(), 3)
+        val footerOffset = 30 + firstStored + secondStored - 4
+        val header = ByteArray(30)
+        header[0] = 0x02
+        header[1] = 0x01
+        "fmf.".toByteArray().copyInto(header, 2)
+        le32(footerOffset - 9).copyInto(header, 9)
+        return ByteArrayOutputStream().apply {
+            write(header)
+            write(first)
+            write(le32(second.size))
+            write(second)
+            write(footerPrefix.copyOfRange(0, 4))
+            write(footerPrefix.copyOfRange(4, footerPrefix.size))
+            write(le32(manifestFrame.size))
+            write(manifestFrame)
+        }.toByteArray()
     }
 
     private fun fixture(chunks: List<ByteArray>): ByteArray {

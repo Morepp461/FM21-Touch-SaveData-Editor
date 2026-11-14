@@ -115,3 +115,10 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Run 175 (43646167421) targets head `bd9d82136748c714892f8f8a277f72ea323172c9`, including the Android launcher UI smoke test.
 - Both jobs completed as failures with no step summaries or log URLs exposed by the job API. Earlier runs 168, 172, and 173 show the same no-runner / zero-step pattern.
 - The storage failure-path regression test was strengthened after run 175 and therefore is not covered by that run. A new CI result for the latest head is still required.
+
+
+## Release artifact verification hardening (15 November 2026)
+
+- CI now checks both debug and release APKs for minimum SDK 26, target SDK 36, and the packaged Zstandard native runtime. It also requires the release AAB to exist.
+- When a private release keystore is configured, CI verifies the APK signature with apksigner and the AAB signature with jarsigner.
+- These checks are committed but have not run yet. Run 176 and its rerun both failed before runner allocation; no Gradle task or validation step is known to have executed.

@@ -125,3 +125,10 @@ Current state: **not ready for public publication**. The app is a read-only save
 
 
 - Follow-up run 179 (43646291072), which includes the artifact-verification workflow changes, also failed both jobs in 1–2 seconds. The GitHub job records show `runner_id: 0`, empty runner names, zero steps, and no log URLs. This confirms the workflow has still not reached Gradle or the emulator; it does not validate or invalidate the new workflow commands.
+
+
+## Parser ambiguity guard (15 November 2026)
+
+- The Kotlin FMV parser now rejects empty or duplicate component names during manifest validation instead of allowing ambiguous name-based lookups to continue into export/rebuild paths.
+- Added a synthetic duplicate-name manifest regression test.
+- CI run 181 (43646485787) for this change failed both jobs before runner allocation. GitHub reports `runner_id: 0`, empty runner names, zero steps, and no job logs. The new parser guard and regression test are therefore committed but not yet executed by CI.

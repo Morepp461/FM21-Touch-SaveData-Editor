@@ -125,3 +125,9 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 2. Uji salinan no-op hasil Kotlin di FM21 Touch 2021. Catat perangkat, versi game, hasil load, dan hash file.
 3. Siapkan pasangan save terkontrol yang mengubah tepat satu nilai yang diketahui. Tanpa fixture ini, klasifikasi pemain/staf dan offset CA/PA/atribut/finansial tidak boleh ditebak.
 4. Setelah field terbukti, implementasikan editor dengan preview perubahan, batas nilai, undo, backup, rebuild, dan validasi ulang di game.
+
+## Uji regresi writer multi-frame — 15 November 2026
+- Memperbaiki tes sintetis Kotlin yang sebelumnya memakai payload pengganti hanya 3 KiB, sehingga sebenarnya tidak melewati batas pemecahan frame writer 8 MiB.
+- Fixture kini berukuran 8 MiB + 4 KiB dan tes memeriksa bahwa hasil rebuild berisi tepat dua frame Zstandard.
+- Commit: `045fe30cb89a2d9dce53ff8fd8a90936d71f8a64`.
+- CI untuk head tersebut masih gagal pada kedua job; log tidak dapat diambil melalui konektor, sehingga penyebab belum diketahui. Jangan tandai validasi build atau API 26 selesai.

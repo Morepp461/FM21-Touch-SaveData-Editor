@@ -30,7 +30,7 @@ A before/after match pair is not sufficient to identify a specific editable fiel
 
 ## Writer status
 
-There is no verified FM21 Touch 21.4.0 save rebuilder yet. The current Android app is deliberately read-only. Writing guessed offsets, guessed field scales, or guessed checksums would risk corrupting the career save.
+The container layout is sufficiently understood to extract all observed members, and the repository documents an experimental Kotlin rebuilder plus an independent Python structural round-trip. This is not yet a production-ready Android writer: Kotlin writer validation against original real-save fixtures and a successful in-game load of a rebuilt FM21 Touch save remain pending. Semantic record edits are not authorized. The current Android app therefore remains read-only for game data. Writing guessed offsets, guessed field scales, or guessed checksums would risk corrupting the career save.
 
 
 ## Cross-save person identity evidence (Bolton fixtures)
@@ -42,3 +42,17 @@ For entity IDs whose next ID is contiguous, the observed adjacent record spans a
 Only two mapped person records changed byte-for-byte after the match: Bozhidar Iskrenov and Luke Duzel, each at relative byte offset 69 (hex FF to hex 64). That byte's meaning remains unknown. It is not labelled as CA, PA, or an attribute.
 
 A separate FM26 parser's person/ability layout was investigated as a hypothesis but was not accepted for FM21 Touch: the tested FM26 54-byte attribute-block signature did not produce candidates in the supplied FM21 game_db payload. FM21 field offsets must be established from FM21-specific evidence.
+
+
+## Uploaded fixture revalidation (2026-11-14)
+
+The uploaded after-match fixture was validated with the repository's read-only container parser:
+
+- File SHA-256: `abd98f78ff741279f237ce18c064fb919709f03c596289a3975087e152b2124e`.
+- 68 top-level and 784 nested members (852 total).
+- All 852 members extracted successfully across 1,610 Zstandard frames.
+- Extracted payload total: 107,929,383 bytes; no declared-length or member-boundary failures.
+- `game_db/.dat`: 69,387,047 bytes; SHA-256 `65aa092a01c2b390a78d194952308bf3e5e17a81d658d10792c0771b40271f64`.
+- Person index diagnostic: 17,486 accepted names, 15,235 resolved UID/entity joins, zero ambiguous joins, and 2,251 unresolved entries.
+
+This revalidation confirms container extraction and the existing person-index join. It does not establish player/staff classification, CA/PA, attribute fields, finance fields, or a safe semantic write path.

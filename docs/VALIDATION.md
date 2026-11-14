@@ -64,3 +64,39 @@ No edited save may be exported until all of these pass:
 Additional synthetic mapper tests were added for ambiguous UID matches and malformed payload rejection. A save-write policy test verifies that unvalidated containers are rejected.
 
 This CI result proves the source compiles and the automated unit tests pass. It does not prove installation on every Android 8 device, correct player classification, semantic field offsets, or a game-loadable rebuilt save.
+
+
+## Independent revalidation of the uploaded after-match fixture (2026-11-14)
+
+The uploaded `Coach Morepp - Bolton.fmv` was re-opened with the repository's read-only container parser and every manifest member was extracted again.
+
+| Check | Result |
+|---|---:|
+| Original file size | 21,629,895 bytes |
+| Original SHA-256 | `abd98f78ff741279f237ce18c064fb919709f03c596289a3975087e152b2124e` |
+| Database version | `21.4.0-0` |
+| Top-level members | 68 |
+| Nested members | 784 |
+| Total members verified | 852 / 852 |
+| Zstandard frames processed | 1,610 |
+| Total extracted payload | 107,929,383 bytes |
+| Failed members | 0 |
+| `game_db/.dat` plaintext | 69,387,047 bytes |
+| `game_db/.dat` SHA-256 | `65aa092a01c2b390a78d194952308bf3e5e17a81d658d10792c0771b40271f64` |
+
+The name-index diagnostic was independently repeated against the extracted `game_db/.dat`: 17,486 accepted name-index entries, 15,235 unique UID-to-entity joins, zero ambiguous joins, and 2,251 unresolved name-index entries. This reproduces the existing person-index result; it does not add player/staff classification or identify editable field offsets.
+
+The original save was read only and was not modified. The private fixture itself is not committed to Git.
+
+
+### Container rebuild smoke test (2026-11-14)
+
+An independent Python container-only rebuild was also exercised against this fixture. It re-encoded `game_info/.dat` with identical plaintext, preserved the compressed streams and metadata stamps of the other 851 components, rebuilt the manifest and outer footer, then reopened the rebuilt container.
+
+- Rebuilt file size: 21,629,879 bytes.
+- All 852 members reopened and decompressed.
+- All 852 plaintext payloads matched the original fixture byte-for-byte.
+- Failed members or payload mismatches: 0.
+- The test did not change any game-semantic value and did not validate the Kotlin Android writer or loading the rebuilt save in FM21 Touch.
+
+This is a container-structure smoke test only. It must not be treated as permission to enable semantic field editing.

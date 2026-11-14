@@ -55,6 +55,32 @@ class FmvContainerTest {
     }
 
     @Test
+    fun extractToFileReplacesOnlyAfterSuccessfulValidation() {
+        val payload = "new extracted component".toByteArray()
+        val parsed = FmvContainer(fixture(listOf(payload)))
+        val directory = java.io.File.createTempFile("fmv-output", "test")
+        directory.delete()
+        directory.mkdirs()
+        val output = java.io.File(directory, "component.dat")
+        try {
+            output.writeText("previous content")
+            val member = parsed.manifest.members.single()
+            parsed.extractToFile(member, output)
+            assertArrayEquals(payload, output.readBytes())
+
+            output.writeText("keep this on failure")
+            val foreignMember = member.copy(name = "foreign/.dat")
+            assertThrows(FmvFormatException::class.java) {
+                parsed.extractToFile(foreignMember, output)
+            }
+            assertEquals("keep this on failure", output.readText())
+            assertEquals(1, directory.listFiles()?.size)
+        } finally {
+            directory.deleteRecursively()
+        }
+    }
+
+    @Test
     fun rejectsInvalidHeader() {
         val exception = assertThrows(FmvFormatException::class.java) {
             FmvContainer(ByteArray(64))

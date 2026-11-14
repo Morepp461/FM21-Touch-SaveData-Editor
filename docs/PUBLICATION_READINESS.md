@@ -93,3 +93,10 @@ Current state: **not ready for public publication**. The app is a read-only save
 - A controlled fixture capture protocol is maintained at `docs/CONTROLLED_FIXTURE_PROTOCOL.md` on the development branch.
 - The latest PR validation run for head `045fe30cb89a2d9dce53ff8fd8a90936d71f8a64` (GitHub Actions run `43644407137`, run 163) concluded **failure** for both the Android build/test job and API 26 emulator job. The connector could not retrieve the job logs or step summaries, so the failure cause is unknown and must not be guessed.
 - The synthetic Kotlin regression test was corrected to use an edited payload of 8 MiB + 4 KiB and assert exactly two output Zstandard frames. This now exercises the writer's multi-frame branch, but remains a synthetic test until CI can report a passing run.
+
+## CI execution diagnosis (15 November 2026)
+
+- The latest PR run for head `5276db83997c66b0b8b42a5bcf888bdea4dcb911` is GitHub Actions run `43645357405` (run 168). Both jobs failed in approximately two seconds.
+- GitHub's job records for both the build and API 26 smoke jobs report `runner_id: 0`, an empty runner name, and an empty step list. The failed-job rerun (attempt 2) returned the same result.
+- GitHub's log download endpoint returned `BlobNotFound`; therefore there is no evidence that Gradle, Python tests, the Android emulator, or any workflow step actually started. This must be treated as a GitHub Actions execution/runner problem, not as a confirmed source-code or Gradle failure.
+- Do not mark CI as passed, and do not infer a build failure cause from these records. Re-run once GitHub Actions provides a runner and inspect actual step logs before changing dependencies or build configuration.

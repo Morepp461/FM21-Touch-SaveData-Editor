@@ -141,6 +141,7 @@ Jangan pernah memasukkan keystore atau password ke repository. Tanpa secrets ter
 - `docs/MATT_GILKS_CA_RESEARCH.md`: hasil pencarian identitas Matt Gilks dan status pemetaan CA/PA.
 - `docs/PLAYER_RECORD_MAPPING.md`: riset pemetaan record pemain/person.
 - `docs/VALIDATION.md`: aturan validasi.
+- `docs/CONTROLLED_FIXTURE_PROTOCOL.md`: format eksperimen terkontrol untuk membuktikan field database sebelum diaktifkan untuk edit.
 - `docs/REVERSE_ENGINEERING_STATUS.md`: status riset format save.
 
 Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sports Interactive maupun SEGA.

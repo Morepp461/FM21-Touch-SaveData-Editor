@@ -131,3 +131,12 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Fixture kini berukuran 8 MiB + 4 KiB dan tes memeriksa bahwa hasil rebuild berisi tepat dua frame Zstandard.
 - Commit: `045fe30cb89a2d9dce53ff8fd8a90936d71f8a64`.
 - CI untuk head tersebut masih gagal pada kedua job; log tidak dapat diambil melalui konektor, sehingga penyebab belum diketahui. Jangan tandai validasi build atau API 26 selesai.
+
+
+## Analisis dua save Bolton lintas musim — 15 November 2026
+- Menganalisis dua snapshot karier dengan nama save dan database 21.4.0-0 yang sama; keduanya dinyatakan pengguna berjarak satu musim.
+- 852/852 komponen berhasil diekstrak dari masing-masing file. 688 komponen identik dan 164 berubah; tidak ada komponen yang hilang atau bertambah.
+- Seluruh 17.486 UID name-index sama. 15.235 UID terhubung mempertahankan entity ID walaupun offset bergeser.
+- Dua record person terpetakan berubah pada byte relatif 69: Bozhidar Iskrenov dan Luke Duzel (`FF` pada backup menjadi `64` pada file pertama). Arti byte belum diketahui.
+- `finance_manager/.dat` identik. Pasangan ini memperkuat pengujian join lintas-save, tetapi bukan fixture satu-field dan tidak cukup untuk memberi label CA/PA/atribut/keuangan.
+- Laporan: `docs/CROSS_SEASON_FIXTURE_ANALYSIS.md`. Kedua file asli tidak dimasukkan ke Git.

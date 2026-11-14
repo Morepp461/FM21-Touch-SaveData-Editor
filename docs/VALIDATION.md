@@ -87,3 +87,16 @@ The uploaded `Coach Morepp - Bolton.fmv` was re-opened with the repository's rea
 The name-index diagnostic was independently repeated against the extracted `game_db/.dat`: 17,486 accepted name-index entries, 15,235 unique UID-to-entity joins, zero ambiguous joins, and 2,251 unresolved name-index entries. This reproduces the existing person-index result; it does not add player/staff classification or identify editable field offsets.
 
 The original save was read only and was not modified. The private fixture itself is not committed to Git.
+
+
+### Container rebuild smoke test (2026-11-14)
+
+An independent Python container-only rebuild was also exercised against this fixture. It re-encoded `game_info/.dat` with identical plaintext, preserved the compressed streams and metadata stamps of the other 851 components, rebuilt the manifest and outer footer, then reopened the rebuilt container.
+
+- Rebuilt file size: 21,629,879 bytes.
+- All 852 members reopened and decompressed.
+- All 852 plaintext payloads matched the original fixture byte-for-byte.
+- Failed members or payload mismatches: 0.
+- The test did not change any game-semantic value and did not validate the Kotlin Android writer or loading the rebuilt save in FM21 Touch.
+
+This is a container-structure smoke test only. It must not be treated as permission to enable semantic field editing.

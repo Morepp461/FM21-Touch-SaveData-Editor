@@ -30,6 +30,7 @@ This checklist is intentionally strict. A successful APK build is not equivalent
 - [x] Read-only FMF/FMV parser for observed FM21 Touch 21.4.x save layout.
 - [x] Manifest bounds and component metadata validation.
 - [x] Zstandard component extraction and plaintext length validation.
+- [x] Component export writes to a unique temporary file and replaces the destination only after successful extraction; regression test covers preservation of an existing destination on failure.
 - [x] Component comparison and export.
 - [x] Initial experimental FMV container rebuilder implementation added (not yet accepted for production writes).
 - [x] Add byte-identical unchanged-save copy path and synthetic regression test.
@@ -96,7 +97,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 
 ## CI execution diagnosis (15 November 2026)
 
-- The latest PR run for head `5276db83997c66b0b8b42a5bcf888bdea4dcb911` is GitHub Actions run `43645357405` (run 168). Both jobs failed in approximately two seconds.
-- GitHub's job records for both the build and API 26 smoke jobs report `runner_id: 0`, an empty runner name, and an empty step list. The failed-job rerun (attempt 2) returned the same result.
+- PR run 172 for head `5485803a67f7b3c63b0ae7780d07ed68e873c98c` is GitHub Actions run `43645927595`. Both jobs failed in approximately one to two seconds.
+- GitHub's job records for both the build and API 26 smoke jobs report `runner_id: 0`, an empty runner name, and an empty step list. The earlier run 168 and its failed-job rerun (attempt 2) returned the same result.
 - GitHub's log download endpoint returned `BlobNotFound`; therefore there is no evidence that Gradle, Python tests, the Android emulator, or any workflow step actually started. This must be treated as a GitHub Actions execution/runner problem, not as a confirmed source-code or Gradle failure.
 - Do not mark CI as passed, and do not infer a build failure cause from these records. Re-run once GitHub Actions provides a runner and inspect actual step logs before changing dependencies or build configuration.

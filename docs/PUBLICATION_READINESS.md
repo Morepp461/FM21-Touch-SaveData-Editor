@@ -10,7 +10,7 @@ This checklist is intentionally strict. A successful APK build is not equivalent
 - [x] Debug APK build in CI.
 - [x] Unsigned release APK build in CI.
 - [x] Unit-test task in CI.
-- [x] Android 8.0 / API 26 emulator launch smoke-test job.
+- [x] Android 8.0 / API 26 emulator launch smoke-test job with an explicit Compose home-screen assertion.
 - [ ] API 26 emulator job passes on the latest commit.
 - [ ] Manual install and launch test on a physical Android 8 device.
 - [ ] Manual install and launch test on a recent Android device.
@@ -101,3 +101,10 @@ Current state: **not ready for public publication**. The app is a read-only save
 - GitHub's job records for both the build and API 26 smoke jobs report `runner_id: 0`, an empty runner name, and an empty step list. The earlier run 168 and its failed-job rerun (attempt 2) returned the same result.
 - GitHub's log download endpoint returned `BlobNotFound`; therefore there is no evidence that Gradle, Python tests, the Android emulator, or any workflow step actually started. This must be treated as a GitHub Actions execution/runner problem, not as a confirmed source-code or Gradle failure.
 - Do not mark CI as passed, and do not infer a build failure cause from these records. Re-run once GitHub Actions provides a runner and inspect actual step logs before changing dependencies or build configuration.
+
+
+## Android UI smoke coverage (15 November 2026)
+
+- Added `MainActivitySmokeTest` under `app/src/androidTest`.
+- The test launches the real activity and asserts that the app title, FMV picker action, and Android 8.0 minimum-support note are visible.
+- This test is wired into the existing API 26 emulator job through `connectedDebugAndroidTest`. It is committed but not yet verified by CI because GitHub Actions jobs have been failing before runner allocation and before any workflow steps execute.

@@ -28,7 +28,7 @@ Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file sav
 - Parser metadata FMC internal yang memvalidasi target database 21.4.0 dan menolak pemrosesan DTD/entity eksternal. Parser ini tidak memetakan struktur biner `.dat`.
 - Antarmuka gelap bergaya **Football Management Data Studio**: nuansa lapangan hijau yang kalem, panel data yang rapi, hierarki informasi jelas, dan tab Ringkasan, Orang, Perbandingan, serta Berkas.
 - Ikon aplikasi adaptif dan kebijakan privasi yang mengutamakan penggunaan offline.
-- CI Android membangun APK debug/release dan AAB, menjalankan unit test, memeriksa metadata kompatibilitas paket, serta menyediakan uji emulator Android API 26.
+- CI Android membangun APK debug/release dan AAB, menjalankan unit test, memeriksa metadata kompatibilitas paket, serta menjalankan UI smoke test pada emulator Android API 26.
 - Penandatanganan release opsional melalui GitHub Actions secrets pribadi. Tanpa keystore pribadi, hasil CI tetap berupa file unsigned (belum ditandatangani).
 
 ## Fitur yang belum tersedia

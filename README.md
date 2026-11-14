@@ -138,6 +138,7 @@ Jangan pernah memasukkan keystore atau password ke repository. Tanpa secrets ter
 - `docs/DATABASE_METADATA.md`: referensi metadata database aktif 21.4.0.
 - `docs/GLOBAL_EDITOR_SCOPE.md`: cakupan editor untuk seluruh database dalam save.
 - `docs/CROSS_SAVE_PERSON_RECORD_ANALYSIS.md`: hasil analisis person antar-save.
+- `docs/CROSS_SEASON_FIXTURE_ANALYSIS.md`: perbandingan dua snapshot karier Bolton yang berjarak satu musim.
 - `docs/MATT_GILKS_CA_RESEARCH.md`: hasil pencarian identitas Matt Gilks dan status pemetaan CA/PA.
 - `docs/PLAYER_RECORD_MAPPING.md`: riset pemetaan record pemain/person.
 - `docs/VALIDATION.md`: aturan validasi.

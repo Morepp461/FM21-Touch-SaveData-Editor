@@ -4,7 +4,7 @@ Tanggal analisis: 15 November 2026
 
 ## Identitas fixture
 
-Kedua file diberikan sebagai dua snapshot dari karier yang sama dengan jarak satu musim. Hubungan satu musim tersebut merupakan keterangan pengguna; parser hanya memverifikasi identitas save, versi database, struktur container, dan perbedaan byte.
+Kedua file diberikan sebagai dua snapshot dari karier yang sama dengan jarak satu musim. Pengguna mengonfirmasi bahwa `Coach Morepp - Bolton.fmv` adalah snapshot yang lebih baru (satu musim setelah backup). Dengan demikian, arah perbandingan pada tabel dan diff di bawah adalah **backup lama → file utama terbaru**. Parser sendiri memverifikasi identitas save, versi database, struktur container, dan perbedaan byte.
 
 | Properti | `Coach Morepp - Bolton.fmv` | `Coach Morepp - Bolton backup.fmv` |
 |---|---:|---:|

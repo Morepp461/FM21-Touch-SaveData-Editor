@@ -132,3 +132,6 @@ Current state: **not ready for public publication**. The app is a read-only save
 - The Kotlin FMV parser now rejects empty or duplicate component names during manifest validation instead of allowing ambiguous name-based lookups to continue into export/rebuild paths.
 - Added a synthetic duplicate-name manifest regression test.
 - CI run 181 (43646485787) for this change failed both jobs before runner allocation. GitHub reports `runner_id: 0`, empty runner names, zero steps, and no job logs. The new parser guard and regression test are therefore committed but not yet executed by CI.
+
+
+- Run 183 (43646522974) for the duplicate-name parser guard also failed before runner allocation. Both job records report `runner_id: 0`, empty runner names, zero executed steps, and no log URLs. No Kotlin unit test, Android package build, or emulator launch has been executed for the latest branch head.

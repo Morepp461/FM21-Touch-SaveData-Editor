@@ -8,6 +8,9 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.nio.file.AtomicMoveNotSupportedException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 data class FmvMember(
     val name: String,
@@ -72,17 +75,23 @@ class FmvContainer(private val bytes: ByteArray) {
     }
 
     fun extractToFile(member: FmvMember, output: File): Pair<Long, Int> {
-        output.parentFile?.mkdirs()
-        val temporary = File(output.parentFile, output.name + ".part")
+        val parent = output.absoluteFile.parentFile
+            ?: throw FmvFormatException("Cannot resolve extraction directory: ${output.name}")
+        if (!parent.exists() && !parent.mkdirs() && !parent.isDirectory) {
+            throw FmvFormatException("Cannot create extraction directory: ${parent.name}")
+        }
+        val temporary = File.createTempFile("fmv-extract-", ".part", parent)
         try {
             val result = FileOutputStream(temporary).use { raw ->
                 BufferedOutputStream(raw).use { sink -> extract(member, sink) }
             }
-            if (output.exists() && !output.delete()) {
-                throw FmvFormatException("Cannot replace previous extracted component: ${output.name}")
-            }
-            if (!temporary.renameTo(output)) {
-                throw FmvFormatException("Cannot finalize extracted component: ${output.name}")
+            try {
+                Files.move(
+                    temporary.toPath(), output.toPath(),
+                    StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING
+                )
+            } catch (_: AtomicMoveNotSupportedException) {
+                Files.move(temporary.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
             }
             return result
         } catch (error: Exception) {

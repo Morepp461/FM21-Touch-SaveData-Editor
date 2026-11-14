@@ -108,3 +108,10 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Added `MainActivitySmokeTest` under `app/src/androidTest`.
 - The test launches the real activity and asserts that the app title, FMV picker action, and Android 8.0 minimum-support note are visible.
 - This test is wired into the existing API 26 emulator job through `connectedDebugAndroidTest`. It is committed but not yet verified by CI because GitHub Actions jobs have been failing before runner allocation and before any workflow steps execute.
+
+
+## Latest CI attempt (15 November 2026)
+
+- Run 175 (43646167421) targets head `bd9d82136748c714892f8f8a277f72ea323172c9`, including the Android launcher UI smoke test.
+- Both jobs completed as failures with no step summaries or log URLs exposed by the job API. Earlier runs 168, 172, and 173 show the same no-runner / zero-step pattern.
+- The storage failure-path regression test was strengthened after run 175 and therefore is not covered by that run. A new CI result for the latest head is still required.

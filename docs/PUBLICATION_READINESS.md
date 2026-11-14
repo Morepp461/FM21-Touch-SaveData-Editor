@@ -122,3 +122,6 @@ Current state: **not ready for public publication**. The app is a read-only save
 - CI now checks both debug and release APKs for minimum SDK 26, target SDK 36, and the packaged Zstandard native runtime. It also requires the release AAB to exist.
 - When a private release keystore is configured, CI verifies the APK signature with apksigner and the AAB signature with jarsigner.
 - These checks are committed but have not run yet. Run 176 and its rerun both failed before runner allocation; no Gradle task or validation step is known to have executed.
+
+
+- Follow-up run 179 (43646291072), which includes the artifact-verification workflow changes, also failed both jobs in 1–2 seconds. The GitHub job records show `runner_id: 0`, empty runner names, zero steps, and no log URLs. This confirms the workflow has still not reached Gradle or the emulator; it does not validate or invalidate the new workflow commands.

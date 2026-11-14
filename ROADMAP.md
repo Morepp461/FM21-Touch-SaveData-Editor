@@ -111,3 +111,17 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Cakupan target meliputi pemain, staf, kontrak, klub, keuangan, kompetisi, negara, stadion, pencarian global, Mass Edit, Presets, Compare, Edit History/Undo, backup dan validasi.
 - Save Editor dan Pre-Game Database Editor dipisahkan sebagai dua mode produk karena format sumber dan jalur validasinya berbeda.
 - Blueprint tersebut adalah spesifikasi target, bukan klaim bahwa field sudah berhasil dipetakan atau dapat ditulis. Hanya field berstatus VERIFIED yang boleh dibuka untuk diedit.
+
+
+## Validasi fixture FMV nyata — 15 November 2026
+- Fixture privat `Coach Morepp - Bolton.fmv` (FM21 Touch 21.4.0-0) berhasil diekstrak ulang: 852/852 komponen, 1.610 frame Zstandard, total plaintext 107.929.383 byte, tanpa kegagalan batas atau panjang.
+- `game_db/.dat` berukuran 69.387.047 byte. Diagnostik indeks nama menghasilkan 17.486 entri, 15.235 UID terhubung unik, nol UID ambigu, dan 2.251 entri belum terhubung.
+- Uji rebuild struktural Python independen menghasilkan file 21.629.879 byte; seluruh 852 komponen dapat dibuka kembali dan plaintext setiap komponen identik dengan sumber.
+- Uji tersebut hanya membuktikan ekstraksi dan round-trip struktur container tanpa perubahan nilai game. Ini bukan bukti bahwa Kotlin rebuilder sudah lulus pada fixture nyata, bukan bukti save dapat dimuat di FM21 Touch, dan bukan izin untuk mengubah field database.
+- File fixture asli tetap privat dan tidak dimasukkan ke Git. Detail dan hash tercatat di `docs/REVERSE_ENGINEERING_STATUS.md` serta `docs/VALIDATION.md`.
+
+### Gerbang teknis yang masih wajib
+1. Jalankan Kotlin `FmvRebuilder` terhadap fixture FMV nyata, verifikasi semua komponen dan stream yang tidak disentuh, lalu bandingkan hasil dengan validator independen.
+2. Uji salinan no-op hasil Kotlin di FM21 Touch 2021. Catat perangkat, versi game, hasil load, dan hash file.
+3. Siapkan pasangan save terkontrol yang mengubah tepat satu nilai yang diketahui. Tanpa fixture ini, klasifikasi pemain/staf dan offset CA/PA/atribut/finansial tidak boleh ditebak.
+4. Setelah field terbukti, implementasikan editor dengan preview perubahan, batas nilai, undo, backup, rebuild, dan validasi ulang di game.

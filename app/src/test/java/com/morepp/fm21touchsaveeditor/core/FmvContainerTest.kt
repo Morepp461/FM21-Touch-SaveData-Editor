@@ -74,6 +74,14 @@ class FmvContainerTest {
                 parsed.extractToFile(foreignMember, output)
             }
             assertEquals("keep this on failure", output.readText())
+
+            // Fail after the temporary output has been created, during frame validation.
+            val corruptBytes = fixture(listOf(payload)).also { it[30] = 0 }
+            val corruptContainer = FmvContainer(corruptBytes)
+            assertThrows(FmvFormatException::class.java) {
+                corruptContainer.extractToFile(corruptContainer.manifest.members.single(), output)
+            }
+            assertEquals("keep this on failure", output.readText())
             assertEquals(1, directory.listFiles()?.size)
         } finally {
             directory.deleteRecursively()

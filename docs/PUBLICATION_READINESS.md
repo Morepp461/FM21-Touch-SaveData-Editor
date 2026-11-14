@@ -83,3 +83,11 @@ Keep original files private and unchanged. Include hashes and a short note descr
 ## Release decision
 
 Current state: **not ready for public publication**. The app is a read-only save inspector and component exporter. It does not yet have a validated FMV writer/rebuilder or verified implementations of the requested field editors. Do not market or distribute it as a working Full Database Editor until every required test above passes.
+
+
+## Revalidation update (15 November 2026)
+
+- Latest documented fixture-validation commit on `main`: `ad1401a11c3ac517e5d0c8fad50e14b376149fa7`.
+- The real FMV fixture was re-extracted successfully: 852/852 members and 1,610 Zstandard frames; the independent Python structural round-trip reopened all members with identical plaintext.
+- This is not Kotlin writer validation and does not prove that FM21 Touch can load a rebuilt save. The no-op in-game load, controlled semantic field fixtures, physical Android QA, and signing key remain release blockers.
+- A controlled fixture capture protocol is maintained at `docs/CONTROLLED_FIXTURE_PROTOCOL.md` on the development branch.

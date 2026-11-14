@@ -272,9 +272,13 @@ class FmvContainer(private val bytes: ByteArray) {
             manifest.members.size > MAX_MEMBERS) {
             throw FmvFormatException("Manifest metadata is invalid")
         }
+        val seenNames = HashSet<String>(manifest.members.size * 2)
         val sorted = manifest.members.sortedBy { it.offset }
         var previousEnd = 0L
         for (member in sorted) {
+            if (member.name.isBlank() || !seenNames.add(member.name)) {
+                throw FmvFormatException("Empty or duplicate component name: ${member.name}")
+            }
             if (member.offset < previousEnd || member.storedLength < 4 ||
                 member.plainLength < 0 || member.plainLength > MAX_MEMBER_BYTES) {
                 throw FmvFormatException("Invalid or overlapping component: ${member.name}")

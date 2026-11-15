@@ -160,6 +160,7 @@ private fun EditorHome() {
                 result.onSuccess {
                     comparisonContainer = it
                     comparisonResults = emptyList()
+                    personSnapshotDiff = null
                     status = "File pembanding valid: ${it.manifest.saveName}"
                 }.onFailure {
                     comparisonContainer = null

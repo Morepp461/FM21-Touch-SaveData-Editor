@@ -233,3 +233,5 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Hasil CI terakhir — 15 November 2026
 - Run 311 (`43676030826`) pada head `ce2ff55bdc1ef564e109106418b66d57000284e5` gagal untuk job build dan API 26 smoke.
 - Kedua job tidak mengembalikan step summary maupun URL log (`steps: []`, `logs_url: null`). Tidak ada bukti source build, unit test, atau emulator mulai berjalan.
+
+- Smoke test shell untuk langkah checksum/provenance berhasil pada tiga file dummy. Pemeriksaan `test -n` ditambahkan agar metadata versi tidak diam-diam kosong jika format `app/build.gradle.kts` berubah.

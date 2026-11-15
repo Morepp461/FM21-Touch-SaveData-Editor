@@ -261,3 +261,12 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Ekspor komponen dan CSV sekarang juga diverifikasi SHA-256 setelah file tujuan dibaca ulang. Sebelumnya pemeriksaan hash pasca-salin hanya diterapkan pada file FMV; kini seluruh tipe ekspor mengikuti validasi integritas yang sama.
 
 - Batas total komponen manifest kini diterapkan sebelum record nested dialokasikan, dengan menghitung entri top-level dan nested bersama-sama. Tes regresi membangun manifest sintetis 20.000 top-level + 1 nested dan memastikan parser menolaknya.
+
+
+### Riset database 21.4 — 15 November 2026
+
+- Sembilan tabel database 21.4 yang tersedia di sumber proyek berhasil dimaterialisasi dan diperiksa secara read-only; file mentah tidak dimasukkan ke repository.
+- Parser struktural menemukan 1.569 pasangan nama/UID pada `people_db.dat`, dan seluruh UID tersebut ditemukan pada indeks terkait di `basic_people_db.dat`.
+- Sebanyak 1.567 dari 1.569 UID hasil ekstraksi juga cocok dengan person-name index pada save Bolton. Ini menambah jalur cross-reference identitas, bukan pemetaan atribut.
+- Detail hash, struktur, dan batas interpretasi: `docs/DATABASE_2140_PERSON_INDEX_RESEARCH.md`.
+- CA, PA, atribut individu, dan offset tulis tetap belum tervalidasi. Gerbang writer produksi tetap menolak edit payload.

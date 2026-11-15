@@ -295,3 +295,6 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Pemeriksaan ini selaras dengan kebijakan privasi offline-first, tetapi belum dieksekusi karena Actions gagal sebelum runner/steps tersedia.
 
 - Bagian retensi pada privacy policy diselaraskan dengan implementasi: file staging dihapus setelah parsing dan payload ekspor setelah callback/cancel, dengan pengecualian jika proses terhenti sebelum cleanup.
+
+## CI terbaru setelah pemeriksaan privasi paket — 15 November 2026
+- Run 350 (`43676715152`) untuk head `96451025a044db9f45dd52e307f29b61f7e16b71` gagal pada kedua job sebelum langkah tersedia. Tidak ada hasil build, unit test, pemeriksaan permission APK, checksum, atau emulator.

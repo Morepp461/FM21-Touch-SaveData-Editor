@@ -62,3 +62,16 @@ Langkah berikutnya:
 4. Tetap minta pasangan fixture terkontrol satu nilai untuk CA, PA, atribut, saldo, budget, prize money, dan reputasi sebelum membuka editor.
 
 File save asli tidak dimasukkan ke repository. Hanya hash, ringkasan, dan hasil analisis yang dicatat di dokumen ini.
+
+
+## Audit kestabilan record person lanjutan — 15 November 2026
+
+Kedua payload `game_db/.dat` dipindai ulang dengan parser name-index dan join UID/entity yang sama:
+
+- Kedua snapshot menghasilkan 17.486 entri name-index yang sama persis.
+- Semua 15.235 UID yang terhubung menunjuk ke entity ID yang sama pada kedua snapshot; tidak ada UID ambigu pada hasil pemindaian ini.
+- Offset seluruh 15.235 entity record pada snapshot yang lebih baru bergeser tepat `+1.116` byte dibanding snapshot backup. Ini merupakan pergeseran global, bukan perubahan offset individual.
+- Keempat byte raw tag pada semua 15.235 record tetap identik lintas snapshot.
+- Distribusi panjang record hasil inferensi juga identik: 13.427 record berjarak 86 byte, 1.517 berjarak 135 byte, 80 memiliki jarak lain yang masih lolos batas diagnostik, dan 211 tidak memiliki batas berikutnya yang cukup untuk inferensi.
+
+Temuan ini memperkuat stable-UID join dan menunjukkan bahwa offset mentah tidak boleh dipakai sebagai identitas. Raw tag dan panjang record tetap belum diklasifikasikan sebagai pemain, staf, CA, PA, atau atribut; tidak ada field edit yang dapat dibuka dari hasil ini.

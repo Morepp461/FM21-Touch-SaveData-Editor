@@ -219,3 +219,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Empat kasus regresi pembaca save (batas tepat, batas terlampaui, batas negatif, dan kegagalan I/O) dijalankan pada harness Kotlin 1.9 lokal dengan assertion shim dan semuanya lulus. Ini bukan eksekusi JUnit/Gradle repository.
 
 - Parser FMV kini memakai pointer footer pada header sebagai lokasi manifest dan memverifikasi marker di posisi tersebut. Tes menolak pointer di luar file maupun pointer yang menunjuk ke data biasa. Actions run 336 tetap gagal tanpa step/log.
+
+- Run Actions 340 pada head `3ea07f39ed0aaabb1026e886fb67d69af19206fe` kembali gagal tanpa langkah job atau URL log. Parser pointer-footer sudah dicatat, tetapi tes Gradle belum berjalan.

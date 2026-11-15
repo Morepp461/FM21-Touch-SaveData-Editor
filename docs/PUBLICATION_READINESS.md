@@ -277,3 +277,6 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Parser memeriksa pointer footer 32-bit pada header terhadap lokasi marker manifest aktual, mengurangi kemungkinan menerima container dengan metadata footer yang saling bertentangan.
 - Menambahkan regresi untuk pointer footer yang tidak cocok dan memperbarui builder fixture sintetis. Dua file FMV nyata yang diberikan sebelumnya cocok dengan aturan ini.
 - Perubahan belum tervalidasi oleh Gradle karena job CI masih gagal sebelum runner/steps tersedia.
+
+- Validasi footer diperketat: pointer header menjadi sumber lokasi footer, lalu marker diverifikasi tepat di posisi itu. Tes mencakup pointer di luar area file dan pointer yang menunjuk ke byte non-footer.
+- Perubahan ini memperkuat parser tetapi belum lulus Gradle test karena runner CI masih gagal sebelum langkah berjalan.

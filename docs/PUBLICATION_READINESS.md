@@ -251,3 +251,8 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Repository dan signing-secret hygiene — 15 November 2026
 - `.gitignore` diperluas untuk output build Android/Gradle, konfigurasi SDK lokal, IDE, keystore dan file environment.
 - Perubahan ini mengurangi risiko commit tidak sengaja, tetapi bukan pengganti audit riwayat Git. Belum ada keystore rilis atau signed APK/AAB; kredensial signing harus tetap disimpan secara privat oleh pemilik.
+
+## Checksum dan provenance release artifact — 15 November 2026
+- CI menyiapkan SHA256SUMS.txt untuk debug APK, release APK, dan release AAB setelah pemeriksaan metadata paket.
+- CI juga menyiapkan BUILD-METADATA.txt dengan commit SHA dan versi aplikasi serta SDK minimum/target. File ini disertakan pada artifact upload.
+- Perubahan workflow masih belum tervalidasi karena Actions run terbaru gagal sebelum job steps tersedia. Tidak ada APK/AAB yang dihasilkan atau diverifikasi oleh perubahan ini.

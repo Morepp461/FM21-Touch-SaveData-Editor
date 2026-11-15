@@ -309,3 +309,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Status CI dan audit data terbaru — 15 November 2026
 - Run 366 (`43677123810`) gagal sebelum langkah job tersedia; tidak ada log Gradle atau emulator.
 - Audit lintas snapshot menambah bukti bahwa 15.235 UID mempertahankan entity ID dan raw tag, sementara offset bergeser global +1.116 byte. Ini belum memetakan field semantik dan tidak membuka izin penulisan.
+
+## Retensi cache dan cleanup startup — 15 November 2026
+- Aplikasi membersihkan file kerja internal yang dikenal dan berusia lebih dari 24 jam saat startup. File yang tidak cocok dengan prefix/direktori aplikasi dibiarkan.
+- Dua kasus tes cleanup lulus pada harness Kotlin 1.9 terisolasi dengan assertion shim. Perlu tetap diverifikasi melalui Gradle dan uji perangkat Android.

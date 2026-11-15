@@ -272,3 +272,8 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## CI terakhir — 15 November 2026
 - Actions run 322 (`43676170041`) untuk head `aa43f3fc5c1e663e4a1b6949324ea0d9c93ac2f5` gagal pada job build dan API 26 smoke.
 - Kedua job tidak memiliki step summary atau URL log. Build/test Android, tes instrumentation, serta artefak APK/AAB tetap belum terverifikasi.
+
+## Validasi konsistensi header dan footer — 15 November 2026
+- Parser memeriksa pointer footer 32-bit pada header terhadap lokasi marker manifest aktual, mengurangi kemungkinan menerima container dengan metadata footer yang saling bertentangan.
+- Menambahkan regresi untuk pointer footer yang tidak cocok dan memperbarui builder fixture sintetis. Dua file FMV nyata yang diberikan sebelumnya cocok dengan aturan ini.
+- Perubahan belum tervalidasi oleh Gradle karena job CI masih gagal sebelum runner/steps tersedia.

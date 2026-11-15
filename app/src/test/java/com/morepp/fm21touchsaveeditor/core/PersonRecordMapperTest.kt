@@ -72,6 +72,7 @@ class PersonRecordMapperTest {
         val data = ByteArrayOutputStream()
         writeEntityRow(data, 51_788L, 2_000_102_078L)
         writeNameEntry(data, "Buffer Person", 26_630L, 2_000_102_078L)
+        data.write(ByteArray(16))
         val buffer = ByteBuffer.wrap(data.toByteArray()).asReadOnlyBuffer()
         buffer.position(3)
 
@@ -87,6 +88,7 @@ class PersonRecordMapperTest {
         val data = ByteArrayOutputStream()
         writeEntityRow(data, 51_788L, 2_000_102_078L)
         writeNameEntry(data, "Mapped File Person", 26_630L, 2_000_102_078L)
+        data.write(ByteArray(16))
         val file = java.io.File.createTempFile("fm21-person-map", ".dat")
         try {
             file.writeBytes(data.toByteArray())

@@ -74,6 +74,7 @@ def plausible_name(raw: bytes) -> str | None:
 def parse_people_name_uid(data: bytes) -> dict[int, int]:
     """Return name-index-ID -> UID using the observed 21.4 name record pattern."""
     result: dict[int, int] = {}
+    conflicted: set[int] = set()
     cursor = 0
     while True:
         marker_at = data.find(NAME_MARKER, cursor)
@@ -98,17 +99,21 @@ def parse_people_name_uid(data: bytes) -> dict[int, int]:
             continue
         if plausible_name(data[name_start:name_end]) is None:
             continue
+        if name_id_before in conflicted:
+            continue
         previous = result.get(name_id_before)
-        if previous is None or previous == uid:
+        if previous is None:
             result[name_id_before] = uid
-        else:
+        elif previous != uid:
             result.pop(name_id_before, None)
+            conflicted.add(name_id_before)
     return result
 
 
 def parse_basic_people_uid_index(data: bytes) -> dict[int, int]:
     """Return name-index-ID -> UID from the observed basic-people index pattern."""
     result: dict[int, int] = {}
+    conflicted: set[int] = set()
     for offset in range(0, len(data) - 17):
         if data[offset + 12] != 0x11 or data[offset + 13:offset + 18] != b"\x05\0\0\0\0":
             continue
@@ -117,11 +122,14 @@ def parse_basic_people_uid_index(data: bytes) -> dict[int, int]:
         uid_copy = u32(data, offset + 8)
         if uid <= MIN_UID or uid != uid_copy:
             continue
+        if name_id in conflicted:
+            continue
         previous = result.get(name_id)
-        if previous is None or previous == uid:
+        if previous is None:
             result[name_id] = uid
-        else:
+        elif previous != uid:
             result.pop(name_id, None)
+            conflicted.add(name_id)
     return result
 
 

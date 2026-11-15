@@ -150,3 +150,8 @@ Jangan pernah memasukkan keystore atau password ke repository. Tanpa secrets ter
 - `docs/REVERSE_ENGINEERING_STATUS.md`: status riset format save.
 
 Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sports Interactive maupun SEGA.
+
+
+### UI responsiveness and list stability
+- People list rows use unique row-scoped keys so duplicate UID aliases do not crash lazy rendering.
+- Export copying and FMV integrity revalidation execute off the UI thread to keep large file operations responsive.

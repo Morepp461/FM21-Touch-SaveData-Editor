@@ -65,7 +65,13 @@ jobs:
           test -f "$DEBUG_APK"
           test -f "$RELEASE_APK"
           test -f app/build/outputs/bundle/release/app-release.aab
+          grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
           for APK in "$DEBUG_APK" "$RELEASE_APK"; do
+            PERMISSIONS="$("$AAPT" dump permissions "$APK")"
+            if echo "$PERMISSIONS" | grep -q "android.permission.INTERNET"; then
+              echo "Unexpected Internet permission in offline-first app package: $APK"
+              exit 1
+            fi
             BADGING="$("$AAPT" dump badging "$APK")"
             echo "$BADGING" | grep -q "sdkVersion:'26'"
             echo "$BADGING" | grep -q "targetSdkVersion:'36'"

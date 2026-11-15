@@ -303,3 +303,5 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Cleanup ekspor pada cancellation — 15 November 2026
 - Cleanup payload ekspor dipindah ke `finally` non-cancellable dan completion handler job agar pembatalan coroutine tidak melewatkan penghapusan file cache.
 - Perubahan memerlukan uji Activity recreation dan cancellation pada Android; belum tervalidasi karena CI belum menjalankan emulator.
+
+- Draft privacy policy sekarang menandai kontak dukungan publik belum dikonfigurasi. Checklist mewajibkan URL kebijakan yang dapat diakses tanpa login GitHub dan kontak dukungan publik sebelum rilis.

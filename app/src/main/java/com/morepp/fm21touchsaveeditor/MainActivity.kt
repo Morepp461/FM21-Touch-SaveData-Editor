@@ -113,7 +113,7 @@ private fun EditorHome() {
         } else {
             payload?.delete()
             busy = false
-            if (uri != null) status = "File sementara ekspor tidak tersedia. Ulangi proses ekspor."
+            if (uri != null) status = "Gagal: file sementara ekspor tidak tersedia. Ulangi proses ekspor."
         }
     }
 

@@ -243,3 +243,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Path payload ekspor kini dipulihkan melalui rememberSaveable dan callback memeriksa file sementara sebelum memulai penyalinan. Perubahan masih memerlukan instrumentation test di Android.
 - Actions run 288 (43675661930) untuk head a6897490a1414194dcec6b0a0ecc136e2ccb9c17 gagal pada kedua job tanpa step summary atau URL log. Build, unit test, dan emulator belum terbukti berjalan.
 - Smoke test lokal helper Kotlin 1.9 lulus untuk pembacaan berbatas, cleanup setelah kegagalan I/O, dan penutupan stream. Ini bukan bukti kompilasi seluruh aplikasi.
+
+## Perapian cakupan instrumentation Android — 15 November 2026
+- Pengujian UI layar awal digabungkan ke MainActivityLaunchTest, termasuk pemeriksaan batas impor 128 MiB dan minimum API 26; tes layar awal duplikat dihapus.
+- Tes native Zstandard tetap dijalankan di emulator melalui test class yang sama. Belum ada hasil emulator terbaru yang valid karena GitHub Actions belum mengeksekusi langkah job.

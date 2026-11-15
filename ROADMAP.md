@@ -272,3 +272,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Cleanup ekspor saat coroutine dibatalkan — 15 November 2026
 - File payload ekspor dihapus pada blok `finally` yang memakai `NonCancellable + Dispatchers.IO`, lalu completion handler job menjadi lapisan cleanup tambahan jika job dibatalkan sebelum body mulai.
 - Ini menutup celah file sementara yang dapat tertinggal ketika Activity recreation membatalkan coroutine ekspor. Uji runtime Android masih diperlukan.
+
+## Persiapan informasi publik aplikasi — 15 November 2026
+- Privacy policy tidak lagi mengarahkan pengguna ke repository privat sebagai kontak. Draft kini meminta alamat dukungan publik sebelum rilis.
+- Checklist publikasi menambahkan hosting privacy policy yang dapat dibuka tanpa login dan kontak dukungan publik yang valid.

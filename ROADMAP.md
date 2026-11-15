@@ -229,3 +229,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Penanganan kegagalan pemilih file — 15 November 2026
 - Peluncuran Android OpenDocument untuk save utama dan save pembanding kini dibungkus penanganan exception. Kegagalan dialog menghasilkan pesan error dan tidak mengubah status busy.
 - Ini melengkapi penanganan kegagalan peluncuran CreateDocument pada jalur ekspor. Runtime SAF masih harus diuji pada API 26 dan perangkat Android terbaru.
+
+## Hasil CI terakhir — 15 November 2026
+- Run 311 (`43676030826`) pada head `ce2ff55bdc1ef564e109106418b66d57000284e5` gagal untuk job build dan API 26 smoke.
+- Kedua job tidak mengembalikan step summary maupun URL log (`steps: []`, `logs_url: null`). Tidak ada bukti source build, unit test, atau emulator mulai berjalan.

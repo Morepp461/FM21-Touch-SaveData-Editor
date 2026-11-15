@@ -111,6 +111,20 @@ class FmvContainerTest {
     }
 
     @Test
+    fun rejectsHeaderFooterPointerThatLandsOnNonFooterBytes() {
+        val corrupt = fixture(listOf("pointer target check".toByteArray()))
+        corrupt[9] = 21
+        corrupt[10] = 0
+        corrupt[11] = 0
+        corrupt[12] = 0
+
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvContainer(corrupt)
+        }
+        assertEquals(true, error.message!!.contains("does not point to the manifest footer"))
+    }
+
+    @Test
     fun rejectsInvalidHeader() {
         val exception = assertThrows(FmvFormatException::class.java) {
             FmvContainer(ByteArray(64))

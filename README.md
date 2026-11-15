@@ -229,3 +229,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Kebijakan privasi diperbarui untuk menjelaskan file sementara di cache privat, pembersihan setelah impor/ekspor normal, dan kemungkinan file sementara tertinggal jika proses terhenti sebelum cleanup.
 
 - Actions run 350 pada head `96451025a044db9f45dd52e307f29b61f7e16b71` gagal sebelum job menyediakan langkah atau log; seluruh pemeriksaan privasi paket dan build belum dieksekusi.
+
+- Cleanup payload ekspor kini berada pada blok `finally` non-cancellable dan completion handler job, sehingga file sementara tetap dihapus jika coroutine ekspor dibatalkan saat Activity/Compose scope dihentikan.

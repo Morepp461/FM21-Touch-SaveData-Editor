@@ -70,6 +70,25 @@ class PersonRecordDiffAnalyzerTest {
     }
 
     @Test
+    fun countsEntityIdChangesWithoutTreatingThemAsMissingUids() {
+        val before = ByteArrayOutputStream().apply {
+            writeEntity(this, 51_788, 2_000_102_078, 0x11)
+            writeName(this, "Bob Fullam", 26_630, 2_000_102_078)
+        }.toByteArray()
+        val after = ByteArrayOutputStream().apply {
+            writeEntity(this, 51_799, 2_000_102_078, 0x11)
+            writeName(this, "Bob Fullam", 26_630, 2_000_102_078)
+        }.toByteArray()
+
+        val result = PersonRecordDiffAnalyzer.compare(before, after)
+
+        assertEquals(1, result.identityMismatch)
+        assertEquals(0, result.missingBefore)
+        assertEquals(0, result.missingAfter)
+        assertEquals(0, result.compared)
+    }
+
+    @Test
     fun rejectsEmptyMappedDatabaseFiles() {
         val empty = java.io.File.createTempFile("fm21-empty", ".dat")
         val valid = java.io.File.createTempFile("fm21-data", ".dat")

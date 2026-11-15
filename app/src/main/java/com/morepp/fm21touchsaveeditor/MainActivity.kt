@@ -585,6 +585,49 @@ private fun EditorHome() {
                                 Text("Terpetakan: ${personDiff.beforeMapped} → ${personDiff.afterMapped} · tanpa panjang record valid: ${personDiff.skippedUnknownLength}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("UID hilang: ${personDiff.missingAfter} · UID baru: ${personDiff.missingBefore}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                OutlinedButton(
+                                    onClick = {
+                                        busy = true
+                                        scope.launch {
+                                            val report = withContext(Dispatchers.IO) {
+                                                runCatching {
+                                                    val file = File(context.cacheDir, "perubahan_record_orang_fm21.csv")
+                                                    file.bufferedWriter(Charsets.UTF_8).use { writer ->
+                                                        writer.write("nama,uid,id_internal,offset_sebelum,offset_sesudah,panjang_record,offset_byte_berubah,tag_sebelum,tag_sesudah")
+                                                        writer.newLine()
+                                                        personDiff.changed.forEach { change ->
+                                                            val cells = listOf(
+                                                                change.name,
+                                                                change.uniqueId.toString(),
+                                                                change.entityRecordId.toString(),
+                                                                change.beforeOffset.toString(),
+                                                                change.afterOffset.toString(),
+                                                                change.recordLength.toString(),
+                                                                change.changedByteOffsets.joinToString(";"),
+                                                                change.beforeTypeTag.orEmpty(),
+                                                                change.afterTypeTag.orEmpty()
+                                                            )
+                                                            writer.write(cells.joinToString(",") { csvEscape(it) })
+                                                            writer.newLine()
+                                                        }
+                                                    }
+                                                    file
+                                                }
+                                            }
+                                            report.onSuccess {
+                                                pendingExport = it
+                                                exportPicker.launch(it.name)
+                                                status = "CSV perubahan record orang siap diekspor"
+                                            }.onFailure { status = "Gagal membuat CSV perubahan record: ${it.message}" }
+                                            busy = false
+                                        }
+                                    },
+                                    enabled = !busy,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text(if (busy) "Menyiapkan CSV..." else "Ekspor seluruh perubahan ke CSV") }
                             }
                             items(personDiff.changed.take(100), key = { "person_change_${it.uniqueId}" }) { change ->
                                 Card(Modifier.fillMaxWidth()) {

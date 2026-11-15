@@ -217,3 +217,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Pencarian marker footer berbasis scan byte kini diganti dengan navigasi langsung memakai pointer header yang tervalidasi; parser memeriksa marker tepat pada lokasi yang ditunjuk. Ini menghindari salah memilih pola marker yang kebetulan muncul di payload terkompresi.
 
 - Empat kasus regresi pembaca save (batas tepat, batas terlampaui, batas negatif, dan kegagalan I/O) dijalankan pada harness Kotlin 1.9 lokal dengan assertion shim dan semuanya lulus. Ini bukan eksekusi JUnit/Gradle repository.
+
+- Parser FMV kini memakai pointer footer pada header sebagai lokasi manifest dan memverifikasi marker di posisi tersebut. Tes menolak pointer di luar file maupun pointer yang menunjuk ke data biasa. Actions run 336 tetap gagal tanpa step/log.

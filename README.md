@@ -209,3 +209,7 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Dependency `androidx.compose.runtime:runtime-saveable` kini dinyatakan eksplisit karena state path ekspor memakai `rememberSaveable` untuk pemulihan setelah Activity recreation.
 
 - Run Actions 322 pada head `aa43f3fc5c1e663e4a1b6949324ea0d9c93ac2f5` kembali gagal sebelum job menyediakan langkah atau log; build, unit test, dan emulator belum terverifikasi.
+
+### Validasi penunjuk footer FMV — 15 November 2026
+- Parser kini membandingkan offset footer yang tercatat pada header FMV dengan posisi marker manifest yang benar-benar ditemukan. File dengan pointer footer yang tidak cocok ditolak sebelum manifest dipakai.
+- Kedua fixture FMV nyata yang tersedia memiliki nilai header yang cocok dengan posisi footer. Tes sintetis ditambahkan untuk pointer yang rusak.

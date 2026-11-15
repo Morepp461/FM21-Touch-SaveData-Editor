@@ -198,3 +198,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 
 - Menambahkan tes untuk kegagalan I/O di tengah proses baca, memastikan file sementara dibersihkan dan input stream ditutup. Batas 128 MiB ditampilkan di layar awal agar batas dukungan tidak tersembunyi.
 - Smoke test Kotlin 1.9 diperluas dan lulus untuk batas tepat, input berlebih, konfigurasi negatif, kegagalan I/O, cleanup file sementara, dan penutupan stream.
+
+## Status runner CI terbaru — 15 November 2026
+- Actions run 282 pada head `123f06f5e538e754ecfea3af6e73f9c7f7c76438` gagal pada kedua job. API job mengembalikan `steps: []` dan `logs_url: null`; tidak ada bukti Gradle atau emulator mulai berjalan.
+- Perubahan pembacaan save berbasis file sementara tetap tercatat sebagai smoke-tested secara terisolasi, bukan lulus build Android.

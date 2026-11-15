@@ -292,3 +292,5 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Pembatasan versi writer FMV — 15 November 2026
 - `FmvRebuilder.rebuild` menolak perubahan komponen jika versi database bukan `21.4.0-0` atau tidak terdeteksi. Rebuild tanpa perubahan tetap menggunakan jalur salinan identik yang divalidasi.
 - Fixture tes writer kini memuat `game_info/.dat`; tes baru memastikan versi `22.0.0-0` ditolak. Writer masih eksperimental dan belum diuji pada file nyata/in-game.
+
+- Tes versi writer diperluas untuk mencakup database version yang tidak diketahui selain versi `22.0.0-0`. Edit ditolak pada kedua kondisi; no-op copy tetap tidak menulis ulang data.

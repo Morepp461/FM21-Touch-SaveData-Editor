@@ -38,3 +38,5 @@ If future versions add analytics, advertising, accounts, cloud processing or oth
 ## Contact
 
 A public support contact has not yet been configured. Before publication, replace this section with a support email address or a publicly accessible support URL. Do not publish this draft until users can access both the policy and its support contact without signing in to a private repository.
+
+Stale temporary files created by the app are also eligible for cleanup on a later app launch after 24 hours. Cleanup is limited to known app-generated file prefixes and private working directories; unrelated cache files are not intentionally removed.

@@ -1,7 +1,7 @@
 name: Android build, tests and release candidate
 
 concurrency:
-  group: android-ci-${{ github.ref }}
+  group: android-ci-${{ github.sha }}
   cancel-in-progress: false
 
 on:

@@ -231,3 +231,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Actions run 350 pada head `96451025a044db9f45dd52e307f29b61f7e16b71` gagal sebelum job menyediakan langkah atau log; seluruh pemeriksaan privasi paket dan build belum dieksekusi.
 
 - Cleanup payload ekspor kini berada pada blok `finally` non-cancellable dan completion handler job, sehingga file sementara tetap dihapus jika coroutine ekspor dibatalkan saat Activity/Compose scope dihentikan.
+
+- Draft privacy policy kini secara eksplisit menandai URL kebijakan publik dan kontak dukungan publik sebagai belum tersedia; tautan repository privat tidak lagi dianggap cukup untuk publikasi.

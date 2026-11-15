@@ -294,3 +294,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Fixture tes writer kini memuat `game_info/.dat`; tes baru memastikan versi `22.0.0-0` ditolak. Writer masih eksperimental dan belum diuji pada file nyata/in-game.
 
 - Tes versi writer diperluas untuk mencakup database version yang tidak diketahui selain versi `22.0.0-0`. Edit ditolak pada kedua kondisi; no-op copy tetap tidak menulis ulang data.
+
+## Koreksi antrean GitHub Actions — 15 November 2026
+- Run 382–387 yang berstatus cancelled bertepatan dengan beberapa commit berurutan pada branch yang sama. Workflow memakai satu concurrency group berbasis `github.ref`; GitHub dapat mengganti run pending lama ketika run baru masuk ke group tersebut.
+- Group concurrency kini menggunakan `github.sha`, sehingga setiap commit memiliki group terpisah dan run pending tidak saling menggantikan. Hasil CI pada head terbaru tetap harus ditunggu dan diperiksa.

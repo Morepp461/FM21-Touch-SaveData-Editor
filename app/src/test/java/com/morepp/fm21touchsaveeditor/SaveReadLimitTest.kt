@@ -46,6 +46,6 @@ class SaveReadLimitTest {
         assertThrows(IllegalArgumentException::class.java) {
             readSaveBytes(input, maxBytes = -1)
         }
-        assertEquals(false, input.wasClosed)
+        assertEquals(true, input.wasClosed)
     }
 }

@@ -67,6 +67,21 @@ class PersonRecordMapperTest {
         assertTrue(error.message!!.isNotBlank())
     }
 
+    @Test
+    fun mapsReadOnlyBufferWithoutChangingCallerPosition() {
+        val data = ByteArrayOutputStream()
+        writeEntityRow(data, 51_788L, 2_000_102_078L)
+        writeNameEntry(data, "Buffer Person", 26_630L, 2_000_102_078L)
+        val buffer = ByteBuffer.wrap(data.toByteArray()).asReadOnlyBuffer()
+        buffer.position(3)
+
+        val index = PersonRecordMapper.map(buffer)
+
+        assertEquals(3, buffer.position())
+        assertEquals(1, index.mappedEntries)
+        assertEquals("Buffer Person", index.entries.single().name)
+    }
+
     private fun writeEntityRow(out: ByteArrayOutputStream, entityId: Long, uid: Long) {
         out.write(le32(entityId))
         out.write(le32(uid))

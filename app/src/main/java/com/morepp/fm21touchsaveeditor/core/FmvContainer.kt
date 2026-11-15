@@ -217,6 +217,10 @@ class FmvContainer(private val bytes: ByteArray) {
     private fun readManifest(): FmvManifest {
         val footer = lastIndexOf(bytes, FMF_PREFIX)
         if (footer < HEADER_SIZE) throw FmvFormatException("Footer manifest header not found")
+        val declaredFooterOffset = littleEndianU32(bytes, 9)
+        if (declaredFooterOffset != footer.toLong() - 9L) {
+            throw FmvFormatException("Header footer offset does not match manifest footer")
+        }
         val lengthAt = footer + FMF_PREFIX.size
         if (lengthAt + 4 > bytes.size) throw FmvFormatException("Truncated footer length")
         val compressedLength = littleEndianU32(bytes, lengthAt)

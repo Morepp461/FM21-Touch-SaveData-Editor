@@ -24,6 +24,8 @@ import com.morepp.fm21touchsaveeditor.core.FmvRebuilder
 import com.morepp.fm21touchsaveeditor.core.FmvSaveComparator
 import com.morepp.fm21touchsaveeditor.core.PersonRecordIndex
 import com.morepp.fm21touchsaveeditor.core.PersonRecordMapper
+import com.morepp.fm21touchsaveeditor.core.PersonRecordDiffAnalyzer
+import com.morepp.fm21touchsaveeditor.core.PersonSnapshotDiff
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,6 +67,7 @@ private fun EditorHome() {
     var container by remember { mutableStateOf<FmvContainer?>(null) }
     var comparisonContainer by remember { mutableStateOf<FmvContainer?>(null) }
     var comparisonResults by remember { mutableStateOf(emptyList<com.morepp.fm21touchsaveeditor.core.MemberDiff>()) }
+    var personSnapshotDiff by remember { mutableStateOf<PersonSnapshotDiff?>(null) }
     var personIndex by remember { mutableStateOf<PersonRecordIndex?>(null) }
     var personSearch by remember { mutableStateOf("") }
     var personStatusFilter by remember { mutableStateOf("Semua") }
@@ -123,6 +126,7 @@ private fun EditorHome() {
                     container = it
                     comparisonContainer = null
                     comparisonResults = emptyList()
+                    personSnapshotDiff = null
                     personIndex = null
                     personSearch = ""
                     personStatusFilter = "Semua"
@@ -541,6 +545,66 @@ private fun EditorHome() {
                                         }
                                     }, enabled = !busy, modifier = Modifier.fillMaxWidth()
                                 ) { Text(if (busy) "Membandingkan..." else "Bandingkan save") }
+                                OutlinedButton(
+                                    onClick = {
+                                        busy = true
+                                        status = "Menganalisis perubahan record orang..."
+                                        scope.launch {
+                                            val result = withContext(Dispatchers.IO) {
+                                                runCatching {
+                                                    val beforeMember = parsed.manifest.members.first { it.name == "game_db/.dat" }
+                                                    val afterMember = other.manifest.members.first { it.name == "game_db/.dat" }
+                                                    val directory = File(context.cacheDir, "fm21_person_diff").apply { mkdirs() }
+                                                    val beforeFile = File(directory, "before_game_db.dat")
+                                                    val afterFile = File(directory, "after_game_db.dat")
+                                                    try {
+                                                        parsed.extractToFile(beforeMember, beforeFile)
+                                                        other.extractToFile(afterMember, afterFile)
+                                                        PersonRecordDiffAnalyzer.compareFiles(beforeFile, afterFile)
+                                                    } finally {
+                                                        beforeFile.delete()
+                                                        afterFile.delete()
+                                                    }
+                                                }
+                                            }
+                                            result.onSuccess {
+                                                personSnapshotDiff = it
+                                                status = "Analisis record selesai: ${it.changed.size} record berubah dari ${it.compared} record yang dapat dibandingkan"
+                                            }.onFailure { status = "Analisis record gagal: ${it.message}" }
+                                            busy = false
+                                        }
+                                    },
+                                    enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" } &&
+                                        other.manifest.members.any { it.name == "game_db/.dat" },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text(if (busy) "Menganalisis..." else "Analisis perubahan data orang") }
+                            }
+                        }
+                        personSnapshotDiff?.let { personDiff ->
+                            item {
+                                SectionHeading("Perubahan record orang", "Bukti byte mentah berdasarkan UID, bukan interpretasi atribut")
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    SummaryMetric("Berubah", personDiff.changed.size.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Tetap", personDiff.unchanged.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Dibandingkan", personDiff.compared.toString(), Modifier.weight(1f))
+                                }
+                                Text("Terpetakan: ${personDiff.beforeMapped} → ${personDiff.afterMapped} · tanpa panjang record valid: ${personDiff.skippedUnknownLength}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            items(personDiff.changed.take(100), key = { "person_change_${it.uniqueId}" }) { change ->
+                                Card(Modifier.fillMaxWidth()) {
+                                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        Text(change.name, fontWeight = FontWeight.SemiBold)
+                                        Text("UID ${change.uniqueId} · ID internal ${change.entityRecordId}",
+                                            style = MaterialTheme.typography.bodySmall)
+                                        Text("Offset record ${change.beforeOffset} → ${change.afterOffset} · ${change.recordLength} byte",
+                                            style = MaterialTheme.typography.bodySmall)
+                                        Text("Byte berubah: ${change.changedByteOffsets.joinToString()}",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
                             }
                         }
                         if (comparisonResults.isNotEmpty()) {

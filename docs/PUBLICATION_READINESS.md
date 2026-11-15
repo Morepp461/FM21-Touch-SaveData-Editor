@@ -286,3 +286,6 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Parser footer dan CI terbaru — 15 November 2026
 - Parser menggunakan pointer footer dari header, lalu memverifikasi marker FMF di offset yang ditunjuk. Tes mencakup pointer di luar file dan pointer yang menunjuk ke data non-footer.
 - Actions run 336 (`43676489758`) gagal pada kedua job tanpa steps/logs. Perubahan parser dan tes belum dijalankan oleh Gradle CI.
+
+## Status CI setelah perubahan parser footer — 15 November 2026
+- Run 340 (`43676528691`) untuk head `3ea07f39ed0aaabb1026e886fb67d69af19206fe` gagal sebelum langkah job tersedia. Tidak ada log Gradle atau emulator; tes parser pointer-footer belum tervalidasi melalui CI.

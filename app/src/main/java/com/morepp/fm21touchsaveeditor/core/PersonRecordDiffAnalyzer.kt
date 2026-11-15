@@ -47,11 +47,14 @@ object PersonRecordDiffAnalyzer {
     fun compareFiles(beforeFile: File, afterFile: File): PersonSnapshotDiff {
         FileChannel.open(beforeFile.toPath(), StandardOpenOption.READ).use { beforeChannel ->
             FileChannel.open(afterFile.toPath(), StandardOpenOption.READ).use { afterChannel ->
-                require(beforeChannel.size() <= Int.MAX_VALUE && afterChannel.size() <= Int.MAX_VALUE) {
+                val beforeSize = beforeChannel.size()
+                val afterSize = afterChannel.size()
+                require(beforeSize > 0L && afterSize > 0L) { "Database components must not be empty" }
+                require(beforeSize <= Int.MAX_VALUE && afterSize <= Int.MAX_VALUE) {
                     "Database component exceeds the supported mapped-buffer size"
                 }
-                val before = beforeChannel.map(FileChannel.MapMode.READ_ONLY, 0, beforeChannel.size())
-                val after = afterChannel.map(FileChannel.MapMode.READ_ONLY, 0, afterChannel.size())
+                val before = beforeChannel.map(FileChannel.MapMode.READ_ONLY, 0, beforeSize)
+                val after = afterChannel.map(FileChannel.MapMode.READ_ONLY, 0, afterSize)
                 return compare(before, after)
             }
         }

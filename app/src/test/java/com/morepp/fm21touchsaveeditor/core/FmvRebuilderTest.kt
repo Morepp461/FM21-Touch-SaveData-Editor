@@ -17,6 +17,30 @@ class FmvRebuilderTest {
     )
 
     @Test
+    fun productionEntryPointRejectsEveryEditedComponentUntilSemanticWritesAreVerified() {
+        val source = FmvContainer(
+            fixture(listOf(FixtureMember("sample/.dat", chunks = listOf("original".toByteArray()))))
+        )
+
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvRebuilder.rebuild(source, mapOf("sample/.dat" to "replacement".toByteArray()))
+        }
+
+        assertEquals(
+            "Edited save writing is disabled: no FM21 field mapping has passed controlled-fixture and in-game validation.",
+            error.message
+        )
+    }
+
+    @Test
+    fun productionEntryPointAllowsOnlyValidatedByteIdenticalCopy() {
+        val bytes = fixture(listOf(FixtureMember("sample/.dat", chunks = listOf("original".toByteArray()))))
+        val source = FmvContainer(bytes)
+
+        assertArrayEquals(bytes, FmvRebuilder.rebuild(source, emptyMap()))
+    }
+
+    @Test
     fun rebuildsMultipleTopLevelAndNestedMembersAndPreservesUntouchedPayloads() {
         val originalA = "first top-level payload".toByteArray()
         val originalB = "nested payload that must remain untouched".toByteArray()
@@ -33,7 +57,7 @@ class FmvRebuilderTest {
         )
 
         val rebuilt = FmvContainer(
-            FmvRebuilder.rebuild(source, mapOf("sample_a/.dat" to replacement))
+            FmvRebuilder.rebuildExperimental(source, mapOf("sample_a/.dat" to replacement))
         )
 
         assertEquals(2, rebuilt.manifest.topLevel.size)
@@ -85,7 +109,7 @@ class FmvRebuilderTest {
         val source = FmvContainer(fixture(listOf(FixtureMember("sample/.dat", chunks = listOf(original)))))
 
         val rebuilt = FmvContainer(
-            FmvRebuilder.rebuild(source, mapOf("sample/.dat" to replacement))
+            FmvRebuilder.rebuildExperimental(source, mapOf("sample/.dat" to replacement))
         )
 
         assertArrayEquals(replacement, rebuilt.extractByName("sample/.dat"))
@@ -99,10 +123,10 @@ class FmvRebuilderTest {
         val source = FmvContainer(fixture(listOf(FixtureMember("sample/.dat", chunks = listOf(byteArrayOf(1, 2, 3))))))
 
         assertThrows(FmvFormatException::class.java) {
-            FmvRebuilder.rebuild(source, mapOf("missing/.dat" to byteArrayOf(1)))
+            FmvRebuilder.rebuildExperimental(source, mapOf("missing/.dat" to byteArrayOf(1)))
         }
         assertThrows(FmvFormatException::class.java) {
-            FmvRebuilder.rebuild(source, mapOf("sample/.dat" to byteArrayOf()))
+            FmvRebuilder.rebuildExperimental(source, mapOf("sample/.dat" to byteArrayOf()))
         }
     }
 

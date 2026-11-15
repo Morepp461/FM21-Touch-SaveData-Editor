@@ -16,6 +16,7 @@ class PersonRecordDiffAnalyzerTest {
         val result = PersonRecordDiffAnalyzer.compare(before, after)
 
         assertEquals(1, result.compared)
+        assertEquals(1, result.skippedUnknownLength)
         assertEquals(1, result.changed.size)
         assertEquals(1, result.changed.single().changedByteOffsets.size)
         assertEquals(16, result.changed.single().changedByteOffsets.single())

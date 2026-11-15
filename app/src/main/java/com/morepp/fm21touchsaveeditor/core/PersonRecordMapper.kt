@@ -1,6 +1,9 @@
 package com.morepp.fm21touchsaveeditor.core
 
 import java.nio.ByteBuffer
+import java.io.File
+import java.nio.channels.FileChannel
+import java.nio.file.StandardOpenOption
 
 /**
  * Evidence-based mapping between the TAD name index and person entity rows
@@ -36,6 +39,21 @@ object PersonRecordMapper {
     private const val MAX_ENTITY_RECORD_ID = 1_000_000L
 
     fun map(gameDb: ByteArray): PersonRecordIndex = map(ByteBuffer.wrap(gameDb))
+
+    /**
+     * Maps an extracted game_db component directly from a read-only memory map.
+     * This avoids allocating another full-size byte array on Android.
+     */
+    fun mapFile(file: File): PersonRecordIndex {
+        require(file.isFile) { "Database component does not exist: ${file.name}" }
+        FileChannel.open(file.toPath(), StandardOpenOption.READ).use { channel ->
+            val size = channel.size()
+            require(size > 0L && size <= Int.MAX_VALUE) {
+                "Database component has an unsupported size: $size"
+            }
+            return map(channel.map(FileChannel.MapMode.READ_ONLY, 0, size))
+        }
+    }
 
     /**
      * Maps directly from a read-only or memory-mapped buffer. Absolute reads

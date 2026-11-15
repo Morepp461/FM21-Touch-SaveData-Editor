@@ -92,17 +92,13 @@ private fun EditorHome() {
                         output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
 
                         if (payload.extension.equals("fmv", ignoreCase = true)) {
-                            val savedBytes = context.contentResolver.openInputStream(uri)?.use { readSaveBytes(it) }
+                            val expectedHash = payload.inputStream().use { sha256(it) }
+                            val actualHash = context.contentResolver.openInputStream(uri)?.use { sha256(it) }
                                 ?: error("File hasil ekspor tidak bisa dibaca ulang")
-                            val reopened = FmvContainer(savedBytes)
-                            val expectedHash = java.security.MessageDigest.getInstance("SHA-256")
-                                .digest(payload.readBytes())
-                            val actualHash = java.security.MessageDigest.getInstance("SHA-256")
-                                .digest(savedBytes)
                             if (!expectedHash.contentEquals(actualHash)) {
                                 error("Pemeriksaan SHA-256 gagal. File hasil ekspor tidak identik.")
                             }
-                            "Salinan save berhasil disimpan dan diverifikasi: ${reopened.manifest.saveName}"
+                            "Salinan save berhasil disimpan dan diverifikasi dengan SHA-256"
                         } else {
                             "Komponen berhasil diekspor (${payload.length()} byte)"
                         }
@@ -868,6 +864,20 @@ private fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 102
         }
         return output.toByteArray()
     }
+}
+
+
+internal fun sha256(input: InputStream): ByteArray {
+    val digest = java.security.MessageDigest.getInstance("SHA-256")
+    input.use { source ->
+        val buffer = ByteArray(64 * 1024)
+        while (true) {
+            val count = source.read(buffer)
+            if (count < 0) break
+            if (count > 0) digest.update(buffer, 0, count)
+        }
+    }
+    return digest.digest()
 }
 
 internal fun csvEscape(value: String): String {

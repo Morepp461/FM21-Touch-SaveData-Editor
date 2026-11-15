@@ -109,7 +109,7 @@ def parse_people_name_uid(data: bytes) -> dict[int, int]:
 def parse_basic_people_uid_index(data: bytes) -> dict[int, int]:
     """Return name-index-ID -> UID from the observed basic-people index pattern."""
     result: dict[int, int] = {}
-    for offset in range(0, len(data) - 18):
+    for offset in range(0, len(data) - 17):
         if data[offset + 12] != 0x11 or data[offset + 13:offset + 18] != b"\x05\0\0\0\0":
             continue
         name_id = u32(data, offset)

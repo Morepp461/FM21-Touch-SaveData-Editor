@@ -797,6 +797,8 @@ private fun EditorHome() {
                         style = MaterialTheme.typography.bodyMedium)
                     Text("Minimum sistem: Android 8.0 (API 26)",
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                    Text("Batas ukuran file saat ini: 128 MiB",
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

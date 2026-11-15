@@ -268,3 +268,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 
 ## CI terbaru — 15 November 2026
 - Run 350 (`43676715152`) gagal pada job build dan API 26 smoke tanpa step summary atau log. Pemeriksaan offline-first manifest, checksum artefak, dan parser footer belum dijalankan oleh runner.
+
+## Cleanup ekspor saat coroutine dibatalkan — 15 November 2026
+- File payload ekspor dihapus pada blok `finally` yang memakai `NonCancellable + Dispatchers.IO`, lalu completion handler job menjadi lapisan cleanup tambahan jika job dibatalkan sebelum body mulai.
+- Ini menutup celah file sementara yang dapat tertinggal ketika Activity recreation membatalkan coroutine ekspor. Uji runtime Android masih diperlukan.

@@ -115,6 +115,7 @@ private fun EditorHome() {
             }
         } else {
             payload?.delete()
+            busy = false
         }
     }
 
@@ -368,8 +369,7 @@ private fun EditorHome() {
                                             pendingExport = file
                                             exportPicker.launch(file.name)
                                             status = "Validasi berhasil. Pilih lokasi untuk menyimpan salinan FMV."
-                                        }.onFailure { status = "Validasi save gagal: ${it.message}" }
-                                        busy = false
+                                        }.onFailure { status = "Validasi save gagal: ${it.message}"; busy = false }
                                     }
                                 }
                             )
@@ -492,8 +492,7 @@ private fun EditorHome() {
                                                     pendingExport = it
                                                     exportPicker.launch(it.name)
                                                     status = "File CSV pemetaan orang siap diekspor"
-                                                }.onFailure { status = "Gagal menyiapkan ekspor CSV: ${it.message}" }
-                                                busy = false
+                                                }.onFailure { status = "Gagal menyiapkan ekspor CSV: ${it.message}"; busy = false }
                                             }
                                         },
                                         enabled = !busy,
@@ -648,8 +647,7 @@ private fun EditorHome() {
                                                 pendingExport = it
                                                 exportPicker.launch(it.name)
                                                 status = "CSV perubahan record orang siap diekspor"
-                                            }.onFailure { status = "Gagal membuat CSV perubahan record: ${it.message}" }
-                                            busy = false
+                                            }.onFailure { status = "Gagal membuat CSV perubahan record: ${it.message}"; busy = false }
                                         }
                                     },
                                     enabled = !busy,
@@ -710,8 +708,7 @@ private fun EditorHome() {
                                                 pendingExport = it
                                                 exportPicker.launch(it.name)
                                                 status = "File CSV perbandingan siap diekspor"
-                                            }.onFailure { status = "Gagal membuat laporan perbandingan: ${it.message}" }
-                                            busy = false
+                                            }.onFailure { status = "Gagal membuat laporan perbandingan: ${it.message}"; busy = false }
                                         }
                                     },
                                     enabled = !busy,
@@ -775,8 +772,7 @@ private fun EditorHome() {
                                                 extracted.onSuccess { file ->
                                                     pendingExport = file
                                                     exportPicker.launch(file.name)
-                                                }.onFailure { status = "Ekstraksi gagal: ${it.message}" }
-                                                busy = false
+                                                }.onFailure { status = "Ekstraksi gagal: ${it.message}"; busy = false }
                                             }
                                         },
                                         enabled = !busy

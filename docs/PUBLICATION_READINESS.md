@@ -147,3 +147,5 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Latest branch head `f1fc0f6ff45bc1663f87951c7c6311e365ee9f67` is committed but still requires an actual passing Gradle/unit-test/API 26 run.
 - The latest observed Actions run for the preceding head still failed before runner allocation (`runner_id: 0`, no runner name, no steps). The current branch must not be marked build-verified or publication-ready.
 - The release blockers listed above remain: semantic field mapping, Kotlin writer validation against a real save, successful in-game load, Android device QA, and a valid signed release artifact.
+
+- Runner labels have been restored to `ubuntu-latest`. Repeated failures across default and pinned Ubuntu labels all occurred before runner allocation, so changing the image label was not a source-level fix and was reverted.

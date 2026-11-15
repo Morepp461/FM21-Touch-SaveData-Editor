@@ -852,7 +852,8 @@ private fun ToolCard(
  * Bounded file read for the current in-memory FMV parser.
  * The source URI is never modified and oversized inputs fail before allocation grows unchecked.
  */
-private fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 1024): ByteArray {
+internal fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 1024): ByteArray {
+    require(maxBytes >= 0) { "Batas ukuran save tidak boleh negatif" }
     input.use { source ->
         val output = ByteArrayOutputStream()
         val buffer = ByteArray(64 * 1024)
@@ -860,10 +861,15 @@ private fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 102
         while (true) {
             val count = source.read(buffer)
             if (count < 0) break
-            total += count
-            if (total > maxBytes) {
-                throw IllegalArgumentException("Ukuran save melewati batas aman pemrosesan saat ini, yaitu 128 MB")
+            if (count.toLong() > maxBytes - total) {
+                val limit = if (maxBytes % (1024L * 1024L) == 0L) {
+                    "${maxBytes / (1024L * 1024L)} MB"
+                } else {
+                    "${maxBytes} byte"
+                }
+                throw IllegalArgumentException("Ukuran save melewati batas aman pemrosesan saat ini: $limit")
             }
+            total += count
             output.write(buffer, 0, count)
         }
         return output.toByteArray()

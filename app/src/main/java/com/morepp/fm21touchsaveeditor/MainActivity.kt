@@ -29,6 +29,7 @@ import com.morepp.fm21touchsaveeditor.core.PersonRecordMapper
 import com.morepp.fm21touchsaveeditor.core.PersonRecordDiffAnalyzer
 import com.morepp.fm21touchsaveeditor.core.PersonSnapshotDiff
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -85,31 +86,35 @@ private fun EditorHome() {
         if (uri != null && payload != null && payload.isFile) {
             busy = true
             status = "Menyimpan dan memverifikasi hasil ekspor..."
-            scope.launch {
-                val result = withContext(Dispatchers.IO) {
-                    runCatching {
-                        val output = context.contentResolver.openOutputStream(uri)
-                            ?: error("Tidak bisa menulis file")
-                        output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
+            val exportJob = scope.launch {
+                try {
+                    val result = withContext(Dispatchers.IO) {
+                        runCatching {
+                            val output = context.contentResolver.openOutputStream(uri)
+                                ?: error("Tidak bisa menulis file")
+                            output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
 
-                        if (payload.extension.equals("fmv", ignoreCase = true)) {
-                            val expectedHash = payload.inputStream().use { sha256(it) }
-                            val actualHash = context.contentResolver.openInputStream(uri)?.use { sha256(it) }
-                                ?: error("File hasil ekspor tidak bisa dibaca ulang")
-                            if (!expectedHash.contentEquals(actualHash)) {
-                                error("Pemeriksaan SHA-256 gagal. File hasil ekspor tidak identik.")
+                            if (payload.extension.equals("fmv", ignoreCase = true)) {
+                                val expectedHash = payload.inputStream().use { sha256(it) }
+                                val actualHash = context.contentResolver.openInputStream(uri)?.use { sha256(it) }
+                                    ?: error("File hasil ekspor tidak bisa dibaca ulang")
+                                if (!expectedHash.contentEquals(actualHash)) {
+                                    error("Pemeriksaan SHA-256 gagal. File hasil ekspor tidak identik.")
+                                }
+                                "Salinan save berhasil disimpan dan diverifikasi dengan SHA-256"
+                            } else {
+                                "Komponen berhasil diekspor (${payload.length()} byte)"
                             }
-                            "Salinan save berhasil disimpan dan diverifikasi dengan SHA-256"
-                        } else {
-                            "Komponen berhasil diekspor (${payload.length()} byte)"
                         }
                     }
+                    result.onSuccess { status = it }
+                        .onFailure { status = "Ekspor gagal: ${it.message}" }
+                } finally {
+                    withContext(NonCancellable + Dispatchers.IO) { payload.delete() }
+                    busy = false
                 }
-                result.onSuccess { status = it }
-                    .onFailure { status = "Ekspor gagal: ${it.message}" }
-                payload.delete()
-                busy = false
             }
+            exportJob.invokeOnCompletion { payload.delete() }
         } else {
             payload?.delete()
             busy = false

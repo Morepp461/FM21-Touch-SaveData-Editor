@@ -43,15 +43,30 @@ class FmvContainerTest {
     fun rebuildsEditedComponentAndReopensTheContainer() {
         val original = "original component payload".toByteArray()
         val replacement = "edited component payload with a different length".toByteArray()
-        val fixture = fixture(listOf(original))
+        val fixture = fixture(listOf("21.4.0-0|original".toByteArray()), memberName = "game_info/.dat")
         val parsed = FmvContainer(fixture)
+        val versionedReplacement = "21.4.0-0|edited".toByteArray()
 
-        val rebuiltBytes = FmvRebuilder.rebuild(parsed, mapOf("sample/.dat" to replacement))
+        val rebuiltBytes = FmvRebuilder.rebuild(parsed, mapOf("game_info/.dat" to versionedReplacement))
         val reopened = FmvContainer(rebuiltBytes)
 
-        assertArrayEquals(replacement, reopened.extractByName("sample/.dat"))
+        assertArrayEquals(versionedReplacement, reopened.extractByName("game_info/.dat"))
         assertEquals(parsed.manifest.saveName, reopened.manifest.saveName)
         assertEquals(parsed.manifest.members.size, reopened.manifest.members.size)
+    }
+
+    @Test
+    fun rejectsEditedRebuildForUnsupportedDatabaseVersion() {
+        val unsupported = FmvContainer(
+            fixture(listOf("22.0.0-0|original".toByteArray()), memberName = "game_info/.dat")
+        )
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvRebuilder.rebuild(
+                unsupported,
+                mapOf("game_info/.dat" to "22.0.0-0|edited".toByteArray())
+            )
+        }
+        assertEquals(true, error.message!!.contains("restricted to database version 21.4.0-0"))
     }
 
     @Test
@@ -187,7 +202,7 @@ class FmvContainerTest {
         }.toByteArray()
     }
 
-    private fun fixture(chunks: List<ByteArray>): ByteArray {
+    private fun fixture(chunks: List<ByteArray>, memberName: String = "sample/.dat"): ByteArray {
         val compressed = chunks.map { Zstd.compress(it, 3) }
         val memberData = ByteArrayOutputStream()
         compressed.forEachIndexed { index, frame ->
@@ -203,8 +218,7 @@ class FmvContainerTest {
         val manifest = ByteArrayOutputStream()
         writeString(manifest, "Unit Test Save")
         manifest.write(le32(1)) // top-level members
-        writeString(manifest, "sample")
-        writeString(manifest, ".dat")
+        memberName.split('/').forEach { writeString(manifest, it) }
         manifest.write(le64(0))
         manifest.write(le64(storedLength))
         manifest.write(le64(plainLength))

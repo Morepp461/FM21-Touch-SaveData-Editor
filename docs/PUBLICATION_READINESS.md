@@ -195,3 +195,13 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Commit: `71ba9430ee199a6e22c32814c2312f78a9103329`.
 - GitHub Actions run 255 (`43674537532`) again failed both jobs before runner allocation. The job API returned no runner IDs, steps, or log URLs; Gradle, unit tests, and the API 26 emulator did not execute.
 - The app remains read-only and is not ready for public publication. All save-format, semantic mapping, real-device, in-game reload, and signed-release gates remain open.
+
+
+## Streaming export verification — 15 November 2026
+
+- FMV export verification now computes SHA-256 for the prepared payload and the destination URI using fixed-size 64 KiB buffers. It no longer allocates a second full-save byte array just to compare hashes.
+- The source FMV has already passed full component decompression/validation before the export picker is opened; the streaming destination hash confirms the saved copy is byte-identical to that validated payload.
+- Added unit tests for a known SHA-256 vector, short-read input streams, and input-stream closure.
+- README wording updated to describe streaming hash verification accurately.
+- Source commit: `29d041e9f221e7cc176cf037a6f939417db710cc`; regression test commit: `80639728f3d101ec9b2d085916642f6748d95439`; documentation commit: `9be5d57b13a7712325b8e8a207b7465fe9a4453b`.
+- These changes still require a passing Gradle/unit-test run and Android API 26 QA. No release gate is cleared by source changes alone.

@@ -238,3 +238,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Dua `game_db/.dat` menghasilkan name-index identik (17.486 entri) dan 15.235 UID terhubung dengan entity ID serta raw tag yang sama.
 - Semua offset entity record pada snapshot lebih baru bergeser konsisten +1.116 byte. Distribusi panjang observasi juga identik: 13.427 record 86 byte, 1.517 record 135 byte, 80 record dengan jarak lain, dan 211 tanpa batas yang cukup.
 - Temuan ini menguatkan join UID dan menegaskan offset bukan identitas. Raw tag belum diklasifikasikan sebagai pemain/staf atau field semantik.
+
+- Audit lanjutan pada dua snapshot mengonfirmasi seluruh 15.235 UID terhubung mempertahankan entity ID dan raw tag yang sama, dengan pergeseran offset global +1.116 byte. Run CI 366 masih gagal tanpa step/log.

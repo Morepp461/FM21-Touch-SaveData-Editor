@@ -158,3 +158,9 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - People lazy-list keys now include row identity as well as UID, avoiding duplicate-key crashes when multiple name-index rows reference the same UID.
 - Export file copying, FMV re-open validation, and SHA-256 verification run on the IO dispatcher instead of blocking the Compose main thread.
 - These changes are source updates only; they still require a passing Android build, unit tests, and API 26 emulator run.
+
+
+## Export picker lifecycle — 15 November 2026
+- Operasi ekspor mempertahankan status sibuk sampai Android Storage Access Framework mengembalikan hasil atau pembatalan.
+- Ini mencegah ekspor kedua menimpa referensi file sementara ketika dialog pemilihan lokasi pertama masih terbuka.
+- Kegagalan menyiapkan file tetap mengembalikan UI ke status siap.

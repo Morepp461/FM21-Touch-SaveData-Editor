@@ -199,3 +199,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 ### Verifikasi artefak release — 15 November 2026
 - Workflow release kini membuat SHA256SUMS.txt untuk APK debug, APK release, dan AAB serta BUILD-METADATA.txt yang mencatat commit, version name/code, min SDK, dan target SDK.
 - File checksum dan metadata ikut diunggah bersama artefak build agar hasil unduhan dapat diverifikasi. Langkah ini baru ditambahkan ke workflow dan belum tervalidasi oleh runner.
+
+- Pemanggilan pemilih file untuk save utama dan save pembanding kini menangani exception saat dialog Android gagal diluncurkan, menampilkan pesan error, dan tidak membiarkan status proses terkunci.

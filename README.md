@@ -225,3 +225,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 ### Pemeriksaan privasi paket Android — 15 November 2026
 - CI kini memeriksa `allowBackup=false` pada manifest aplikasi dan memastikan APK debug/release tidak meminta permission `android.permission.INTERNET`, agar perilaku offline-first yang dijelaskan kebijakan privasi ikut diverifikasi pada paket hasil build.
 - Pemeriksaan ini belum dijalankan karena GitHub Actions masih gagal sebelum runner dan langkah tersedia.
+
+- Kebijakan privasi diperbarui untuk menjelaskan file sementara di cache privat, pembersihan setelah impor/ekspor normal, dan kemungkinan file sementara tertinggal jika proses terhenti sebelum cleanup.

@@ -256,3 +256,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 - CI menyiapkan SHA256SUMS.txt untuk debug APK, release APK, dan release AAB setelah pemeriksaan metadata paket.
 - CI juga menyiapkan BUILD-METADATA.txt dengan commit SHA dan versi aplikasi serta SDK minimum/target. File ini disertakan pada artifact upload.
 - Perubahan workflow masih belum tervalidasi karena Actions run terbaru gagal sebelum job steps tersedia. Tidak ada APK/AAB yang dihasilkan atau diverifikasi oleh perubahan ini.
+
+## Penanganan kegagalan Android document picker — 15 November 2026
+- Peluncuran pemilih save utama/pembanding kini menangani exception secara eksplisit; kegagalan tidak dibiarkan menjadi crash tanpa status UI.
+- Jalur ekspor CreateDocument juga memiliki cleanup payload dan status error. Seluruh perilaku masih menunggu uji instrumentasi pada emulator/perangkat nyata.

@@ -250,3 +250,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Tes sintetis kini menyertakan versi database dan memverifikasi bahwa rebuild edit pada versi `22.0.0-0` ditolak. Ini membatasi writer eksperimental ke satu versi yang telah diamati, bukan klaim bahwa writer sudah siap produksi.
 
 - Gerbang writer juga memiliki tes untuk versi yang tidak terdeteksi; edit ditolak, sementara no-op copy pada fixture tanpa versi tetap lulus jalur salinan identik.
+
+- Penyebab run CI terbaru yang berstatus cancelled ditemukan: semua commit pada branch memakai satu concurrency group berbasis ref, sehingga run yang masih menunggu runner dapat digantikan oleh run commit berikutnya. Group kini unik per commit SHA agar antrean tiap commit tidak saling membatalkan.

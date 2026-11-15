@@ -309,3 +309,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Verifikasi integritas semua hasil ekspor — 15 November 2026
 - Semua hasil ekspor kini dihitung SHA-256 sebelum penyalinan dan dibaca ulang dari URI tujuan untuk dibandingkan setelah penyalinan, termasuk komponen dan CSV, bukan hanya salinan FMV.
 - Jika provider penyimpanan tidak mengizinkan hasil dibaca ulang atau hash tidak cocok, aplikasi melaporkan ekspor gagal alih-alih menyatakan sukses.
+
+## Hardening batas jumlah komponen FMV — 15 November 2026
+- Memperbaiki guard jumlah komponen agar batas 20.000 menghitung top-level dan nested secara gabungan, bukan hanya nested. Penolakan dilakukan sebelum alokasi record nested.
+- Menambahkan tes parser dengan 20.000 top-level dan satu nested untuk membuktikan total gabungan ditolak. Perubahan menunggu Gradle CI terbaru.

@@ -188,3 +188,10 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Belum ada klaim build/test lulus: workflow CI perlu menjalankan job sampai tahap Gradle agar perubahan ini tervalidasi pada proyek Android lengkap.
 
 - Smoke test lokal Kotlin 1.9 untuk helper pembaca berbatas lulus: batas tepat, input berlebih ditolak, dan stream ditutup pada jalur sukses maupun kegagalan termasuk konfigurasi negatif. Pemeriksaan ini tidak mengompilasi seluruh aplikasi atau menjalankan unit test Gradle.
+
+## Pengurangan puncak memori saat membuka save — 15 November 2026
+- Pembacaan save dan save pembanding kini dialirkan ke file sementara di cache menggunakan buffer tetap 64 KiB, lalu dimuat ke ByteArray setelah selesai.
+- File sementara dihapus dalam blok finally, termasuk ketika input melewati batas atau terjadi kegagalan I/O.
+- Ini menghindari ByteArrayOutputStream yang berkembang bertahap dan salinan buffer penuh tambahan dari toByteArray(). Parser FMV masih memerlukan satu ByteArray penuh; batas input 128 MiB tetap dipertahankan.
+- SaveReadLimitTest diperluas untuk memastikan file sementara dibersihkan pada sukses, input berlebih, dan konfigurasi batas negatif.
+- Smoke test Kotlin 1.9 terisolasi lulus untuk pembacaan, batas, cleanup, dan penutupan stream. Gradle, unit test repository, dan API 26 belum tervalidasi.

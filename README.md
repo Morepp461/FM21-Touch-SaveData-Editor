@@ -240,3 +240,7 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Temuan ini menguatkan join UID dan menegaskan offset bukan identitas. Raw tag belum diklasifikasikan sebagai pemain/staf atau field semantik.
 
 - Audit lanjutan pada dua snapshot mengonfirmasi seluruh 15.235 UID terhubung mempertahankan entity ID dan raw tag yang sama, dengan pergeseran offset global +1.116 byte. Run CI 366 masih gagal tanpa step/log.
+
+### Pembersihan cache sementara otomatis — 15 November 2026
+- Saat aplikasi dibuka, file sementara yang dibuat aplikasi dan sudah berusia lebih dari 24 jam dibersihkan dari cache privat. Cakupan hanya file dengan prefix ekspor/impor yang dikenal serta file di direktori `fm21_components` dan `fm21_person_diff`; file lain tidak disentuh.
+- Dua tes regresi memverifikasi file stale milik aplikasi dihapus, file baru dan file tidak terkait dipertahankan, serta konfigurasi usia negatif ditolak. Dua kasus lulus pada harness Kotlin 1.9 lokal dengan assertion shim.

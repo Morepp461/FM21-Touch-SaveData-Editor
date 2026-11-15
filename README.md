@@ -155,3 +155,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 ### UI responsiveness and list stability
 - People list rows use unique row-scoped keys so duplicate UID aliases do not crash lazy rendering.
 - Export copying and FMV integrity revalidation execute off the UI thread to keep large file operations responsive.
+
+- Aksi ekspor tetap terkunci sampai pengguna menyelesaikan atau membatalkan pemilihan lokasi dokumen, mencegah dua dialog ekspor saling menimpa file sementara.

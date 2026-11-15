@@ -36,7 +36,7 @@ class FmvRebuilderTest {
             FmvRebuilder.rebuild(source, mapOf("sample_a/.dat" to replacement))
         )
 
-        assertEquals(1, rebuilt.manifest.topLevel.size)
+        assertEquals(2, rebuilt.manifest.topLevel.size)
         assertEquals(2, rebuilt.manifest.nested.size)
         assertArrayEquals(replacement, rebuilt.extractByName("sample_a/.dat"))
         assertArrayEquals(originalB, rebuilt.extractByName("archive/sample_b/.dat"))
@@ -107,7 +107,11 @@ class FmvRebuilderTest {
     }
 
     private fun fixture(members: List<FixtureMember>): ByteArray {
-        val encoded = members.map { member ->
+        val membersWithGameVersion = members + FixtureMember(
+            "game_info/.dat",
+            chunks = listOf("21.4.0-0".toByteArray())
+        )
+        val encoded = membersWithGameVersion.map { member ->
             val frames = member.chunks.map { Zstd.compress(it, 3) }
             val stream = ByteArrayOutputStream()
             frames.forEachIndexed { index, frame ->

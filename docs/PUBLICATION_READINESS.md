@@ -213,3 +213,8 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Both `build` and `android-api26-smoke` failed. The job API again returned no step summaries or log URLs, so the workflow's source/build/test steps are not confirmed to have started.
 - A local Kotlin smoke harness passed the streaming SHA-256 known-vector, short-read, and stream-close checks. This validates the helper behavior in isolation only; it does not replace the repository Gradle unit tests.
 - The Android build, actual unit tests, API 26 emulator launch, real-save Kotlin rebuild, in-game load, semantic editor mappings, physical-device QA, and signed release artifact remain unverified.
+
+## Export picker failure handling — 15 November 2026
+- All export actions now share one document-picker launch path.
+- If Android cannot launch the save-location picker, the pending payload reference is cleared, its temporary file is deleted, the busy state is released, and an error status is shown.
+- This prevents a failed picker launch from leaving the UI locked or leaking the prepared export file. Runtime verification still requires Android instrumentation/device testing.

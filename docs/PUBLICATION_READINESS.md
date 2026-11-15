@@ -332,3 +332,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Job emulator Android 8.0/API 26 pada run 392 masih `in_progress` saat update ini ditulis; jangan tandai lulus sebelum hasil job final.
 - File metadata dari artifact unsigned yang pertama merekam `fc7f11bf...` sebagai commit checkout (merge commit PR), bukan source branch head. Workflow diperbaiki agar artifact berikutnya memisahkan source PR commit, checked-out merge commit, dan base commit.
 - Release tetap belum siap publikasi: aplikasi masih read-only; CA/PA/atribut/keuangan belum dipetakan; Kotlin FMV rebuild belum divalidasi pada save nyata dan game; instalasi perangkat fisik belum dilakukan; signed APK/AAB dan informasi publik aplikasi belum tersedia.
+
+## Integritas ekspor lintas tipe file — 15 November 2026
+- Pemeriksaan SHA-256 pasca-salin kini berlaku untuk FMV, komponen, dan CSV. Aplikasi hanya menyatakan ekspor sukses setelah stream tujuan dibaca ulang dan hash cocok.
+- Perubahan memerlukan uji SAF lintas Android/provider penyimpanan; unit/build CI akan memverifikasi kompilasi dan regresi terkait.

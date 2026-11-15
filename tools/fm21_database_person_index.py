@@ -66,7 +66,7 @@ def plausible_name(raw: bytes) -> str | None:
         return None
     if not name or not any(char.isalpha() for char in name):
         return None
-    if any(char.iscontrol() for char in name):
+    if any(ord(char) < 32 for char in name):
         return None
     return name
 

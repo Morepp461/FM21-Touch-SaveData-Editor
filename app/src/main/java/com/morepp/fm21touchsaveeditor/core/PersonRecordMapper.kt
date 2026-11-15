@@ -104,7 +104,9 @@ object PersonRecordMapper {
             p++
         }
 
-        val resolvedByEntityId = resolved.values.associateBy { it.first }
+        val resolvedByEntityId = resolved.values.groupBy { it.first }
+            .filterValues { it.size == 1 }
+            .mapValues { it.value.single() }
         val entries = names.map { name ->
             val entity = if (name.uniqueId in ambiguousUids) null else resolved[name.uniqueId]
             val nextEntity = entity?.let { resolvedByEntityId[it.first + 1] }

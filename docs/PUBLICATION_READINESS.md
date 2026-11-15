@@ -205,3 +205,11 @@ Current state: **not ready for public publication**. The app is a read-only save
 - README wording updated to describe streaming hash verification accurately.
 - Source commit: `29d041e9f221e7cc176cf037a6f939417db710cc`; regression test commit: `80639728f3d101ec9b2d085916642f6748d95439`; documentation commit: `9be5d57b13a7712325b8e8a207b7465fe9a4453b`.
 - These changes still require a passing Gradle/unit-test run and Android API 26 QA. No release gate is cleared by source changes alone.
+
+
+## Latest streaming-export CI observation — 15 November 2026
+
+- Head `3f1ea8c25c9a3115325dafa925c5287ec8f81ac6` triggered Actions run 261 (`43674713677`).
+- Both `build` and `android-api26-smoke` failed. The job API again returned no step summaries or log URLs, so the workflow's source/build/test steps are not confirmed to have started.
+- A local Kotlin smoke harness passed the streaming SHA-256 known-vector, short-read, and stream-close checks. This validates the helper behavior in isolation only; it does not replace the repository Gradle unit tests.
+- The Android build, actual unit tests, API 26 emulator launch, real-save Kotlin rebuild, in-game load, semantic editor mappings, physical-device QA, and signed release artifact remain unverified.

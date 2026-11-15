@@ -313,3 +313,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Retensi cache dan cleanup startup — 15 November 2026
 - Aplikasi membersihkan file kerja internal yang dikenal dan berusia lebih dari 24 jam saat startup. File yang tidak cocok dengan prefix/direktori aplikasi dibiarkan.
 - Dua kasus tes cleanup lulus pada harness Kotlin 1.9 terisolasi dengan assertion shim. Perlu tetap diverifikasi melalui Gradle dan uji perangkat Android.
+
+## Gerbang versi untuk FMV writer — 15 November 2026
+- Jalur edit writer kini dibatasi ke database `21.4.0-0`; versi lain/unknown ditolak. No-op copy tetap diperbolehkan melalui validasi penuh tanpa menulis ulang container.
+- Menambahkan tes penolakan untuk versi `22.0.0-0` dan fixture writer dengan versi yang terdeteksi. Tes belum dijalankan oleh Gradle CI.

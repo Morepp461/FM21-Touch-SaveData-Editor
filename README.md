@@ -203,3 +203,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Pemanggilan pemilih file untuk save utama dan save pembanding kini menangani exception saat dialog Android gagal diluncurkan, menampilkan pesan error, dan tidak membiarkan status proses terkunci.
 
 - Actions run 311 pada head `ce2ff55bdc1ef564e109106418b66d57000284e5` kembali gagal sebelum menyediakan step summary atau log. Build Android dan emulator API 26 tetap belum terverifikasi.
+
+- Skrip checksum/provenance release diuji terpisah dengan shell pada artefak dummy; ekstraksi version name/code berhasil dan validasi non-empty ditambahkan agar metadata yang kosong menggagalkan langkah CI.

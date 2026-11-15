@@ -249,3 +249,5 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 
 - Parser sekarang memakai pointer header untuk menentukan lokasi footer, lalu memverifikasi marker FMF tepat pada posisi tersebut. Ini lebih deterministik daripada mencari kemunculan marker terakhir di seluruh file, yang berpotensi salah jika byte marker muncul di payload.
 - Tes tambahan memastikan pointer yang berada di dalam file tetapi menunjuk ke data non-footer juga ditolak.
+
+- Harness Kotlin 1.9 lokal menjalankan empat metode SaveReadLimitTest dengan assertion yang aktif: semua lulus. Karena memakai shim JUnit minimal dan bukan Gradle/JUnit proyek, hasilnya hanya validasi helper/test logic terisolasi.

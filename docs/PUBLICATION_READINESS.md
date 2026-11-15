@@ -282,3 +282,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Perubahan ini memperkuat parser tetapi belum lulus Gradle test karena runner CI masih gagal sebelum langkah berjalan.
 
 - Empat kasus SaveReadLimitTest berhasil dijalankan lokal dengan Kotlin 1.9 dan assertion shim (bukan JUnit/Gradle). Build aplikasi, seluruh unit test, dan emulator API 26 masih belum terverifikasi.
+
+## Parser footer dan CI terbaru — 15 November 2026
+- Parser menggunakan pointer footer dari header, lalu memverifikasi marker FMF di offset yang ditunjuk. Tes mencakup pointer di luar file dan pointer yang menunjuk ke data non-footer.
+- Actions run 336 (`43676489758`) gagal pada kedua job tanpa steps/logs. Perubahan parser dan tes belum dijalankan oleh Gradle CI.

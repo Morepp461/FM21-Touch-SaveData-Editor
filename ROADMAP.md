@@ -220,3 +220,8 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Keamanan repository untuk persiapan release — 15 November 2026
 - Menambahkan aturan `.gitignore` untuk `.gradle`, seluruh direktori build Android, `local.properties`, folder IDE, keystore/signing key, serta file environment lokal.
 - Aturan ini mencegah penambahan tidak sengaja terhadap kredensial signing dan artefak build. Tetap periksa status Git sebelum commit; `.gitignore` tidak menghapus file rahasia yang sudah pernah masuk riwayat.
+
+## Provenance dan checksum artefak — 15 November 2026
+- Menambahkan langkah CI setelah pemeriksaan paket untuk menghasilkan SHA-256 bagi APK debug, APK release (signed jika tersedia, unsigned jika tidak), dan AAB.
+- BUILD-METADATA.txt merekam commit SHA, version name/code, min SDK 26, dan target SDK 36. Keduanya diunggah bersama artefak APK/AAB.
+- Workflow belum berhasil mencapai runner pada percobaan terakhir, jadi checksum dan metadata belum pernah dihasilkan oleh CI.

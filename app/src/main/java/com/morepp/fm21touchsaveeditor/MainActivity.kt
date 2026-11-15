@@ -388,7 +388,10 @@ private fun EditorHome() {
                                                     val file = File(context.cacheDir, "fm21_components/game_db_person_map.dat")
                                                     try {
                                                         parsed.extractToFile(member, file)
-                                                        PersonRecordMapper.map(file.readBytes())
+                                                        FileChannel.open(file.toPath(), StandardOpenOption.READ).use { channel ->
+                                                            require(channel.size() <= Int.MAX_VALUE) { "Database component terlalu besar untuk pemetaan" }
+                                                            PersonRecordMapper.map(channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()))
+                                                        }
                                                     } finally {
                                                         file.delete()
                                                     }

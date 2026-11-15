@@ -195,3 +195,6 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Ini menghindari ByteArrayOutputStream yang berkembang bertahap dan salinan buffer penuh tambahan dari toByteArray(). Parser FMV masih memerlukan satu ByteArray penuh; batas input 128 MiB tetap dipertahankan.
 - SaveReadLimitTest diperluas untuk memastikan file sementara dibersihkan pada sukses, input berlebih, dan konfigurasi batas negatif.
 - Smoke test Kotlin 1.9 terisolasi lulus untuk pembacaan, batas, cleanup, dan penutupan stream. Gradle, unit test repository, dan API 26 belum tervalidasi.
+
+- Menambahkan tes untuk kegagalan I/O di tengah proses baca, memastikan file sementara dibersihkan dan input stream ditutup. Batas 128 MiB ditampilkan di layar awal agar batas dukungan tidak tersembunyi.
+- Smoke test Kotlin 1.9 diperluas dan lulus untuk batas tepat, input berlebih, konfigurasi negatif, kegagalan I/O, cleanup file sementara, dan penutupan stream.

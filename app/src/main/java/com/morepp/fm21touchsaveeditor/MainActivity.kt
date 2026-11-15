@@ -870,5 +870,12 @@ private fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 102
     }
 }
 
-private fun csvEscape(value: String): String =
-    "\"" + value.replace("\"", "\"\"") + "\""
+internal fun csvEscape(value: String): String {
+    // Prevent spreadsheet formula execution when CSV contains untrusted save names.
+    val firstMeaningful = value.dropWhile { it.isWhitespace() || it == '\uFEFF' }.firstOrNull()
+    val startsWithControlPrefix = value.firstOrNull() == '\t' || value.firstOrNull() == '\r'
+    val safeValue = if (firstMeaningful in setOf('=', '+', '-', '@') || startsWithControlPrefix) {
+        "'$value"
+    } else value
+    return "\"" + safeValue.replace("\"", "\"\"") + "\""
+}

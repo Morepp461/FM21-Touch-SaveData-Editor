@@ -283,7 +283,7 @@ private fun EditorHome() {
                                 description = personIndex?.let { "${it.scannedNameEntries} nama · ${it.mappedEntries} terhubung · ${it.unresolvedEntries} belum terpetakan" }
                                     ?: "Hubungkan nama dengan data identitas internal",
                                 action = if (personIndex == null) "Buat pemetaan" else "Buka pemetaan",
-                                enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" },
+                                enabled = !busy && parsed.gameVersion == "21.4.0-0" && parsed.manifest.members.any { it.name == "game_db/.dat" },
                                 onClick = {
                                     if (personIndex != null) {
                                         selectedTab = EditorTab.PEOPLE
@@ -568,7 +568,7 @@ private fun EditorHome() {
                                             busy = false
                                         }
                                     },
-                                    enabled = !busy && parsed.gameVersion != null &&
+                                    enabled = !busy && parsed.gameVersion == "21.4.0-0" &&
                                         parsed.gameVersion == other.gameVersion &&
                                         parsed.manifest.members.any { it.name == "game_db/.dat" } &&
                                         other.manifest.members.any { it.name == "game_db/.dat" },
@@ -576,7 +576,7 @@ private fun EditorHome() {
                                 ) { Text(if (busy) "Menganalisis..." else "Analisis perubahan data orang") }
                                 if (parsed.gameVersion == null || parsed.gameVersion != other.gameVersion) {
                                     Text(
-                                        "Analisis record person memerlukan versi database yang sama. Versi save: ${parsed.gameVersion ?: "tidak diketahui"} / ${other.gameVersion ?: "tidak diketahui"}.",
+                                        "Analisis record person hanya mendukung database 21.4.0-0 dan memerlukan versi yang sama. Versi save: ${parsed.gameVersion ?: "tidak diketahui"} / ${other.gameVersion ?: "tidak diketahui"}.",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.error
                                     )

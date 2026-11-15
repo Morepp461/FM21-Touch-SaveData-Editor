@@ -218,3 +218,11 @@ Current state: **not ready for public publication**. The app is a read-only save
 - All export actions now share one document-picker launch path.
 - If Android cannot launch the save-location picker, the pending payload reference is cleared, its temporary file is deleted, the busy state is released, and an error status is shown.
 - This prevents a failed picker launch from leaving the UI locked or leaking the prepared export file. Runtime verification still requires Android instrumentation/device testing.
+
+## Pengurangan alokasi saat impor save — 15 November 2026
+- Fungsi pembaca save sekarang menyalin stream ke file sementara di cache aplikasi menggunakan buffer 64 KiB dan menolak input di atas 128 MiB sebelum menulis blok yang melewati batas.
+- Setelah stream ditutup, file sementara dibaca menjadi satu ByteArray untuk parser yang sekarang, lalu dihapus melalui finally. Ini menghilangkan pertumbuhan buffer ByteArrayOutputStream dan salinan penuh tambahan saat toByteArray(), tetapi belum menghilangkan kebutuhan satu ByteArray penuh.
+- Tes unit memeriksa batas tepat, input yang melampaui batas, penutupan stream, dan penghapusan file sementara pada semua jalur tersebut.
+- Smoke test Kotlin 1.9 untuk helper pembaca berbatas dan cleanup lulus. Ini hanya uji helper terisolasi, bukan build Android atau Gradle test.
+- Head 734a48983fec4c3d32f00956b36be3193d745a2c memicu Actions run 271 (43675142135); kedua job berakhir gagal. Job API tidak mengembalikan langkah atau log (steps kosong, logs_url null), sehingga build/test Gradle dan emulator belum terbukti berjalan.
+- Tetap belum siap publikasi: parser masih menyimpan seluruh save di memori, field semantik belum dipetakan, Kotlin rebuild belum divalidasi pada fixture nyata, in-game reload dan QA perangkat fisik belum dilakukan, serta APK/AAB release bertanda tangan belum tersedia.

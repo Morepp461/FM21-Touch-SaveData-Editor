@@ -350,3 +350,20 @@ Current state: **not ready for public publication**. The app is a read-only save
 - The container-layout writer remains available only as an internal experimental method for synthetic structural tests. It is not wired to the Android UI and does not establish editable FM21 database fields.
 - Regression tests cover both production behaviors: no-op copy remains byte-identical, and edited component payloads fail closed.
 - This is a safety hardening change, not a claim that the requested player/club editors are complete.
+
+
+## Supplied FMRTE 21 archive analysis (15 November 2026)
+
+- Inspected the supplied `FMRTE_21.4.0.40.zip` locally (670 archive entries).
+- `miniFMRTE/players.xml` lists CA, PA, Morale, Condition and WorldReputation as editable player properties in FMRTE's own workflow; DisplayedName, Age, ActualRating, PotentialRating and IsRegen are read-only in that layout.
+- `Ratings/FMRTE.json` contains ten positional rating profiles and grouped goalkeeper, mental, physical, technical and hidden attribute weights.
+- These are useful field-label and product-scope references only. FMRTE is a Windows editor with a different workflow; its metadata does not establish FM21 Touch save offsets, record ownership, encoding, or safe write behavior.
+- Full inventory and limitations: `docs/FMRTE_21_ARCHIVE_ANALYSIS.md`.
+- The production writer remains fail-closed for non-empty edits. Do not unlock any field from the FMRTE property list alone.
+
+## Latest hardening validation (15 November 2026)
+
+- PR #6 was merged to `main` at `f09ebd189e0c3b56b63aff36e2cba8c009a53216`.
+- GitHub Actions run 412 (`43730462136`) passed both the Android build/unit-test/package verification job and Android 8.0 / API 26 emulator launch smoke test.
+- CI uploaded a debug APK artifact and unsigned release APK/AAB artifacts. The release artifacts remain unsigned because no private signing keystore is configured.
+- Passing CI confirms build and API 26 emulator launch for this commit; it does not prove semantic save editing, in-game edited-save reload, physical-device compatibility, or store publication readiness.

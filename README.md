@@ -170,3 +170,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Tes unit ditambahkan untuk ukuran tepat pada batas, ukuran yang melampaui batas, penutupan stream setelah sukses/gagal, dan batas negatif.
 - File save yang lebih besar dari 128 MiB belum didukung. Batas ini harus ditinjau kembali setelah parser beralih ke pembacaan berbasis file/stream.
 - Tes repository dan build Android belum dapat diklaim lulus sampai workflow CI benar-benar menjalankan job dan menghasilkan log/hasil tes.
+
+- Pemeriksaan helper pembaca berbatas secara lokal dengan Kotlin 1.9 lulus untuk batas tepat, penolakan input berlebih, penutupan stream setelah sukses/gagal, dan penutupan stream saat konfigurasi batas tidak valid. Ini bukan pengganti Gradle/unit test proyek Android.

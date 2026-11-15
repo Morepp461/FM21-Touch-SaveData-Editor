@@ -255,3 +255,6 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Validasi parser dan CI — 15 November 2026
 - Pointer footer header dipakai langsung untuk mencari manifest; marker diverifikasi tepat di offset yang ditunjuk. Dua kasus pointer rusak ditambahkan ke tes parser.
 - Run 336 (`43676489758`) gagal pada build dan API 26 smoke tanpa langkah/log. Belum ada hasil Gradle atau emulator.
+
+## Runner CI terbaru — 15 November 2026
+- Run 340 (`43676528691`) untuk head `3ea07f39ed0aaabb1026e886fb67d69af19206fe` gagal pada kedua job tanpa step summary/log. Belum ada bukti Gradle atau emulator mengeksekusi perubahan pointer-footer.

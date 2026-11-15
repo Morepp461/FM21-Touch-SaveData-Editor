@@ -195,3 +195,7 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 ### Perlindungan kredensial signing dan file lokal — 15 November 2026
 - `.gitignore` kini mengecualikan output Gradle/Android, konfigurasi SDK lokal, folder IDE, file keystore (`.jks`, `.keystore`, `.p12`, `.pfx`), dan file environment.
 - File signing key dan password tidak boleh dimasukkan ke repository atau dikirim lewat chat. Release hanya boleh ditandatangani melalui penyimpanan rahasia yang dikelola pemilik aplikasi.
+
+### Verifikasi artefak release — 15 November 2026
+- Workflow release kini membuat SHA256SUMS.txt untuk APK debug, APK release, dan AAB serta BUILD-METADATA.txt yang mencatat commit, version name/code, min SDK, dan target SDK.
+- File checksum dan metadata ikut diunggah bersama artefak build agar hasil unduhan dapat diverifikasi. Langkah ini baru ditambahkan ke workflow dan belum tervalidasi oleh runner.

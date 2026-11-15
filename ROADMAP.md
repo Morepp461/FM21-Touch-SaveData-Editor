@@ -164,3 +164,8 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Operasi ekspor mempertahankan status sibuk sampai Android Storage Access Framework mengembalikan hasil atau pembatalan.
 - Ini mencegah ekspor kedua menimpa referensi file sementara ketika dialog pemilihan lokasi pertama masih terbuka.
 - Kegagalan menyiapkan file tetap mengembalikan UI ke status siap.
+
+
+## Person mapper ambiguity guard — 15 November 2026
+- Pemetaan panjang record kini hanya menggunakan entity ID yang unik lintas UID. Jika beberapa UID mengarah ke entity ID yang sama, panjang record tidak diinferensikan untuk ID tersebut.
+- Tes regresi menambahkan tiga baris sintetis dengan dua UID yang berbagi entity ID, memastikan panjang record keduanya tetap null.

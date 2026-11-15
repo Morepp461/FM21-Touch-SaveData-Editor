@@ -266,7 +266,7 @@ class FmvContainer(private val bytes: ByteArray) {
         repeat(archiveCount) {
             val archiveName = reader.string()
             val childCount = reader.u32().checkedCount()
-            if (nested.size.toLong() + childCount > MAX_MEMBERS) {
+            if (top.size.toLong() + nested.size.toLong() + childCount > MAX_MEMBERS) {
                 throw FmvFormatException("Total manifest member count is invalid")
             }
             repeat(childCount) { nested += reader.member(archiveName) }

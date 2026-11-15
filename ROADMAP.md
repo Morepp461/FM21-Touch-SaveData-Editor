@@ -246,3 +246,6 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - `FmvContainer` kini memvalidasi field offset footer pada header (offset byte 9, little-endian) terhadap posisi footer manifest yang ditemukan.
 - Menambahkan tes regresi yang merusak pointer header dan memastikan parser menolak file tersebut. Fixture sintetis valid diperbarui untuk menulis pointer yang benar.
 - Dua fixture FMV nyata yang dianalisis sebelumnya memiliki pointer `footerOffset - 9` yang cocok. Uji Kotlin penuh masih menunggu runner CI.
+
+- Parser sekarang memakai pointer header untuk menentukan lokasi footer, lalu memverifikasi marker FMF tepat pada posisi tersebut. Ini lebih deterministik daripada mencari kemunculan marker terakhir di seluruh file, yang berpotensi salah jika byte marker muncul di payload.
+- Tes tambahan memastikan pointer yang berada di dalam file tetapi menunjuk ke data non-footer juga ditolak.

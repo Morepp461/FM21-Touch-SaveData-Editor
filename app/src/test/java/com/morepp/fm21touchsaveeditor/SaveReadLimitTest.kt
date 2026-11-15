@@ -5,6 +5,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.io.ByteArrayInputStream
+import java.io.IOException
+import java.io.InputStream
 
 class SaveReadLimitTest {
     private class CloseTrackingInputStream(bytes: ByteArray) : ByteArrayInputStream(bytes) {
@@ -14,6 +16,22 @@ class SaveReadLimitTest {
         override fun close() {
             wasClosed = true
             super.close()
+        }
+    }
+
+
+    private class FailingInputStream : InputStream() {
+        var wasClosed = false
+            private set
+        private var reads = 0
+
+        override fun read(): Int {
+            if (reads++ < 3) return reads
+            throw IOException("synthetic read failure")
+        }
+
+        override fun close() {
+            wasClosed = true
         }
     }
 
@@ -66,4 +84,20 @@ class SaveReadLimitTest {
             directory.deleteRecursively()
         }
     }
+    @Test
+    fun removesTemporaryFileWhenSourceReadFails() {
+        val input = FailingInputStream()
+        val directory = java.nio.file.Files.createTempDirectory("fm21-read-limit").toFile()
+
+        try {
+            assertThrows(IOException::class.java) {
+                readSaveBytes(input, maxBytes = 10, temporaryDirectory = directory)
+            }
+            assertEquals(true, input.wasClosed)
+            assertEquals(0, directory.listFiles()?.size)
+        } finally {
+            directory.deleteRecursively()
+        }
+    }
+
 }

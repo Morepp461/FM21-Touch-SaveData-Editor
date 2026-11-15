@@ -121,8 +121,8 @@ object PersonRecordDiffAnalyzer {
             compared = compared,
             changed = changes.sortedBy { it.name.lowercase() },
             unchanged = unchanged,
-            missingBefore = (afterByUid.keys - beforeByUid.keys).size,
-            missingAfter = (beforeByUid.keys - afterByUid.keys).size,
+            missingBefore = (afterGroups.keys - beforeGroups.keys).size,
+            missingAfter = (beforeGroups.keys - afterGroups.keys).size,
             ambiguousBefore = beforeGroups.count { it.value.size > 1 },
             ambiguousAfter = afterGroups.count { it.value.size > 1 },
             skippedUnknownLength = skipped

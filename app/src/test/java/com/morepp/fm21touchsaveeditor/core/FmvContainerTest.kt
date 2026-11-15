@@ -54,6 +54,15 @@ class FmvContainerTest {
     }
 
     @Test
+    fun rejectsEditedRebuildWhenDatabaseVersionIsUnknown() {
+        val unknown = FmvContainer(fixture(listOf("opaque component".toByteArray())))
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvRebuilder.rebuild(unknown, mapOf("sample/.dat" to "edited".toByteArray()))
+        }
+        assertEquals(true, error.message!!.contains("detected: unknown"))
+    }
+
+    @Test
     fun rejectsEditedRebuildForUnsupportedDatabaseVersion() {
         val unsupported = FmvContainer(
             fixture(listOf("22.0.0-0|original".toByteArray()), memberName = "game_info/.dat")

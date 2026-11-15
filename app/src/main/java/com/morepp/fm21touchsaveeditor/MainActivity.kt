@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -72,16 +73,16 @@ private fun EditorHome() {
     var personStatusFilter by remember { mutableStateOf("Semua") }
     var status by remember { mutableStateOf("Belum ada save yang dibuka") }
     var busy by remember { mutableStateOf(false) }
-    var pendingExport by remember { mutableStateOf<File?>(null) }
+    var pendingExportPath by rememberSaveable { mutableStateOf<String?>(null) }
     var filterText by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf(EditorTab.OVERVIEW) }
     var selectedCategory by remember { mutableStateOf("Semua") }
     var componentLimit by remember { mutableIntStateOf(40) }
 
     val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
-        val payload = pendingExport
-        pendingExport = null
-        if (uri != null && payload != null) {
+        val payload = pendingExportPath?.let(::File)
+        pendingExportPath = null
+        if (uri != null && payload != null && payload.isFile) {
             busy = true
             status = "Menyimpan dan memverifikasi hasil ekspor..."
             scope.launch {
@@ -112,16 +113,17 @@ private fun EditorHome() {
         } else {
             payload?.delete()
             busy = false
+            if (uri != null) status = "File sementara ekspor tidak tersedia. Ulangi proses ekspor."
         }
     }
 
     fun launchExportPicker(file: File, readyStatus: String? = null) {
-        pendingExport = file
+        pendingExportPath = file.absolutePath
         try {
             exportPicker.launch(file.name)
             readyStatus?.let { status = it }
         } catch (error: Exception) {
-            pendingExport = null
+            pendingExportPath = null
             file.delete()
             busy = false
             status = "Gagal membuka dialog ekspor: ${error.message}"

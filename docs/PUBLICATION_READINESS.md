@@ -289,3 +289,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 
 ## Status CI setelah perubahan parser footer — 15 November 2026
 - Run 340 (`43676528691`) untuk head `3ea07f39ed0aaabb1026e886fb67d69af19206fe` gagal sebelum langkah job tersedia. Tidak ada log Gradle atau emulator; tes parser pointer-footer belum tervalidasi melalui CI.
+
+## Verifikasi kebijakan offline-first — 15 November 2026
+- CI memeriksa `allowBackup=false` dan memeriksa permission pada APK debug/release untuk menolak `android.permission.INTERNET`.
+- Pemeriksaan ini selaras dengan kebijakan privasi offline-first, tetapi belum dieksekusi karena Actions gagal sebelum runner/steps tersedia.

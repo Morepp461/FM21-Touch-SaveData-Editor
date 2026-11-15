@@ -155,3 +155,9 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Fixed duplicate UID keys in the People lazy list by assigning per-row keys.
 - Moved export copying and FMV SHA-256 revalidation off the main thread to avoid UI stalls on larger files.
 - These changes are not considered verified until CI can allocate runners and execute Gradle/unit tests plus API 26 smoke testing.
+
+
+## Export dialog lifecycle regression hardening
+- Export actions now remain locked while the Android document picker is open and until the user saves or cancels.
+- This prevents concurrent export requests from replacing the pending temporary-file reference.
+- Runtime behavior still requires Android instrumentation/manual validation.

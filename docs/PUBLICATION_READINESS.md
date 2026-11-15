@@ -305,3 +305,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Perubahan memerlukan uji Activity recreation dan cancellation pada Android; belum tervalidasi karena CI belum menjalankan emulator.
 
 - Draft privacy policy sekarang menandai kontak dukungan publik belum dikonfigurasi. Checklist mewajibkan URL kebijakan yang dapat diakses tanpa login GitHub dan kontak dukungan publik sebelum rilis.
+
+## Status CI dan audit data terbaru — 15 November 2026
+- Run 366 (`43677123810`) gagal sebelum langkah job tersedia; tidak ada log Gradle atau emulator.
+- Audit lintas snapshot menambah bukti bahwa 15.235 UID mempertahankan entity ID dan raw tag, sementara offset bergeser global +1.116 byte. Ini belum memetakan field semantik dan tidak membuka izin penulisan.

@@ -265,3 +265,6 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 
 ## Akurasi kebijakan retensi file — 15 November 2026
 - Privacy policy kini menjelaskan kapan file staging impor dan payload ekspor dihapus, serta kondisi ketika proses terhenti sebelum cleanup sehingga cache mungkin masih berisi file sementara.
+
+## CI terbaru — 15 November 2026
+- Run 350 (`43676715152`) gagal pada job build dan API 26 smoke tanpa step summary atau log. Pemeriksaan offline-first manifest, checksum artefak, dan parser footer belum dijalankan oleh runner.

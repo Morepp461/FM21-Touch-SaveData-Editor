@@ -336,3 +336,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Integritas ekspor lintas tipe file — 15 November 2026
 - Pemeriksaan SHA-256 pasca-salin kini berlaku untuk FMV, komponen, dan CSV. Aplikasi hanya menyatakan ekspor sukses setelah stream tujuan dibaca ulang dan hash cocok.
 - Perubahan memerlukan uji SAF lintas Android/provider penyimpanan; unit/build CI akan memverifikasi kompilasi dan regresi terkait.
+
+## Batas manifest FMV — 15 November 2026
+- Parser kini menerapkan batas total 20.000 komponen terhadap gabungan top-level dan nested sebelum mengalokasikan record nested.
+- Tes regresi sintetis mencakup 20.000 top-level ditambah satu nested. Menunggu hasil Gradle CI pada head terbaru.

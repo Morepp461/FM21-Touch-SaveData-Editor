@@ -59,6 +59,11 @@ object FmvRebuilder {
         editedComponents: Map<String, ByteArray>
     ): ByteArray {
         if (editedComponents.isEmpty()) return validatedUnchangedCopy(source)
+        if (source.gameVersion != "21.4.0-0") {
+            throw FmvFormatException(
+                "Edited FMV rebuild is restricted to database version 21.4.0-0; detected: ${source.gameVersion ?: "unknown"}"
+            )
+        }
 
         val allMembers = source.manifest.members
         val byName = allMembers.associateBy { it.name }

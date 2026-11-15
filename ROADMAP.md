@@ -202,3 +202,8 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Status runner CI terbaru — 15 November 2026
 - Actions run 282 pada head `123f06f5e538e754ecfea3af6e73f9c7f7c76438` gagal pada kedua job. API job mengembalikan `steps: []` dan `logs_url: null`; tidak ada bukti Gradle atau emulator mulai berjalan.
 - Perubahan pembacaan save berbasis file sementara tetap tercatat sebagai smoke-tested secara terisolasi, bukan lulus build Android.
+
+## Pemulihan ekspor setelah Activity dibuat ulang — 15 November 2026
+- Path file sementara yang menunggu dialog Storage Access Framework kini memakai rememberSaveable, sehingga dapat dipulihkan setelah perubahan konfigurasi atau pembuatan ulang Activity.
+- Callback memeriksa file masih tersedia sebelum menyalin. Jika file hilang, ekspor gagal secara eksplisit dan UI tidak mengklaim sukses.
+- Ini memperbaiki celah lifecycle yang dapat membuat callback menerima URI tanpa referensi payload setelah Activity recreation. Validasi runtime Android masih menunggu emulator/perangkat.

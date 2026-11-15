@@ -235,3 +235,5 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Kedua job tidak mengembalikan step summary maupun URL log (`steps: []`, `logs_url: null`). Tidak ada bukti source build, unit test, atau emulator mulai berjalan.
 
 - Smoke test shell untuk langkah checksum/provenance berhasil pada tiga file dummy. Pemeriksaan `test -n` ditambahkan agar metadata versi tidak diam-diam kosong jika format `app/build.gradle.kts` berubah.
+
+- Menambahkan dependency Compose `runtime-saveable` secara eksplisit untuk fitur pemulihan path payload ekspor. Kompilasi tetap harus dibuktikan oleh Gradle CI.

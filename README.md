@@ -215,3 +215,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Kedua fixture FMV nyata yang tersedia memiliki nilai header yang cocok dengan posisi footer. Tes sintetis ditambahkan untuk pointer yang rusak.
 
 - Pencarian marker footer berbasis scan byte kini diganti dengan navigasi langsung memakai pointer header yang tervalidasi; parser memeriksa marker tepat pada lokasi yang ditunjuk. Ini menghindari salah memilih pola marker yang kebetulan muncul di payload terkompresi.
+
+- Empat kasus regresi pembaca save (batas tepat, batas terlampaui, batas negatif, dan kegagalan I/O) dijalankan pada harness Kotlin 1.9 lokal dengan assertion shim dan semuanya lulus. Ini bukan eksekusi JUnit/Gradle repository.

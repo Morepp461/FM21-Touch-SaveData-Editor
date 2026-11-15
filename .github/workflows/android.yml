@@ -75,11 +75,32 @@ jobs:
             fi
           done
           echo "Debug and release APKs: minimum SDK 26, target SDK 36, native Zstandard runtime present."
+      - name: Generate release checksums and build metadata
+        shell: bash
+        run: |
+          mkdir -p app/build/outputs/release-metadata
+          RELEASE_APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          if [[ -f app/build/outputs/apk/release/app-release.apk ]]; then
+            RELEASE_APK=app/build/outputs/apk/release/app-release.apk
+          fi
+          sha256sum app/build/outputs/apk/debug/app-debug.apk "$RELEASE_APK" app/build/outputs/bundle/release/app-release.aab > app/build/outputs/release-metadata/SHA256SUMS.txt
+          VERSION_NAME="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          VERSION_CODE="$(sed -n 's/.*versionCode = \([0-9]*\).*/\1/p' app/build.gradle.kts)"
+          {
+            echo "commit=$(git rev-parse HEAD)"
+            echo "version_name=$VERSION_NAME"
+            echo "version_code=$VERSION_CODE"
+            echo "min_sdk=26"
+            echo "target_sdk=36"
+          } > app/build/outputs/release-metadata/BUILD-METADATA.txt
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: fm21-touch-save-editor-0.8.0-alpha-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/release-metadata/SHA256SUMS.txt
+            app/build/outputs/release-metadata/BUILD-METADATA.txt
           if-no-files-found: error
       - name: Upload unsigned release APK and AAB
         if: env.HAS_RELEASE_KEYSTORE != 'true'
@@ -89,6 +110,8 @@ jobs:
           path: |
             app/build/outputs/apk/release/app-release-unsigned.apk
             app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/release-metadata/SHA256SUMS.txt
+            app/build/outputs/release-metadata/BUILD-METADATA.txt
           if-no-files-found: error
       - name: Verify signed release APK and AAB
         if: env.HAS_RELEASE_KEYSTORE == 'true'
@@ -105,6 +128,8 @@ jobs:
           path: |
             app/build/outputs/apk/release/app-release.apk
             app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/release-metadata/SHA256SUMS.txt
+            app/build/outputs/release-metadata/BUILD-METADATA.txt
           if-no-files-found: error
 
   android-api26-smoke:

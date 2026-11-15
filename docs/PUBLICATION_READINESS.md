@@ -172,3 +172,14 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## CSV export safety hardening
 - CSV cells beginning with spreadsheet formula prefixes are neutralized, including formula prefixes after whitespace or a BOM.
 - CSV quoting remains covered for commas and embedded quotation marks. Regression tests are committed but await an executable CI run.
+
+
+## Latest hardening pass — 15 November 2026
+
+- Export picker lifecycle: UI remains busy until Android's document picker returns a destination or cancellation, preventing concurrent exports from replacing the pending temporary file.
+- Person mapper: entity-record length inference now ignores entity IDs claimed by multiple UIDs. Such record lengths remain unknown.
+- CSV safety: exported cells beginning with spreadsheet formula prefixes are neutralized, including prefixes preceded by whitespace or a BOM. Unit tests cover quoting and formula-like values.
+- A local Kotlin smoke check passed for the CSV escaping helper only. This is not a Gradle build or Android test.
+- Latest PR head: `1de6f4854256ae498e176ed4bbc39a27e6432194`.
+- GitHub Actions run 251 (`43674363556`) failed both jobs without step records or downloadable job logs. No Gradle, unit-test, or API 26 emulator execution is confirmed.
+- No publication gate is cleared by these source changes. The app remains read-only and unsigned; real-save Kotlin rebuild validation, successful in-game load, verified semantic field mappings, Android device QA, and signed release artifacts remain required.

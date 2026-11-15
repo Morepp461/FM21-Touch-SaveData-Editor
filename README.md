@@ -187,3 +187,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 ### Ketahanan ekspor saat perubahan konfigurasi perangkat — 15 November 2026
 - Referensi file sementara ekspor kini disimpan sebagai path yang dapat dipulihkan melalui saved state Compose, bukan hanya objek File dalam memori.
 - Jika Android membuat ulang Activity ketika dialog penyimpanan terbuka, callback dapat memulihkan file sementara. Jika file sudah tidak tersedia, aplikasi menampilkan status kegagalan yang jelas dan tidak menganggap ekspor berhasil.
+
+- Lifecycle ekspor kini menyimpan path payload dengan rememberSaveable dan memeriksa keberadaan file sebelum menyalin, agar Activity recreation tidak membuat ekspor palsu atau kehilangan referensi payload. Run CI 288 masih gagal tanpa step summary/log; build Android belum terverifikasi.

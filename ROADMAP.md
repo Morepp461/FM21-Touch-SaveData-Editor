@@ -179,3 +179,10 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Verifikasi hash ekspor FMV tidak lagi membaca seluruh file tujuan ke ByteArray; kedua stream dihitung dengan buffer tetap 64 KiB.
 - Tes unit ditambahkan untuk vektor SHA-256 yang diketahui, pembacaan stream pendek, dan penutupan stream.
 - Smoke test Kotlin terisolasi lulus. Build Gradle, unit test repository, dan emulator API 26 tetap menunggu runner CI yang dapat berjalan.
+
+
+## Pembacaan save berbatas — 15 November 2026
+- Fungsi readSaveBytes kini memeriksa sisa kapasitas sebelum menambah blok data ke buffer, dengan aritmetika yang tidak bergantung pada penjumlahan ukuran yang berpotensi overflow.
+- Pesan batas ukuran dibuat dinamis mengikuti nilai konfigurasi. Batas default tetap 128 MiB karena parser masih memerlukan seluruh container di memori.
+- Menambahkan SaveReadLimitTest untuk batas tepat, input terlalu besar, stream ditutup setelah sukses/gagal, serta konfigurasi batas negatif.
+- Belum ada klaim build/test lulus: workflow CI perlu menjalankan job sampai tahap Gradle agar perubahan ini tervalidasi pada proyek Android lengkap.

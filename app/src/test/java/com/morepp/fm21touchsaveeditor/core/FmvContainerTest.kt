@@ -97,6 +97,20 @@ class FmvContainerTest {
     }
 
     @Test
+    fun rejectsHeaderFooterPointerThatDoesNotMatchManifest() {
+        val corrupt = fixture(listOf("pointer check".toByteArray()))
+        corrupt[9] = 0
+        corrupt[10] = 0
+        corrupt[11] = 0
+        corrupt[12] = 0
+
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvContainer(corrupt)
+        }
+        assertEquals(true, error.message!!.contains("footer offset"))
+    }
+
+    @Test
     fun rejectsInvalidHeader() {
         val exception = assertThrows(FmvFormatException::class.java) {
             FmvContainer(ByteArray(64))
@@ -185,12 +199,13 @@ class FmvContainerTest {
         manifest.write(le32(0)) // terminator
         val manifestFrame = Zstd.compress(manifest.toByteArray(), 3)
 
-        val footerOffset = 30 + memberBytes.size
         val result = ByteArrayOutputStream()
+        val footerOffset = 30 + memberBytes.size
         val header = ByteArray(30)
         header[0] = 0x02
         header[1] = 0x01
         "fmf.".toByteArray().copyInto(header, 2)
+        le32(footerOffset - 9).copyInto(header, 9)
         result.write(header)
         result.write(memberBytes)
         result.write(footerPrefix)

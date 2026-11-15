@@ -281,3 +281,6 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Pemindaian ulang mengonfirmasi 17.486 entri name-index identik dan 15.235 UID terhubung dengan entity ID/raw tag identik pada kedua snapshot.
 - Offset seluruh record yang terhubung bergeser konstan +1.116 byte. Distribusi inferensi panjang identik: 13.427 × 86 byte, 1.517 × 135 byte, 80 ukuran lain, 211 tanpa batas yang dapat dipastikan.
 - Hasil tetap struktural, bukan klasifikasi pemain/staf atau pemetaan CA/PA/atribut. Lihat `docs/CROSS_SEASON_FIXTURE_ANALYSIS.md`.
+
+## Status runner setelah audit person lintas snapshot — 15 November 2026
+- Run 366 (`43677123810`) gagal pada kedua job tanpa step summary/log. Audit struktural UID/tag/offset sudah dicatat, tetapi build dan tes Android tetap belum dijalankan oleh CI.

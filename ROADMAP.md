@@ -288,3 +288,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Pembersihan cache sementara saat startup — 15 November 2026
 - Menambahkan cleanup pada startup untuk file sementara aplikasi yang lebih tua dari 24 jam. Cleanup dibatasi pada prefix file impor/ekspor yang diketahui dan direktori kerja internal aplikasi; file lain di cache tidak disentuh.
 - Menambahkan dua tes untuk penghapusan file stale, retensi file fresh/tidak terkait, dan validasi umur negatif. Harness Kotlin 1.9 lokal dengan assertion shim lulus untuk kedua kasus; Gradle belum berjalan.
+
+## Pembatasan versi writer FMV — 15 November 2026
+- `FmvRebuilder.rebuild` menolak perubahan komponen jika versi database bukan `21.4.0-0` atau tidak terdeteksi. Rebuild tanpa perubahan tetap menggunakan jalur salinan identik yang divalidasi.
+- Fixture tes writer kini memuat `game_info/.dat`; tes baru memastikan versi `22.0.0-0` ditolak. Writer masih eksperimental dan belum diuji pada file nyata/in-game.

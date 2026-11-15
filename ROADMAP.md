@@ -216,3 +216,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - MainActivityLaunchTest kini memverifikasi judul aplikasi, aksi pemilih save, mode hanya-baca, minimum Android 8/API 26, dan batas impor 128 MiB.
 - Pemeriksaan runtime native Zstandard tetap berada di test yang sama. MainActivitySmokeTest yang menduplikasi pemeriksaan layar awal dihapus agar tidak menjalankan launch test yang sama dua kali.
 - Perubahan belum diuji pada emulator karena runner Actions masih gagal sebelum langkah berjalan.
+
+## Keamanan repository untuk persiapan release — 15 November 2026
+- Menambahkan aturan `.gitignore` untuk `.gradle`, seluruh direktori build Android, `local.properties`, folder IDE, keystore/signing key, serta file environment lokal.
+- Aturan ini mencegah penambahan tidak sengaja terhadap kredensial signing dan artefak build. Tetap periksa status Git sebelum commit; `.gitignore` tidak menghapus file rahasia yang sudah pernah masuk riwayat.

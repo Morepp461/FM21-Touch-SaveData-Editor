@@ -169,3 +169,8 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Person mapper ambiguity guard — 15 November 2026
 - Pemetaan panjang record kini hanya menggunakan entity ID yang unik lintas UID. Jika beberapa UID mengarah ke entity ID yang sama, panjang record tidak diinferensikan untuk ID tersebut.
 - Tes regresi menambahkan tiga baris sintetis dengan dua UID yang berbagi entity ID, memastikan panjang record keduanya tetap null.
+
+
+## CSV export safety — 15 November 2026
+- `csvEscape` sekarang menambahkan awalan teks untuk nilai yang dapat ditafsirkan sebagai formula spreadsheet, termasuk setelah whitespace/BOM, dan tetap meng-escape tanda kutip CSV.
+- Unit test mencakup nilai biasa, koma, kutip, formula `=`, `+`, `-`, `@`, tab, dan BOM.

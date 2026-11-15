@@ -21,7 +21,7 @@ The app may create a component export or CSV file only when the user explicitly 
 
 ## Retention and deletion
 
-The app does not maintain a remote copy of selected files. Temporary processing files may be created in the app's private cache and are managed by Android. Users can remove exported files from the destination they selected and clear the app's storage through Android settings.
+The app does not maintain a remote copy of selected files. Temporary processing files may be created in the app's private cache. Import staging files are deleted after parsing, and prepared export files are deleted after the export callback completes or is cancelled. If the app or device is interrupted before cleanup runs, a temporary file may remain until Android clears the cache or the user clears app storage through Android settings. Users can remove exported files from the destination they selected.
 
 ## Children's privacy
 

@@ -152,3 +152,9 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - README diperbarui.
 - CI head `acc6a8678ada818ca813226b3b13878c92575be5` masih gagal sebelum runner dialokasikan: kedua job memiliki `runner_id: 0`, nama runner kosong, dan daftar step kosong. Build Kotlin/Gradle dan emulator belum terbukti berjalan. Label runner dikembalikan ke `ubuntu-latest`; penggantian label OS tidak mengatasi kegagalan alokasi runner.
 - Tidak ada field CA/PA, atribut, keuangan, transfer budget, prize money, atau reputasi yang dibuka untuk edit. Aplikasi tetap read-only sampai decoding semantik dan uji save di dalam game terbukti.
+
+
+## UI stability and export responsiveness — 15 November 2026
+- People lazy-list keys now include row identity as well as UID, avoiding duplicate-key crashes when multiple name-index rows reference the same UID.
+- Export file copying, FMV re-open validation, and SHA-256 verification run on the IO dispatcher instead of blocking the Compose main thread.
+- These changes are source updates only; they still require a passing Android build, unit tests, and API 26 emulator run.

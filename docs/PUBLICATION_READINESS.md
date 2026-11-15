@@ -226,3 +226,5 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Smoke test Kotlin 1.9 untuk helper pembaca berbatas dan cleanup lulus. Ini hanya uji helper terisolasi, bukan build Android atau Gradle test.
 - Head 734a48983fec4c3d32f00956b36be3193d745a2c memicu Actions run 271 (43675142135); kedua job berakhir gagal. Job API tidak mengembalikan langkah atau log (steps kosong, logs_url null), sehingga build/test Gradle dan emulator belum terbukti berjalan.
 - Tetap belum siap publikasi: parser masih menyimpan seluruh save di memori, field semantik belum dipetakan, Kotlin rebuild belum divalidasi pada fixture nyata, in-game reload dan QA perangkat fisik belum dilakukan, serta APK/AAB release bertanda tangan belum tersedia.
+
+- Menambahkan kasus uji kegagalan I/O di tengah stream dan menampilkan batas 128 MiB pada layar awal aplikasi. Smoke test Kotlin 1.9 untuk helper pembaca termasuk cleanup setelah kegagalan I/O lulus; validasi Gradle dan Android tetap tertunda.

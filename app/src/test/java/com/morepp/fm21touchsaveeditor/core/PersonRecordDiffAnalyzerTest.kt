@@ -74,10 +74,12 @@ class PersonRecordDiffAnalyzerTest {
         val before = ByteArrayOutputStream().apply {
             writeEntity(this, 51_788, 2_000_102_078, 0x11)
             writeName(this, "Bob Fullam", 26_630, 2_000_102_078)
+            write(ByteArray(16))
         }.toByteArray()
         val after = ByteArrayOutputStream().apply {
             writeEntity(this, 51_799, 2_000_102_078, 0x11)
             writeName(this, "Bob Fullam", 26_630, 2_000_102_078)
+            write(ByteArray(16))
         }.toByteArray()
 
         val result = PersonRecordDiffAnalyzer.compare(before, after)

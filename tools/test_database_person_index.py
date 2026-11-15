@@ -57,3 +57,15 @@ class DatabasePersonIndexTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_three_conflicting_name_ids_remain_unresolved(self):
+        uid_a = 2_000_086_420
+        uid_b = 2_000_086_421
+        uid_c = 2_000_086_422
+        payload = (
+            people_name_entry("Michael Gilkes", 226531, uid_a)
+            + people_name_entry("Paul Ifill", 226531, uid_b)
+            + people_name_entry("Jason Roberts", 226531, uid_c)
+        )
+        self.assertEqual({}, parse_people_name_uid(payload))
+

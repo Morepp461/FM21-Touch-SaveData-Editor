@@ -54,7 +54,7 @@ Tahap hanya boleh dinyatakan selesai setelah diuji pada file save FM21 Touch asl
 - Manifest contains 68 top-level members and 784 nested members.
 - Member offsets are relative to byte 30.
 - Members may contain multiple concatenated Zstandard frames.
-- Android runtime decompression uses the pure-Java `com.qyntrax:unzstd:0.1.0` decoder; `zstd-jni` is test-only.
+- Android runtime decompression uses the pure-Java `com.qyntrax:unzstd:0.1.0` decoder, while edited-component compression is provided by the packaged Android `zstd-jni` runtime.
 - Four-byte prefixes before subsequent frames match the compressed size of the following frame in both supplied saves.
 - The final member's stored boundary includes the first four bytes of the footer marker.
 - All 852 members were decompressed and length-checked in both supplied saves using the read-only Python validator.
@@ -100,7 +100,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Kemajuan terbaru: jalur salinan save aman
 - Menambahkan pemeriksaan dekompresi penuh seluruh komponen sebelum mengekspor salinan save yang tidak diubah.
 - Menambahkan ekspor salinan FMV melalui Android Storage Access Framework; file sumber tidak ditimpa.
-- Setelah ekspor, aplikasi membuka ulang file tujuan, memvalidasi manifest dan komponen, lalu membandingkan SHA-256 dengan salinan sementara.
+- Sebelum ekspor, seluruh komponen sumber didekompresi dan divalidasi. Setelah penyalinan, SHA-256 sumber dan file tujuan dibandingkan secara streaming dengan buffer 64 KiB.
 - Menambahkan tes bahwa salinan tanpa perubahan identik byte per byte dengan file sumber.
 - Ini bukan editor field database dan tidak boleh dipasarkan sebagai fitur edit pemain/klub. Pemetaan field semantik dan validasi save hasil edit di game tetap menjadi gerbang terpisah.
 - Workflow CI diubah agar setiap commit memiliki grup concurrency sendiri sehingga pengujian tidak saling membatalkan ketika beberapa commit dikirim berurutan.
@@ -174,3 +174,8 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## CSV export safety — 15 November 2026
 - `csvEscape` sekarang menambahkan awalan teks untuk nilai yang dapat ditafsirkan sebagai formula spreadsheet, termasuk setelah whitespace/BOM, dan tetap meng-escape tanda kutip CSV.
 - Unit test mencakup nilai biasa, koma, kutip, formula `=`, `+`, `-`, `@`, tab, dan BOM.
+
+## Pengurangan penggunaan memori saat ekspor — 15 November 2026
+- Verifikasi hash ekspor FMV tidak lagi membaca seluruh file tujuan ke ByteArray; kedua stream dihitung dengan buffer tetap 64 KiB.
+- Tes unit ditambahkan untuk vektor SHA-256 yang diketahui, pembacaan stream pendek, dan penutupan stream.
+- Smoke test Kotlin terisolasi lulus. Build Gradle, unit test repository, dan emulator API 26 tetap menunggu runner CI yang dapat berjalan.

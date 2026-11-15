@@ -27,6 +27,8 @@ import com.morepp.fm21touchsaveeditor.core.PersonRecordMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.nio.channels.FileChannel
+import java.nio.file.StandardOpenOption
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -290,7 +292,11 @@ private fun EditorHome() {
                                                     val file = File(context.cacheDir, "fm21_components/game_db_person_map.dat")
                                                     try {
                                                         parsed.extractToFile(member, file)
-                                                        PersonRecordMapper.map(file.readBytes())
+                                                        FileChannel.open(file.toPath(), StandardOpenOption.READ).use { channel ->
+                                                            require(channel.size() <= Int.MAX_VALUE) { "Database component terlalu besar untuk pemetaan" }
+                                                            val mapped = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
+                                                            PersonRecordMapper.map(mapped)
+                                                        }
                                                     } finally {
                                                         file.delete()
                                                     }

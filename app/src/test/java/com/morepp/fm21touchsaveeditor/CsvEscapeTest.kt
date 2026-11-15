@@ -21,8 +21,8 @@ class CsvEscapeTest {
 
     @Test
     fun neutralizesLeadingControlPrefixesAndPreservesUnicodeText() {
-        assertEquals("\"'\\t=1+1\"", csvEscape("\t=1+1"))
+        assertEquals("\"'\t=1+1\"", csvEscape("\t=1+1"))
         assertEquals("\"Nama pemain\"", csvEscape("Nama pemain"))
-        assertEquals("\"'\\uFEFF=1+1\"", csvEscape("\uFEFF=1+1"))
+        assertEquals("\"'\uFEFF=1+1\"", csvEscape("\uFEFF=1+1"))
     }
 }

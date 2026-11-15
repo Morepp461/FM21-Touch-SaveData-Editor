@@ -159,3 +159,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Aksi ekspor tetap terkunci sampai pengguna menyelesaikan atau membatalkan pemilihan lokasi dokumen, mencegah dua dialog ekspor saling menimpa file sementara.
 
 - Inferensi panjang record person dibatalkan jika beberapa UID berbeda menunjuk entity ID yang sama; panjang record tetap tidak diketahui daripada memilih offset secara arbitrer.
+
+- Ekspor CSV menetralkan awalan formula spreadsheet dari konten save yang tidak tepercaya dan tetap melakukan escaping tanda kutip.

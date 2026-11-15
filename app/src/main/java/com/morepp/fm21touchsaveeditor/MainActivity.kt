@@ -115,6 +115,19 @@ private fun EditorHome() {
         }
     }
 
+    fun launchExportPicker(file: File, readyStatus: String? = null) {
+        pendingExport = file
+        try {
+            exportPicker.launch(file.name)
+            readyStatus?.let { status = it }
+        } catch (error: Exception) {
+            pendingExport = null
+            file.delete()
+            busy = false
+            status = "Gagal membuka dialog ekspor: ${error.message}"
+        }
+    }
+
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             busy = true
@@ -362,9 +375,7 @@ private fun EditorHome() {
                                             }
                                         }
                                         result.onSuccess { file ->
-                                            pendingExport = file
-                                            exportPicker.launch(file.name)
-                                            status = "Validasi berhasil. Pilih lokasi untuk menyimpan salinan FMV."
+                                            launchExportPicker(file, "Validasi berhasil. Pilih lokasi untuk menyimpan salinan FMV.")
                                         }.onFailure { status = "Validasi save gagal: ${it.message}"; busy = false }
                                     }
                                 }
@@ -485,9 +496,7 @@ private fun EditorHome() {
                                                     }
                                                 }
                                                 exported.onSuccess {
-                                                    pendingExport = it
-                                                    exportPicker.launch(it.name)
-                                                    status = "File CSV pemetaan orang siap diekspor"
+                                                    launchExportPicker(it, "File CSV pemetaan orang siap diekspor")
                                                 }.onFailure { status = "Gagal menyiapkan ekspor CSV: ${it.message}"; busy = false }
                                             }
                                         },
@@ -640,9 +649,7 @@ private fun EditorHome() {
                                                 }
                                             }
                                             report.onSuccess {
-                                                pendingExport = it
-                                                exportPicker.launch(it.name)
-                                                status = "CSV perubahan record orang siap diekspor"
+                                                launchExportPicker(it, "CSV perubahan record orang siap diekspor")
                                             }.onFailure { status = "Gagal membuat CSV perubahan record: ${it.message}"; busy = false }
                                         }
                                     },
@@ -701,9 +708,7 @@ private fun EditorHome() {
                                                 }
                                             }
                                             report.onSuccess {
-                                                pendingExport = it
-                                                exportPicker.launch(it.name)
-                                                status = "File CSV perbandingan siap diekspor"
+                                                launchExportPicker(it, "File CSV perbandingan siap diekspor")
                                             }.onFailure { status = "Gagal membuat laporan perbandingan: ${it.message}"; busy = false }
                                         }
                                     },
@@ -766,8 +771,7 @@ private fun EditorHome() {
                                                     }
                                                 }
                                                 extracted.onSuccess { file ->
-                                                    pendingExport = file
-                                                    exportPicker.launch(file.name)
+                                                    launchExportPicker(file)
                                                 }.onFailure { status = "Ekstraksi gagal: ${it.message}"; busy = false }
                                             }
                                         },

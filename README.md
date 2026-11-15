@@ -201,3 +201,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - File checksum dan metadata ikut diunggah bersama artefak build agar hasil unduhan dapat diverifikasi. Langkah ini baru ditambahkan ke workflow dan belum tervalidasi oleh runner.
 
 - Pemanggilan pemilih file untuk save utama dan save pembanding kini menangani exception saat dialog Android gagal diluncurkan, menampilkan pesan error, dan tidak membiarkan status proses terkunci.
+
+- Actions run 311 pada head `ce2ff55bdc1ef564e109106418b66d57000284e5` kembali gagal sebelum menyediakan step summary atau log. Build Android dan emulator API 26 tetap belum terverifikasi.

@@ -260,3 +260,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Penanganan kegagalan Android document picker — 15 November 2026
 - Peluncuran pemilih save utama/pembanding kini menangani exception secara eksplisit; kegagalan tidak dibiarkan menjadi crash tanpa status UI.
 - Jalur ekspor CreateDocument juga memiliki cleanup payload dan status error. Seluruh perilaku masih menunggu uji instrumentasi pada emulator/perangkat nyata.
+
+## CI terakhir setelah hardening pemilih file — 15 November 2026
+- Run 311 (`43676030826`) pada head `ce2ff55bdc1ef564e109106418b66d57000284e5` gagal pada job build dan android-api26-smoke.
+- Job API tidak menyediakan langkah atau log. Perubahan picker, workflow checksum, dan tes terbaru belum diverifikasi oleh CI. Jangan menganggap kegagalan ini sebagai kegagalan kompilasi karena tidak ada langkah build yang tercatat.

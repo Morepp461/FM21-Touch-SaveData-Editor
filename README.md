@@ -179,3 +179,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Pendekatan ini menghindari pertumbuhan ByteArrayOutputStream dan salinan penuh tambahan yang sebelumnya terjadi saat memanggil toByteArray(). Parser tetap menyimpan satu ByteArray penuh, sehingga batas 128 MiB masih berlaku.
 - Tes regresi memeriksa batas tepat, penolakan input berlebih, penutupan stream, dan pembersihan file sementara.
 - Smoke test helper Kotlin 1.9 lulus. Ini belum membuktikan build Android/Gradle atau uji perangkat.
+
+- Uji tambahan mencakup kegagalan baca I/O di tengah stream; file sementara tetap dibersihkan dan input stream tetap ditutup. Batas 128 MiB juga ditampilkan di layar awal sebelum pengguna memilih save.

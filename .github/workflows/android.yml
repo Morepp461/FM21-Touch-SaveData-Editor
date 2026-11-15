@@ -1,8 +1,8 @@
 name: Android build, tests and release candidate
 
 concurrency:
-  group: android-ci-${{ github.sha }}
-  cancel-in-progress: false
+  group: android-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 on:
   push:

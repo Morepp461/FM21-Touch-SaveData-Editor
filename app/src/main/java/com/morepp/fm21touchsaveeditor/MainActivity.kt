@@ -5,6 +5,8 @@ import java.io.File
 import java.io.InputStream
 import java.io.FileOutputStream
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,6 +38,10 @@ import kotlinx.coroutines.withContext
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.rgb(16, 23, 19)),
+            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.rgb(16, 23, 19))
+        )
         setContent {
             val colors = darkColorScheme(
                 primary = Color(0xFF70C47A),
@@ -47,8 +53,6 @@ class MainActivity : ComponentActivity() {
                 surfaceVariant = Color(0xFF26332A),
                 onSurfaceVariant = Color(0xFFA0ADA2)
             )
-            window.statusBarColor = android.graphics.Color.rgb(16, 23, 19)
-            window.navigationBarColor = android.graphics.Color.rgb(16, 23, 19)
             MaterialTheme(colorScheme = colors) {
                 Surface(Modifier.fillMaxSize(), color = colors.background) { EditorHome() }
             }

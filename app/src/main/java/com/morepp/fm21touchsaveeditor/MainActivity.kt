@@ -164,6 +164,8 @@ private fun EditorHome() {
                     status = "File pembanding valid: ${it.manifest.saveName}"
                 }.onFailure {
                     comparisonContainer = null
+                    comparisonResults = emptyList()
+                    personSnapshotDiff = null
                     status = "Gagal membaca save pembanding: ${it.message}"
                 }
                 busy = false

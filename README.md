@@ -259,3 +259,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Metadata artefak awal mencatat merge commit hasil checkout PR. Workflow diperbaiki agar versi berikutnya mencatat source commit PR, checked-out merge commit, dan base commit secara terpisah.
 
 - Ekspor komponen dan CSV sekarang juga diverifikasi SHA-256 setelah file tujuan dibaca ulang. Sebelumnya pemeriksaan hash pasca-salin hanya diterapkan pada file FMV; kini seluruh tipe ekspor mengikuti validasi integritas yang sama.
+
+- Batas total komponen manifest kini diterapkan sebelum record nested dialokasikan, dengan menghitung entri top-level dan nested bersama-sama. Tes regresi membangun manifest sintetis 20.000 top-level + 1 nested dan memastikan parser menolaknya.

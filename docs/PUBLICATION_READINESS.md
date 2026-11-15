@@ -367,3 +367,12 @@ Current state: **not ready for public publication**. The app is a read-only save
 - GitHub Actions run 412 (`43730462136`) passed both the Android build/unit-test/package verification job and Android 8.0 / API 26 emulator launch smoke test.
 - CI uploaded a debug APK artifact and unsigned release APK/AAB artifacts. The release artifacts remain unsigned because no private signing keystore is configured.
 - Passing CI confirms build and API 26 emulator launch for this commit; it does not prove semantic save editing, in-game edited-save reload, physical-device compatibility, or store publication readiness.
+
+
+## 21.4 database person-index cross-reference (15 November 2026)
+
+- Materialized the nine available 21.4 database `.dat` tables from the project Library for local read-only analysis.
+- A conservative scan identified 1,569 name/UID pairs in `people_db.dat`; every extracted UID was present in the corresponding duplicated-UID index pattern in `basic_people_db.dat`.
+- 1,567 of those 1,569 UIDs also matched the supplied Bolton save's `game_db/.dat` person-name index.
+- This provides an additional identity cross-reference only. It does not expose CA/PA/attribute offsets, classify all player/staff records, or authorize edits.
+- The research details and source hashes are documented in `docs/DATABASE_2140_PERSON_INDEX_RESEARCH.md`.

@@ -23,6 +23,9 @@ Aplikasi Android untuk memeriksa dan mengembangkan editor database pada file sav
 - Menjelajahi indeks orang dengan pencarian nama/UID/entity ID serta filter entri terhubung dan belum terpetakan.
 - Membandingkan dua save melalui hash SHA-256, jumlah byte yang berubah, dan posisi perbedaan pertama.
 - Memetakan UID pada indeks nama ke entity record person secara hanya-baca.
+- Memuat `game_db/.dat` melalui memory mapping agar indeks person dan perbandingan dua snapshot tidak perlu menyalin seluruh database ke heap aplikasi.
+- Membandingkan record person lintas-save berdasarkan UID/entity ID, termasuk ketika offset byte bergeser, serta menampilkan byte yang berubah sebagai bukti mentah tanpa menebak arti field.
+- Mengekspor seluruh hasil perubahan record person ke CSV dari tab Perbandingan.
 - Memvalidasi seluruh komponen save dengan dekompresi penuh sebelum membuat salinan FMV tanpa perubahan.
 - Mengekspor salinan FMV ke lokasi pilihan pengguna melalui Android Storage Access Framework, lalu membuka ulang dan memverifikasi SHA-256 file hasil ekspor.
 - Parser metadata FMC internal yang memvalidasi target database 21.4.0 dan menolak pemrosesan DTD/entity eksternal. Parser ini tidak memetakan struktur biner `.dat`.

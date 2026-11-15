@@ -167,3 +167,8 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Duplicate entity IDs shared by different UIDs are excluded from next-record boundary inference.
 - Regression coverage ensures those rows retain unknown record lengths rather than receiving an arbitrary boundary from map overwrite order.
 - Semantic field editing remains disabled; this is a mapping safety improvement only.
+
+
+## CSV export safety hardening
+- CSV cells beginning with spreadsheet formula prefixes are neutralized, including formula prefixes after whitespace or a BOM.
+- CSV quoting remains covered for commas and embedded quotation marks. Regression tests are committed but await an executable CI run.

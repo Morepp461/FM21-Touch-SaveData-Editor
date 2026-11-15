@@ -933,7 +933,7 @@ internal fun cleanupStaleTemporaryFiles(
         "pemetaan_data_orang_fm21"
     )
     cacheDirectory.listFiles().orEmpty().forEach { file ->
-        if (file.isFile && rootPrefixes.any(file.name::startsWith)) {
+        if (file.isFile && rootPrefixes.any { prefix -> file.name.startsWith(prefix) }) {
             if (file.lastModified() in 1 until cutoff) file.delete()
         } else if (file.isDirectory && file.name in setOf("fm21_components", "fm21_person_diff")) {
             file.listFiles().orEmpty().filter { it.isFile }.forEach { child ->

@@ -247,3 +247,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Perapian cakupan instrumentation Android — 15 November 2026
 - Pengujian UI layar awal digabungkan ke MainActivityLaunchTest, termasuk pemeriksaan batas impor 128 MiB dan minimum API 26; tes layar awal duplikat dihapus.
 - Tes native Zstandard tetap dijalankan di emulator melalui test class yang sama. Belum ada hasil emulator terbaru yang valid karena GitHub Actions belum mengeksekusi langkah job.
+
+## Repository dan signing-secret hygiene — 15 November 2026
+- `.gitignore` diperluas untuk output build Android/Gradle, konfigurasi SDK lokal, IDE, keystore dan file environment.
+- Perubahan ini mengurangi risiko commit tidak sengaja, tetapi bukan pengganti audit riwayat Git. Belum ada keystore rilis atau signed APK/AAB; kredensial signing harus tetap disimpan secara privat oleh pemilik.

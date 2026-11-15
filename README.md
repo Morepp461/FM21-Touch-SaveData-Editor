@@ -252,3 +252,8 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Gerbang writer juga memiliki tes untuk versi yang tidak terdeteksi; edit ditolak, sementara no-op copy pada fixture tanpa versi tetap lulus jalur salinan identik.
 
 - Penyebab run CI terbaru yang berstatus cancelled ditemukan: semua commit pada branch memakai satu concurrency group berbasis ref, sehingga run yang masih menunggu runner dapat digantikan oleh run commit berikutnya. Group kini unik per commit SHA agar antrean tiap commit tidak saling membatalkan.
+
+### Validasi build release candidate — 15 November 2026
+- GitHub Actions run 392 (`43677617481`) pada branch head `4c59fda18277abd9eaed824849b7baa94a0958e7`: job build berhasil, termasuk Python diagnostics, `assembleDebug`, `assembleRelease`, `bundleRelease`, `testDebugUnitTest`, pemeriksaan metadata/permission/runtime native, checksum, dan upload artefak.
+- Artefak unsigned release APK/AAB berhasil diunggah. Release signing belum aktif karena keystore privat tidak dikonfigurasi. Emulator API 26 pada run 392 masih berjalan ketika dicatat.
+- Metadata artefak awal mencatat merge commit hasil checkout PR. Workflow diperbaiki agar versi berikutnya mencatat source commit PR, checked-out merge commit, dan base commit secara terpisah.

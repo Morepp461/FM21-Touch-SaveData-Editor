@@ -50,6 +50,22 @@ class PersonRecordDiffAnalyzerTest {
         }
     }
 
+    @Test
+    fun rejectsEmptyMappedDatabaseFiles() {
+        val empty = java.io.File.createTempFile("fm21-empty", ".dat")
+        val valid = java.io.File.createTempFile("fm21-data", ".dat")
+        try {
+            valid.writeBytes(fixture(firstPrefix = 0, firstChangedByte = 0x11))
+            val error = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                PersonRecordDiffAnalyzer.compareFiles(empty, valid)
+            }
+            assertTrue(error.message!!.contains("must not be empty"))
+        } finally {
+            empty.delete()
+            valid.delete()
+        }
+    }
+
     private fun fixture(firstPrefix: Int, firstChangedByte: Int): ByteArray {
         val out = ByteArrayOutputStream()
         repeat(firstPrefix) { out.write(0x7f) }

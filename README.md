@@ -205,3 +205,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Actions run 311 pada head `ce2ff55bdc1ef564e109106418b66d57000284e5` kembali gagal sebelum menyediakan step summary atau log. Build Android dan emulator API 26 tetap belum terverifikasi.
 
 - Skrip checksum/provenance release diuji terpisah dengan shell pada artefak dummy; ekstraksi version name/code berhasil dan validasi non-empty ditambahkan agar metadata yang kosong menggagalkan langkah CI.
+
+- Dependency `androidx.compose.runtime:runtime-saveable` kini dinyatakan eksplisit karena state path ekspor memakai `rememberSaveable` untuk pemulihan setelah Activity recreation.

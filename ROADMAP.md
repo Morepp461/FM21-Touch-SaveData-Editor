@@ -225,3 +225,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Menambahkan langkah CI setelah pemeriksaan paket untuk menghasilkan SHA-256 bagi APK debug, APK release (signed jika tersedia, unsigned jika tidak), dan AAB.
 - BUILD-METADATA.txt merekam commit SHA, version name/code, min SDK 26, dan target SDK 36. Keduanya diunggah bersama artefak APK/AAB.
 - Workflow belum berhasil mencapai runner pada percobaan terakhir, jadi checksum dan metadata belum pernah dihasilkan oleh CI.
+
+## Penanganan kegagalan pemilih file — 15 November 2026
+- Peluncuran Android OpenDocument untuk save utama dan save pembanding kini dibungkus penanganan exception. Kegagalan dialog menghasilkan pesan error dan tidak mengubah status busy.
+- Ini melengkapi penanganan kegagalan peluncuran CreateDocument pada jalur ekspor. Runtime SAF masih harus diuji pada API 26 dan perangkat Android terbaru.

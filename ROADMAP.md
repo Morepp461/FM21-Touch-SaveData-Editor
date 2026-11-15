@@ -258,3 +258,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 
 ## Runner CI terbaru — 15 November 2026
 - Run 340 (`43676528691`) untuk head `3ea07f39ed0aaabb1026e886fb67d69af19206fe` gagal pada kedua job tanpa step summary/log. Belum ada bukti Gradle atau emulator mengeksekusi perubahan pointer-footer.
+
+## Gerbang privasi paket Android — 15 November 2026
+- Workflow memeriksa `android:allowBackup="false"` pada manifest sumber dan memeriksa permission hasil merge pada APK debug/release untuk memastikan tidak ada `android.permission.INTERNET`.
+- Ini menambahkan pemeriksaan otomatis atas klaim offline-first dan mencegah permission jaringan muncul diam-diam melalui manifest dependency. Validasi menunggu runner CI.

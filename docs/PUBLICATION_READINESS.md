@@ -238,3 +238,8 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Path payload ekspor disimpan menggunakan Compose rememberSaveable, bukan state objek File yang hilang ketika Activity dibuat ulang.
 - Callback memvalidasi bahwa file sementara masih tersedia sebelum menyalin ke URI tujuan. File yang hilang menghasilkan status error eksplisit.
 - Perubahan ini belum diverifikasi lewat Android instrumentation/device test karena job emulator CI masih gagal sebelum menyediakan langkah atau log.
+
+## Status validasi terbaru — 15 November 2026
+- Path payload ekspor kini dipulihkan melalui rememberSaveable dan callback memeriksa file sementara sebelum memulai penyalinan. Perubahan masih memerlukan instrumentation test di Android.
+- Actions run 288 (43675661930) untuk head a6897490a1414194dcec6b0a0ecc136e2ccb9c17 gagal pada kedua job tanpa step summary atau URL log. Build, unit test, dan emulator belum terbukti berjalan.
+- Smoke test lokal helper Kotlin 1.9 lulus untuk pembacaan berbatas, cleanup setelah kegagalan I/O, dan penutupan stream. Ini bukan bukti kompilasi seluruh aplikasi.

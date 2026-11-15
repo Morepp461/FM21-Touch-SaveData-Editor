@@ -33,6 +33,8 @@ data class PersonSnapshotDiff(
     val unchanged: Int,
     val missingBefore: Int,
     val missingAfter: Int,
+    val ambiguousBefore: Int,
+    val ambiguousAfter: Int,
     val skippedUnknownLength: Int
 )
 
@@ -65,8 +67,10 @@ object PersonRecordDiffAnalyzer {
         val afterData = afterGameDb.asReadOnlyBuffer()
         val before = PersonRecordMapper.map(beforeData)
         val after = PersonRecordMapper.map(afterData)
-        val beforeByUid = before.entries.filter { it.isMapped }.associateBy { it.uniqueId }
-        val afterByUid = after.entries.filter { it.isMapped }.associateBy { it.uniqueId }
+        val beforeGroups = before.entries.filter { it.isMapped }.groupBy { it.uniqueId }
+        val afterGroups = after.entries.filter { it.isMapped }.groupBy { it.uniqueId }
+        val beforeByUid = beforeGroups.filterValues { it.size == 1 }.mapValues { it.value.single() }
+        val afterByUid = afterGroups.filterValues { it.size == 1 }.mapValues { it.value.single() }
 
         var compared = 0
         var unchanged = 0
@@ -119,6 +123,8 @@ object PersonRecordDiffAnalyzer {
             unchanged = unchanged,
             missingBefore = (afterByUid.keys - beforeByUid.keys).size,
             missingAfter = (beforeByUid.keys - afterByUid.keys).size,
+            ambiguousBefore = beforeGroups.count { it.value.size > 1 },
+            ambiguousAfter = afterGroups.count { it.value.size > 1 },
             skippedUnknownLength = skipped
         )
     }

@@ -80,6 +80,10 @@ private fun EditorHome() {
     var selectedCategory by remember { mutableStateOf("Semua") }
     var componentLimit by remember { mutableIntStateOf(40) }
 
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) { cleanupStaleTemporaryFiles(context.cacheDir) }
+    }
+
     val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
         val payload = pendingExportPath?.let(::File)
         pendingExportPath = null
@@ -912,6 +916,32 @@ internal fun readSaveBytes(
     }
 }
 
+
+internal fun cleanupStaleTemporaryFiles(
+    cacheDirectory: File,
+    nowMillis: Long = System.currentTimeMillis(),
+    maxAgeMillis: Long = 24L * 60L * 60L * 1000L
+) {
+    require(maxAgeMillis >= 0) { "Batas usia file sementara tidak boleh negatif" }
+    if (!cacheDirectory.isDirectory) return
+    val cutoff = nowMillis - maxAgeMillis
+    val rootPrefixes = listOf(
+        "fm21-input-",
+        "salinan_",
+        "perubahan_record_orang_fm21",
+        "perbandingan_save_fm21",
+        "pemetaan_data_orang_fm21"
+    )
+    cacheDirectory.listFiles().orEmpty().forEach { file ->
+        if (file.isFile && rootPrefixes.any(file.name::startsWith)) {
+            if (file.lastModified() in 1 until cutoff) file.delete()
+        } else if (file.isDirectory && file.name in setOf("fm21_components", "fm21_person_diff")) {
+            file.listFiles().orEmpty().filter { it.isFile }.forEach { child ->
+                if (child.lastModified() in 1 until cutoff) child.delete()
+            }
+        }
+    }
+}
 
 internal fun sha256(input: InputStream): ByteArray {
     val digest = java.security.MessageDigest.getInstance("SHA-256")

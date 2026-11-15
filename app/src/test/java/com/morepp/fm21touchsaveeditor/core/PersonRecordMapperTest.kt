@@ -60,6 +60,25 @@ class PersonRecordMapperTest {
     }
 
     @Test
+    fun doesNotInferRecordLengthsWhenEntityIdsAreDuplicatedAcrossUids() {
+        val data = ByteArrayOutputStream()
+        writeEntityRow(data, 100L, 2_000_000_001L)
+        writeEntityRow(data, 100L, 2_000_000_002L)
+        writeEntityRow(data, 101L, 2_000_000_003L)
+        writeNameEntry(data, "First Duplicate Entity", 1L, 2_000_000_001L)
+        writeNameEntry(data, "Second Duplicate Entity", 2L, 2_000_000_002L)
+        writeNameEntry(data, "Next Entity", 3L, 2_000_000_003L)
+
+        val index = PersonRecordMapper.map(data.toByteArray())
+        val first = index.entries.single { it.name == "First Duplicate Entity" }
+        val second = index.entries.single { it.name == "Second Duplicate Entity" }
+
+        assertEquals(3, index.mappedEntries)
+        assertNull(first.entityRecordLength)
+        assertNull(second.entityRecordLength)
+    }
+
+    @Test
     fun rejectsPayloadWithoutSupportedNameIndex() {
         val error = org.junit.Assert.assertThrows(FmvFormatException::class.java) {
             PersonRecordMapper.map(ByteArray(128))

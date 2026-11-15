@@ -161,3 +161,9 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Export actions now remain locked while the Android document picker is open and until the user saves or cancels.
 - This prevents concurrent export requests from replacing the pending temporary-file reference.
 - Runtime behavior still requires Android instrumentation/manual validation.
+
+
+## Additional person-index ambiguity guard
+- Duplicate entity IDs shared by different UIDs are excluded from next-record boundary inference.
+- Regression coverage ensures those rows retain unknown record lengths rather than receiving an arbitrary boundary from map overwrite order.
+- Semantic field editing remains disabled; this is a mapping safety improvement only.

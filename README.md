@@ -172,3 +172,10 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Tes repository dan build Android belum dapat diklaim lulus sampai workflow CI benar-benar menjalankan job dan menghasilkan log/hasil tes.
 
 - Pemeriksaan helper pembaca berbatas secara lokal dengan Kotlin 1.9 lulus untuk batas tepat, penolakan input berlebih, penutupan stream setelah sukses/gagal, dan penutupan stream saat konfigurasi batas tidak valid. Ini bukan pengganti Gradle/unit test proyek Android.
+
+### Pengendalian memori saat membuka save — 15 November 2026
+- Save kini dialirkan lebih dahulu ke file sementara di direktori cache aplikasi dengan buffer 64 KiB dan batas ukuran 128 MiB.
+- Setelah penulisan selesai, file sementara dibaca menjadi satu ByteArray untuk parser saat ini, lalu file sementara dihapus pada jalur sukses maupun gagal.
+- Pendekatan ini menghindari pertumbuhan ByteArrayOutputStream dan salinan penuh tambahan yang sebelumnya terjadi saat memanggil toByteArray(). Parser tetap menyimpan satu ByteArray penuh, sehingga batas 128 MiB masih berlaku.
+- Tes regresi memeriksa batas tepat, penolakan input berlebih, penutupan stream, dan pembersihan file sementara.
+- Smoke test helper Kotlin 1.9 lulus. Ini belum membuktikan build Android/Gradle atau uji perangkat.

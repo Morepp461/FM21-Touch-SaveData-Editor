@@ -241,3 +241,8 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## CI terbaru — 15 November 2026
 - Actions run 322 (`43676170041`) pada head `aa43f3fc5c1e663e4a1b6949324ea0d9c93ac2f5` gagal pada kedua job.
 - Job API kembali memberikan `steps: []` dan `logs_url: null`. Tidak ada bukti bahwa Gradle, Python diagnostics, atau Android emulator mulai berjalan.
+
+## Validasi header/footer container — 15 November 2026
+- `FmvContainer` kini memvalidasi field offset footer pada header (offset byte 9, little-endian) terhadap posisi footer manifest yang ditemukan.
+- Menambahkan tes regresi yang merusak pointer header dan memastikan parser menolak file tersebut. Fixture sintetis valid diperbarui untuk menulis pointer yang benar.
+- Dua fixture FMV nyata yang dianalisis sebelumnya memiliki pointer `footerOffset - 9` yang cocok. Uji Kotlin penuh masih menunggu runner CI.

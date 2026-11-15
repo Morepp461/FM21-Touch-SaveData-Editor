@@ -213,3 +213,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 ### Validasi penunjuk footer FMV — 15 November 2026
 - Parser kini membandingkan offset footer yang tercatat pada header FMV dengan posisi marker manifest yang benar-benar ditemukan. File dengan pointer footer yang tidak cocok ditolak sebelum manifest dipakai.
 - Kedua fixture FMV nyata yang tersedia memiliki nilai header yang cocok dengan posisi footer. Tes sintetis ditambahkan untuk pointer yang rusak.
+
+- Pencarian marker footer berbasis scan byte kini diganti dengan navigasi langsung memakai pointer header yang tervalidasi; parser memeriksa marker tepat pada lokasi yang ditunjuk. Ini menghindari salah memilih pola marker yang kebetulan muncul di payload terkompresi.

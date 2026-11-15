@@ -35,6 +35,7 @@ data class PersonSnapshotDiff(
     val missingAfter: Int,
     val ambiguousBefore: Int,
     val ambiguousAfter: Int,
+    val identityMismatch: Int,
     val skippedUnknownLength: Int
 )
 
@@ -75,11 +76,15 @@ object PersonRecordDiffAnalyzer {
         var compared = 0
         var unchanged = 0
         var skipped = 0
+        var identityMismatch = 0
         val changes = ArrayList<PersonRowChange>()
 
         beforeByUid.forEach { (uid, left) ->
             val right = afterByUid[uid] ?: return@forEach
-            if (left.entityRecordId != right.entityRecordId) return@forEach
+            if (left.entityRecordId != right.entityRecordId) {
+                identityMismatch++
+                return@forEach
+            }
             val leftOffset = left.entityRecordOffset ?: return@forEach
             val rightOffset = right.entityRecordOffset ?: return@forEach
             val leftLength = left.entityRecordLength
@@ -125,6 +130,7 @@ object PersonRecordDiffAnalyzer {
             missingAfter = (beforeGroups.keys - afterGroups.keys).size,
             ambiguousBefore = beforeGroups.count { it.value.size > 1 },
             ambiguousAfter = afterGroups.count { it.value.size > 1 },
+            identityMismatch = identityMismatch,
             skippedUnknownLength = skipped
         )
     }

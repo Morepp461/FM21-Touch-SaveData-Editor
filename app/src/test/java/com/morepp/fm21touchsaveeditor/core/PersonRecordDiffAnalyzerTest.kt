@@ -22,6 +22,34 @@ class PersonRecordDiffAnalyzerTest {
         assertTrue(result.changed.single().afterOffset > result.changed.single().beforeOffset)
     }
 
+    @Test
+    fun comparesMemoryMappedFilesWithoutChangingBufferPositions() {
+        val beforeBytes = fixture(firstPrefix = 0, firstChangedByte = 0x11)
+        val afterBytes = fixture(firstPrefix = 7, firstChangedByte = 0x22)
+        val beforeBuffer = ByteBuffer.wrap(beforeBytes).asReadOnlyBuffer()
+        val afterBuffer = ByteBuffer.wrap(afterBytes).asReadOnlyBuffer()
+        beforeBuffer.position(2)
+        afterBuffer.position(3)
+
+        val bufferResult = PersonRecordDiffAnalyzer.compare(beforeBuffer, afterBuffer)
+        assertEquals(2, beforeBuffer.position())
+        assertEquals(3, afterBuffer.position())
+        assertEquals(16, bufferResult.changed.single().changedByteOffsets.single())
+
+        val beforeFile = java.io.File.createTempFile("fm21-before", ".dat")
+        val afterFile = java.io.File.createTempFile("fm21-after", ".dat")
+        try {
+            beforeFile.writeBytes(beforeBytes)
+            afterFile.writeBytes(afterBytes)
+            val fileResult = PersonRecordDiffAnalyzer.compareFiles(beforeFile, afterFile)
+            assertEquals(bufferResult.changed, fileResult.changed)
+            assertEquals(bufferResult.compared, fileResult.compared)
+        } finally {
+            beforeFile.delete()
+            afterFile.delete()
+        }
+    }
+
     private fun fixture(firstPrefix: Int, firstChangedByte: Int): ByteArray {
         val out = ByteArrayOutputStream()
         repeat(firstPrefix) { out.write(0x7f) }

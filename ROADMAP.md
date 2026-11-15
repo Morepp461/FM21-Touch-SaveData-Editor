@@ -150,5 +150,5 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Tab Perbandingan dapat mengekspor seluruh hasil perubahan record person ke CSV.
 - Tes regresi ditambahkan untuk buffer read-only, posisi buffer, file memory-mapped, file kosong, offset record bergeser, dan UID duplikat.
 - README diperbarui.
-- CI head `acc6a8678ada818ca813226b3b13878c92575be5` masih gagal sebelum runner dialokasikan: kedua job memiliki `runner_id: 0`, nama runner kosong, dan daftar step kosong. Build Kotlin/Gradle dan emulator belum terbukti berjalan.
+- CI head `acc6a8678ada818ca813226b3b13878c92575be5` masih gagal sebelum runner dialokasikan: kedua job memiliki `runner_id: 0`, nama runner kosong, dan daftar step kosong. Build Kotlin/Gradle dan emulator belum terbukti berjalan. Label runner dikembalikan ke `ubuntu-latest`; penggantian label OS tidak mengatasi kegagalan alokasi runner.
 - Tidak ada field CA/PA, atribut, keuangan, transfer budget, prize money, atau reputasi yang dibuka untuk edit. Aplikasi tetap read-only sampai decoding semantik dan uji save di dalam game terbukti.

@@ -149,3 +149,9 @@ Current state: **not ready for public publication**. The app is a read-only save
 - The release blockers listed above remain: semantic field mapping, Kotlin writer validation against a real save, successful in-game load, Android device QA, and a valid signed release artifact.
 
 - Runner labels have been restored to `ubuntu-latest`. Repeated failures across default and pinned Ubuntu labels all occurred before runner allocation, so changing the image label was not a source-level fix and was reverted.
+
+
+## UI/export regression hardening — 15 November 2026
+- Fixed duplicate UID keys in the People lazy list by assigning per-row keys.
+- Moved export copying and FMV SHA-256 revalidation off the main thread to avoid UI stalls on larger files.
+- These changes are not considered verified until CI can allocate runners and execute Gradle/unit tests plus API 26 smoke testing.

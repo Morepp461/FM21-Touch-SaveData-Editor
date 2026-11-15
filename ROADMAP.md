@@ -207,3 +207,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Path file sementara yang menunggu dialog Storage Access Framework kini memakai rememberSaveable, sehingga dapat dipulihkan setelah perubahan konfigurasi atau pembuatan ulang Activity.
 - Callback memeriksa file masih tersedia sebelum menyalin. Jika file hilang, ekspor gagal secara eksplisit dan UI tidak mengklaim sukses.
 - Ini memperbaiki celah lifecycle yang dapat membuat callback menerima URI tanpa referensi payload setelah Activity recreation. Validasi runtime Android masih menunggu emulator/perangkat.
+
+## CI terbaru dan lifecycle ekspor — 15 November 2026
+- Jalur ekspor kini menyimpan path payload sementara dengan rememberSaveable dan memvalidasi file sebelum menyalin setelah callback Android.
+- Actions run 288 (43675661930) untuk head a6897490a1414194dcec6b0a0ecc136e2ccb9c17 gagal pada kedua job tanpa langkah maupun log. Belum ada bukti Gradle atau emulator dijalankan.

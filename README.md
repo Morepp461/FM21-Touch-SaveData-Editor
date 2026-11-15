@@ -244,3 +244,7 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 ### Pembersihan cache sementara otomatis — 15 November 2026
 - Saat aplikasi dibuka, file sementara yang dibuat aplikasi dan sudah berusia lebih dari 24 jam dibersihkan dari cache privat. Cakupan hanya file dengan prefix ekspor/impor yang dikenal serta file di direktori `fm21_components` dan `fm21_person_diff`; file lain tidak disentuh.
 - Dua tes regresi memverifikasi file stale milik aplikasi dihapus, file baru dan file tidak terkait dipertahankan, serta konfigurasi usia negatif ditolak. Dua kasus lulus pada harness Kotlin 1.9 lokal dengan assertion shim.
+
+### Gerbang versi untuk penulisan FMV — 15 November 2026
+- Rebuild dengan komponen yang diubah kini ditolak kecuali `game_info/.dat` mengidentifikasi database tepat `21.4.0-0`. Jalur salinan tanpa perubahan tetap tersedia karena hanya mengembalikan byte sumber setelah validasi penuh.
+- Tes sintetis kini menyertakan versi database dan memverifikasi bahwa rebuild edit pada versi `22.0.0-0` ditolak. Ini membatasi writer eksperimental ke satu versi yang telah diamati, bukan klaim bahwa writer sudah siap produksi.

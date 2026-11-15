@@ -140,3 +140,15 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Dua record person terpetakan berubah pada byte relatif 69: Bozhidar Iskrenov dan Luke Duzel (`FF` pada backup menjadi `64` pada file pertama). Arti byte belum diketahui.
 - `finance_manager/.dat` identik. Pasangan ini memperkuat pengujian join lintas-save, tetapi bukan fixture satu-field dan tidak cukup untuk memberi label CA/PA/atribut/keuangan.
 - Laporan: `docs/CROSS_SEASON_FIXTURE_ANALYSIS.md`. Kedua file asli tidak dimasukkan ke Git.
+
+## Diagnostik person lintas-save dan penghematan memori — 15 November 2026
+
+- `PersonRecordMapper` kini menerima `ByteBuffer` dan file melalui memory mapping read-only. Tab Orang tidak lagi membuat salinan heap tambahan dari `game_db/.dat`.
+- `PersonRecordDiffAnalyzer` membandingkan snapshot melalui dua memory map, menyelaraskan record berdasarkan UID dan entity ID, serta tetap melaporkan byte berubah sebagai data mentah.
+- Analisis person lintas-save hanya diaktifkan jika versi database kedua save sama dan diketahui.
+- UID duplikat/ambigu tidak digabung diam-diam. Ringkasan menampilkan UID ambigu, UID baru/hilang, record berubah/tetap, serta record yang panjangnya belum dapat ditentukan.
+- Tab Perbandingan dapat mengekspor seluruh hasil perubahan record person ke CSV.
+- Tes regresi ditambahkan untuk buffer read-only, posisi buffer, file memory-mapped, file kosong, offset record bergeser, dan UID duplikat.
+- README diperbarui.
+- CI head `acc6a8678ada818ca813226b3b13878c92575be5` masih gagal sebelum runner dialokasikan: kedua job memiliki `runner_id: 0`, nama runner kosong, dan daftar step kosong. Build Kotlin/Gradle dan emulator belum terbukti berjalan.
+- Tidak ada field CA/PA, atribut, keuangan, transfer budget, prize money, atau reputasi yang dibuka untuk edit. Aplikasi tetap read-only sampai decoding semantik dan uji save di dalam game terbukti.

@@ -251,3 +251,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Tes tambahan memastikan pointer yang berada di dalam file tetapi menunjuk ke data non-footer juga ditolak.
 
 - Harness Kotlin 1.9 lokal menjalankan empat metode SaveReadLimitTest dengan assertion yang aktif: semua lulus. Karena memakai shim JUnit minimal dan bukan Gradle/JUnit proyek, hasilnya hanya validasi helper/test logic terisolasi.
+
+## Validasi parser dan CI — 15 November 2026
+- Pointer footer header dipakai langsung untuk mencari manifest; marker diverifikasi tepat di offset yang ditunjuk. Dua kasus pointer rusak ditambahkan ke tes parser.
+- Run 336 (`43676489758`) gagal pada build dan API 26 smoke tanpa langkah/log. Belum ada hasil Gradle atau emulator.

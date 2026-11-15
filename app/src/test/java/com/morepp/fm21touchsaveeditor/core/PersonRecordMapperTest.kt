@@ -82,6 +82,35 @@ class PersonRecordMapperTest {
         assertEquals("Buffer Person", index.entries.single().name)
     }
 
+    @Test
+    fun mapsMemoryMappedFileWithoutCopyingDatabaseBytes() {
+        val data = ByteArrayOutputStream()
+        writeEntityRow(data, 51_788L, 2_000_102_078L)
+        writeNameEntry(data, "Mapped File Person", 26_630L, 2_000_102_078L)
+        val file = java.io.File.createTempFile("fm21-person-map", ".dat")
+        try {
+            file.writeBytes(data.toByteArray())
+            val mapped = PersonRecordMapper.mapFile(file)
+            assertEquals(1, mapped.mappedEntries)
+            assertEquals("Mapped File Person", mapped.entries.single().name)
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
+    fun rejectsEmptyPersonDatabaseFile() {
+        val file = java.io.File.createTempFile("fm21-empty-map", ".dat")
+        try {
+            val error = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                PersonRecordMapper.mapFile(file)
+            }
+            assertTrue(error.message!!.contains("unsupported size"))
+        } finally {
+            file.delete()
+        }
+    }
+
     private fun writeEntityRow(out: ByteArrayOutputStream, entityId: Long, uid: Long) {
         out.write(le32(entityId))
         out.write(le32(uid))

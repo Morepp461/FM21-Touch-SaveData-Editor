@@ -1,5 +1,10 @@
 package com.morepp.fm21touchsaveeditor.core
 
+import java.io.File
+import java.nio.ByteBuffer
+import java.nio.channels.FileChannel
+import java.nio.file.StandardOpenOption
+
 /**
  * Cross-snapshot comparison of mapped person entity rows.
  *
@@ -32,9 +37,31 @@ data class PersonSnapshotDiff(
 )
 
 object PersonRecordDiffAnalyzer {
-    fun compare(beforeGameDb: ByteArray, afterGameDb: ByteArray): PersonSnapshotDiff {
-        val before = PersonRecordMapper.map(beforeGameDb)
-        val after = PersonRecordMapper.map(afterGameDb)
+    fun compare(beforeGameDb: ByteArray, afterGameDb: ByteArray): PersonSnapshotDiff =
+        compare(ByteBuffer.wrap(beforeGameDb), ByteBuffer.wrap(afterGameDb))
+
+    /**
+     * File-backed variant for Android: memory maps the extracted database
+     * components instead of allocating two additional 69 MB byte arrays.
+     */
+    fun compareFiles(beforeFile: File, afterFile: File): PersonSnapshotDiff {
+        FileChannel.open(beforeFile.toPath(), StandardOpenOption.READ).use { beforeChannel ->
+            FileChannel.open(afterFile.toPath(), StandardOpenOption.READ).use { afterChannel ->
+                require(beforeChannel.size() <= Int.MAX_VALUE && afterChannel.size() <= Int.MAX_VALUE) {
+                    "Database component exceeds the supported mapped-buffer size"
+                }
+                val before = beforeChannel.map(FileChannel.MapMode.READ_ONLY, 0, beforeChannel.size())
+                val after = afterChannel.map(FileChannel.MapMode.READ_ONLY, 0, afterChannel.size())
+                return compare(before, after)
+            }
+        }
+    }
+
+    fun compare(beforeGameDb: ByteBuffer, afterGameDb: ByteBuffer): PersonSnapshotDiff {
+        val beforeData = beforeGameDb.asReadOnlyBuffer()
+        val afterData = afterGameDb.asReadOnlyBuffer()
+        val before = PersonRecordMapper.map(beforeData)
+        val after = PersonRecordMapper.map(afterData)
         val beforeByUid = before.entries.filter { it.isMapped }.associateBy { it.uniqueId }
         val afterByUid = after.entries.filter { it.isMapped }.associateBy { it.uniqueId }
 
@@ -51,8 +78,8 @@ object PersonRecordDiffAnalyzer {
             val leftLength = left.entityRecordLength
             val rightLength = right.entityRecordLength
             if (leftLength == null || rightLength == null || leftLength != rightLength ||
-                !isRangeValid(beforeGameDb, leftOffset, leftLength) ||
-                !isRangeValid(afterGameDb, rightOffset, rightLength)) {
+                !isRangeValid(beforeData, leftOffset, leftLength) ||
+                !isRangeValid(afterData, rightOffset, rightLength)) {
                 skipped++
                 return@forEach
             }
@@ -60,7 +87,7 @@ object PersonRecordDiffAnalyzer {
             compared++
             val changedOffsets = ArrayList<Int>()
             for (offset in 0 until leftLength) {
-                if (beforeGameDb[leftOffset + offset] != afterGameDb[rightOffset + offset]) {
+                if (beforeData.get(leftOffset + offset) != afterData.get(rightOffset + offset)) {
                     changedOffsets += offset
                 }
             }
@@ -93,6 +120,6 @@ object PersonRecordDiffAnalyzer {
         )
     }
 
-    private fun isRangeValid(data: ByteArray, offset: Int, length: Int): Boolean =
-        offset >= 0 && length > 0 && offset.toLong() + length <= data.size.toLong()
+    private fun isRangeValid(data: ByteBuffer, offset: Int, length: Int): Boolean =
+        offset >= 0 && length > 0 && offset.toLong() + length <= data.limit().toLong()
 }

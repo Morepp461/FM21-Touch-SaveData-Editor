@@ -161,3 +161,12 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Inferensi panjang record person dibatalkan jika beberapa UID berbeda menunjuk entity ID yang sama; panjang record tetap tidak diketahui daripada memilih offset secara arbitrer.
 
 - Ekspor CSV menetralkan awalan formula spreadsheet dari konten save yang tidak tepercaya dan tetap melakukan escaping tanda kutip.
+
+
+## Batas pemrosesan file dan pembacaan aman — 15 November 2026
+- Pembacaan save dibatasi hingga 128 MiB karena parser container saat ini masih bekerja dengan representasi ByteArray di memori.
+- Pemeriksaan batas dilakukan sebelum setiap blok ditambahkan ke buffer, sehingga file yang melewati batas ditolak tanpa terus memperbesar alokasi.
+- Pesan kegagalan menampilkan batas aktual yang dikonfigurasi, bukan angka tetap yang bisa menjadi keliru jika konfigurasi berubah.
+- Tes unit ditambahkan untuk ukuran tepat pada batas, ukuran yang melampaui batas, penutupan stream setelah sukses/gagal, dan batas negatif.
+- File save yang lebih besar dari 128 MiB belum didukung. Batas ini harus ditinjau kembali setelah parser beralih ke pembacaan berbasis file/stream.
+- Tes repository dan build Android belum dapat diklaim lulus sampai workflow CI benar-benar menjalankan job dan menghasilkan log/hasil tes.

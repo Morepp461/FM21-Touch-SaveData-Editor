@@ -268,3 +268,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Perintah checksum dan ekstraksi versi pada workflow diuji dengan file dummy; validasi non-empty ditambahkan untuk version name/code. Uji shell ini tidak menjalankan Gradle atau memverifikasi APK/AAB nyata.
 
 - Dependency `androidx.compose.runtime:runtime-saveable` ditambahkan secara eksplisit untuk state ekspor yang disimpan. Perlu validasi kompilasi dan Activity recreation pada emulator API 26.
+
+## CI terakhir — 15 November 2026
+- Actions run 322 (`43676170041`) untuk head `aa43f3fc5c1e663e4a1b6949324ea0d9c93ac2f5` gagal pada job build dan API 26 smoke.
+- Kedua job tidak memiliki step summary atau URL log. Build/test Android, tes instrumentation, serta artefak APK/AAB tetap belum terverifikasi.

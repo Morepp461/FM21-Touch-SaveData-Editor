@@ -186,3 +186,5 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Pesan batas ukuran dibuat dinamis mengikuti nilai konfigurasi. Batas default tetap 128 MiB karena parser masih memerlukan seluruh container di memori.
 - Menambahkan SaveReadLimitTest untuk batas tepat, input terlalu besar, stream ditutup setelah sukses/gagal, serta konfigurasi batas negatif.
 - Belum ada klaim build/test lulus: workflow CI perlu menjalankan job sampai tahap Gradle agar perubahan ini tervalidasi pada proyek Android lengkap.
+
+- Smoke test lokal Kotlin 1.9 untuk helper pembaca berbatas lulus: batas tepat, input berlebih ditolak, dan stream ditutup pada jalur sukses maupun kegagalan termasuk konfigurasi negatif. Pemeriksaan ini tidak mengompilasi seluruh aplikasi atau menjalankan unit test Gradle.

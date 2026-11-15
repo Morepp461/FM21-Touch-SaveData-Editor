@@ -211,3 +211,8 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## CI terbaru dan lifecycle ekspor — 15 November 2026
 - Jalur ekspor kini menyimpan path payload sementara dengan rememberSaveable dan memvalidasi file sebelum menyalin setelah callback Android.
 - Actions run 288 (43675661930) untuk head a6897490a1414194dcec6b0a0ecc136e2ccb9c17 gagal pada kedua job tanpa langkah maupun log. Belum ada bukti Gradle atau emulator dijalankan.
+
+## Perapian Android instrumentation test — 15 November 2026
+- MainActivityLaunchTest kini memverifikasi judul aplikasi, aksi pemilih save, mode hanya-baca, minimum Android 8/API 26, dan batas impor 128 MiB.
+- Pemeriksaan runtime native Zstandard tetap berada di test yang sama. MainActivitySmokeTest yang menduplikasi pemeriksaan layar awal dihapus agar tidak menjalankan launch test yang sama dua kali.
+- Perubahan belum diuji pada emulator karena runner Actions masih gagal sebelum langkah berjalan.

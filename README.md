@@ -227,3 +227,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Pemeriksaan ini belum dijalankan karena GitHub Actions masih gagal sebelum runner dan langkah tersedia.
 
 - Kebijakan privasi diperbarui untuk menjelaskan file sementara di cache privat, pembersihan setelah impor/ekspor normal, dan kemungkinan file sementara tertinggal jika proses terhenti sebelum cleanup.
+
+- Actions run 350 pada head `96451025a044db9f45dd52e307f29b61f7e16b71` gagal sebelum job menyediakan langkah atau log; seluruh pemeriksaan privasi paket dan build belum dieksekusi.

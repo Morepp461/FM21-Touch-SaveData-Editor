@@ -8,6 +8,9 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.nio.file.AtomicMoveNotSupportedException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 data class FmvMember(
     val name: String,
@@ -72,17 +75,23 @@ class FmvContainer(private val bytes: ByteArray) {
     }
 
     fun extractToFile(member: FmvMember, output: File): Pair<Long, Int> {
-        output.parentFile?.mkdirs()
-        val temporary = File(output.parentFile, output.name + ".part")
+        val parent = output.absoluteFile.parentFile
+            ?: throw FmvFormatException("Cannot resolve extraction directory: ${output.name}")
+        if (!parent.isDirectory && !parent.mkdirs()) {
+            throw FmvFormatException("Cannot create extraction directory: ${parent.name}")
+        }
+        val temporary = File.createTempFile("fmv-extract-", ".part", parent)
         try {
             val result = FileOutputStream(temporary).use { raw ->
                 BufferedOutputStream(raw).use { sink -> extract(member, sink) }
             }
-            if (output.exists() && !output.delete()) {
-                throw FmvFormatException("Cannot replace previous extracted component: ${output.name}")
-            }
-            if (!temporary.renameTo(output)) {
-                throw FmvFormatException("Cannot finalize extracted component: ${output.name}")
+            try {
+                Files.move(
+                    temporary.toPath(), output.toPath(),
+                    StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING
+                )
+            } catch (_: AtomicMoveNotSupportedException) {
+                Files.move(temporary.toPath(), output.toPath(), StandardCopyOption.REPLACE_EXISTING)
             }
             return result
         } catch (error: Exception) {
@@ -206,8 +215,18 @@ class FmvContainer(private val bytes: ByteArray) {
     }
 
     private fun readManifest(): FmvManifest {
-        val footer = lastIndexOf(bytes, FMF_PREFIX)
-        if (footer < HEADER_SIZE) throw FmvFormatException("Footer manifest header not found")
+        val declaredFooterOffset = littleEndianU32(bytes, 9)
+        if (declaredFooterOffset > Int.MAX_VALUE.toLong() - 9L) {
+            throw FmvFormatException("Header footer offset is outside the supported range")
+        }
+        val footerLong = declaredFooterOffset + 9L
+        if (footerLong < HEADER_SIZE || footerLong + FMF_PREFIX.size > bytes.size.toLong()) {
+            throw FmvFormatException("Header footer offset points outside the save")
+        }
+        val footer = footerLong.toInt()
+        if (!bytes.copyOfRange(footer, footer + FMF_PREFIX.size).contentEquals(FMF_PREFIX)) {
+            throw FmvFormatException("Header footer offset does not point to the manifest footer")
+        }
         val lengthAt = footer + FMF_PREFIX.size
         if (lengthAt + 4 > bytes.size) throw FmvFormatException("Truncated footer length")
         val compressedLength = littleEndianU32(bytes, lengthAt)
@@ -247,7 +266,7 @@ class FmvContainer(private val bytes: ByteArray) {
         repeat(archiveCount) {
             val archiveName = reader.string()
             val childCount = reader.u32().checkedCount()
-            if (nested.size.toLong() + childCount > MAX_MEMBERS) {
+            if (top.size.toLong() + nested.size.toLong() + childCount > MAX_MEMBERS) {
                 throw FmvFormatException("Total manifest member count is invalid")
             }
             repeat(childCount) { nested += reader.member(archiveName) }
@@ -263,9 +282,13 @@ class FmvContainer(private val bytes: ByteArray) {
             manifest.members.size > MAX_MEMBERS) {
             throw FmvFormatException("Manifest metadata is invalid")
         }
+        val seenNames = HashSet<String>(manifest.members.size * 2)
         val sorted = manifest.members.sortedBy { it.offset }
         var previousEnd = 0L
         for (member in sorted) {
+            if (member.name.isBlank() || !seenNames.add(member.name)) {
+                throw FmvFormatException("Empty or duplicate component name: ${member.name}")
+            }
             if (member.offset < previousEnd || member.storedLength < 4 ||
                 member.plainLength < 0 || member.plainLength > MAX_MEMBER_BYTES) {
                 throw FmvFormatException("Invalid or overlapping component: ${member.name}")
@@ -366,14 +389,6 @@ class FmvContainer(private val bytes: ByteArray) {
     private fun littleEndianU32(data: ByteArray, at: Int): Long =
         ByteBuffer.wrap(data, at, 4).order(ByteOrder.LITTLE_ENDIAN).int.toLong() and 0xffffffffL
 
-    private fun lastIndexOf(haystack: ByteArray, needle: ByteArray): Int {
-        for (i in haystack.size - needle.size downTo 0) {
-            var match = true
-            for (j in needle.indices) if (haystack[i + j] != needle[j]) { match = false; break }
-            if (match) return i
-        }
-        return -1
-    }
 }
 
 data class TadHeaderInfo(val signature: String, val versionBytes: String, val preambleHex: String)

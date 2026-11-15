@@ -41,17 +41,146 @@ class FmvContainerTest {
 
     @Test
     fun rebuildsEditedComponentAndReopensTheContainer() {
-        val original = "original component payload".toByteArray()
-        val replacement = "edited component payload with a different length".toByteArray()
-        val fixture = fixture(listOf(original))
+        val fixture = fixture(listOf("21.4.0-0|original".toByteArray()), memberName = "game_info/.dat")
         val parsed = FmvContainer(fixture)
+        val versionedReplacement = "21.4.0-0|edited".toByteArray()
 
-        val rebuiltBytes = FmvRebuilder.rebuild(parsed, mapOf("sample/.dat" to replacement))
+        val rebuiltBytes = FmvRebuilder.rebuild(parsed, mapOf("game_info/.dat" to versionedReplacement))
         val reopened = FmvContainer(rebuiltBytes)
 
-        assertArrayEquals(replacement, reopened.extractByName("sample/.dat"))
+        assertArrayEquals(versionedReplacement, reopened.extractByName("game_info/.dat"))
         assertEquals(parsed.manifest.saveName, reopened.manifest.saveName)
         assertEquals(parsed.manifest.members.size, reopened.manifest.members.size)
+    }
+
+    @Test
+    fun rejectsEditedRebuildWhenDatabaseVersionIsUnknown() {
+        val unknown = FmvContainer(fixture(listOf("opaque component".toByteArray())))
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvRebuilder.rebuild(unknown, mapOf("sample/.dat" to "edited".toByteArray()))
+        }
+        assertEquals(true, error.message!!.contains("detected: unknown"))
+    }
+
+    @Test
+    fun rejectsEditedRebuildForUnsupportedDatabaseVersion() {
+        val unsupported = FmvContainer(
+            fixture(listOf("22.0.0-0|original".toByteArray()), memberName = "game_info/.dat")
+        )
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvRebuilder.rebuild(
+                unsupported,
+                mapOf("game_info/.dat" to "22.0.0-0|edited".toByteArray())
+            )
+        }
+        assertEquals(true, error.message!!.contains("restricted to database version 21.4.0-0"))
+    }
+
+    @Test
+    fun extractToFileReplacesOnlyAfterSuccessfulValidation() {
+        val payload = "new extracted component".toByteArray()
+        val parsed = FmvContainer(fixture(listOf(payload)))
+        val directory = java.io.File.createTempFile("fmv-output", "test")
+        directory.delete()
+        directory.mkdirs()
+        val output = java.io.File(directory, "component.dat")
+        try {
+            output.writeText("previous content")
+            val member = parsed.manifest.members.single()
+            parsed.extractToFile(member, output)
+            assertArrayEquals(payload, output.readBytes())
+
+            output.writeText("keep this on failure")
+            val foreignMember = member.copy(name = "foreign/.dat")
+            assertThrows(FmvFormatException::class.java) {
+                parsed.extractToFile(foreignMember, output)
+            }
+            assertEquals("keep this on failure", output.readText())
+
+            // Fail after the temporary output has been created, during frame validation.
+            val corruptBytes = fixture(listOf(payload)).also { it[30] = 0 }
+            val corruptContainer = FmvContainer(corruptBytes)
+            assertThrows(FmvFormatException::class.java) {
+                corruptContainer.extractToFile(corruptContainer.manifest.members.single(), output)
+            }
+            assertEquals("keep this on failure", output.readText())
+            assertEquals(1, directory.listFiles()?.size)
+        } finally {
+            directory.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun rejectsDuplicateComponentNamesAsAmbiguous() {
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvContainer(duplicateNameFixture())
+        }
+        assertEquals(true, error.message!!.contains("duplicate component name"))
+    }
+
+    @Test
+    fun rejectsHeaderFooterPointerThatDoesNotMatchManifest() {
+        val corrupt = fixture(listOf("pointer check".toByteArray()))
+        corrupt[9] = 0
+        corrupt[10] = 0
+        corrupt[11] = 0
+        corrupt[12] = 0
+
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvContainer(corrupt)
+        }
+        assertEquals(true, error.message!!.contains("footer offset"))
+    }
+
+    @Test
+    fun rejectsHeaderFooterPointerThatLandsOnNonFooterBytes() {
+        val corrupt = fixture(listOf("pointer target check".toByteArray()))
+        corrupt[9] = 21
+        corrupt[10] = 0
+        corrupt[11] = 0
+        corrupt[12] = 0
+
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvContainer(corrupt)
+        }
+        assertEquals(true, error.message!!.contains("does not point to the manifest footer"))
+    }
+
+    @Test
+    fun rejectsTotalMemberCountAcrossTopLevelAndNestedEntries() {
+        val manifest = ByteArrayOutputStream()
+        writeString(manifest, "Oversized Manifest")
+        manifest.write(le32(20_000))
+        repeat(20_000) { index ->
+            writeString(manifest, "entry_$index")
+            writeString(manifest, ".dat")
+            manifest.write(le64(0))
+            manifest.write(le64(4))
+            manifest.write(le64(0))
+            manifest.write(ByteArray(16))
+        }
+        manifest.write(le32(1))
+        writeString(manifest, "archive")
+        manifest.write(le32(1))
+
+        val compressedManifest = Zstd.compress(manifest.toByteArray(), 1)
+        val header = ByteArray(30)
+        header[0] = 0x02
+        header[1] = 0x01
+        "fmf.".toByteArray().copyInto(header, 2)
+        le32(21).copyInto(header, 9)
+
+        val malformed = ByteArrayOutputStream().apply {
+            write(header)
+            write(footerPrefix)
+            write(le32(compressedManifest.size))
+            write(compressedManifest)
+        }.toByteArray()
+
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvContainer(malformed)
+        }
+        assertEquals(true, error.message!!.contains("Total manifest member count"))
     }
 
     @Test
@@ -80,7 +209,44 @@ class FmvContainerTest {
         }
     }
 
-    private fun fixture(chunks: List<ByteArray>): ByteArray {
+    private fun duplicateNameFixture(): ByteArray {
+        val first = Zstd.compress("first".toByteArray(), 3)
+        val second = Zstd.compress("second".toByteArray(), 3)
+        val firstStored = first.size + 4
+        val secondStored = second.size + 4
+        val manifest = ByteArrayOutputStream()
+        writeString(manifest, "Duplicate Name Save")
+        manifest.write(le32(2))
+        repeat(2) { index ->
+            writeString(manifest, "sample")
+            writeString(manifest, ".dat")
+            manifest.write(le64(if (index == 0) 0 else firstStored.toLong()))
+            manifest.write(le64(if (index == 0) firstStored.toLong() else secondStored.toLong()))
+            manifest.write(le64(if (index == 0) 5 else 6))
+            manifest.write(ByteArray(16))
+        }
+        manifest.write(le32(0))
+        manifest.write(le32(0))
+        val manifestFrame = Zstd.compress(manifest.toByteArray(), 3)
+        val footerOffset = 30 + firstStored + secondStored - 4
+        val header = ByteArray(30)
+        header[0] = 0x02
+        header[1] = 0x01
+        "fmf.".toByteArray().copyInto(header, 2)
+        le32(footerOffset - 9).copyInto(header, 9)
+        return ByteArrayOutputStream().apply {
+            write(header)
+            write(first)
+            write(le32(second.size))
+            write(second)
+            write(footerPrefix.copyOfRange(0, 4))
+            write(footerPrefix.copyOfRange(4, footerPrefix.size))
+            write(le32(manifestFrame.size))
+            write(manifestFrame)
+        }.toByteArray()
+    }
+
+    private fun fixture(chunks: List<ByteArray>, memberName: String = "sample/.dat"): ByteArray {
         val compressed = chunks.map { Zstd.compress(it, 3) }
         val memberData = ByteArrayOutputStream()
         compressed.forEachIndexed { index, frame ->
@@ -96,8 +262,7 @@ class FmvContainerTest {
         val manifest = ByteArrayOutputStream()
         writeString(manifest, "Unit Test Save")
         manifest.write(le32(1)) // top-level members
-        writeString(manifest, "sample")
-        writeString(manifest, ".dat")
+        memberName.split('/').forEach { writeString(manifest, it) }
         manifest.write(le64(0))
         manifest.write(le64(storedLength))
         manifest.write(le64(plainLength))
@@ -106,12 +271,13 @@ class FmvContainerTest {
         manifest.write(le32(0)) // terminator
         val manifestFrame = Zstd.compress(manifest.toByteArray(), 3)
 
-        val footerOffset = 30 + memberBytes.size
         val result = ByteArrayOutputStream()
+        val footerOffset = 30 + memberBytes.size
         val header = ByteArray(30)
         header[0] = 0x02
         header[1] = 0x01
         "fmf.".toByteArray().copyInto(header, 2)
+        le32(footerOffset - 9).copyInto(header, 9)
         result.write(header)
         result.write(memberBytes)
         result.write(footerPrefix)

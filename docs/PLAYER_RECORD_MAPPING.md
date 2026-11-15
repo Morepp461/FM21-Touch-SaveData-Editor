@@ -142,3 +142,14 @@ Screenshot profil Matt Gilks menunjukkan:
 Nama pada layar game tidak selalu sama dengan string yang tersimpan di name-index. Dalam pencarian eksak pada name-index FM21, hanya **Eoin Doyle** dari daftar screenshot yang ditemukan dengan ejaan persis. Matt Gilks tidak ditemukan dengan ejaan persis; kandidat **Michael Gilkes** tetap belum terkonfirmasi dan tidak boleh disamakan otomatis.
 
 Karena itu, daftar screenshot sudah menjadi ground-truth untuk label manusia, tetapi pemetaan UID masih harus menangani alias, nama terpisah, nama keluarga, dan transliterasi. Jangan menandai semua orang yang tidak ditemukan sebagai data yang hilang; bisa jadi format name-index menyimpan nama berbeda.
+
+
+## Stabilitas mapping lintas dua snapshot
+
+Pemindaian ulang kedua `game_db/.dat` menunjukkan bahwa seluruh 15.235 UID terhubung mempertahankan entity ID dan empat byte raw tag yang sama. Offset record pada snapshot yang lebih baru bergeser konsisten `+1.116` byte. Distribusi panjang observasi identik: 13.427 record 86 byte, 1.517 record 135 byte, 80 record dengan jarak lain, dan 211 record tanpa batas berikutnya yang dapat dipastikan.
+
+Contoh yang bisa dipastikan dari name-index:
+- Eoin Doyle: UID `2000102080`, entity ID `51790`, raw tag `0a8000f4`, panjang observasi `86` byte.
+- Michael Gilkes: UID `2000086420`, entity ID `36130`, raw tag `0a800068`, panjang observasi `86` byte. Hubungan nama ini dengan Matt Gilks pada screenshot tetap belum terkonfirmasi.
+
+Raw tag dan panjang tersebut hanya ciri struktural. Tidak boleh dipakai untuk klasifikasi pemain/staf atau penentuan field CA/PA/atribut.

@@ -21,7 +21,7 @@ The app may create a component export or CSV file only when the user explicitly 
 
 ## Retention and deletion
 
-The app does not maintain a remote copy of selected files. Temporary processing files may be created in the app's private cache and are managed by Android. Users can remove exported files from the destination they selected and clear the app's storage through Android settings.
+The app does not maintain a remote copy of selected files. Temporary processing files may be created in the app's private cache. Import staging files are deleted after parsing, and prepared export files are deleted after the export callback completes or is cancelled. If the app or device is interrupted before cleanup runs, a temporary file may remain until Android clears the cache or the user clears app storage through Android settings. Users can remove exported files from the destination they selected.
 
 ## Children's privacy
 
@@ -37,6 +37,6 @@ If future versions add analytics, advertising, accounts, cloud processing or oth
 
 ## Contact
 
-For privacy questions, contact the maintainer through the project's GitHub repository:
+A public support contact has not yet been configured. Before publication, replace this section with a support email address or a publicly accessible support URL. Do not publish this draft until users can access both the policy and its support contact without signing in to a private repository.
 
-https://github.com/Morepp461/FM21-Touch-SaveData-Editor
+Stale temporary files created by the app are also eligible for cleanup on a later app launch after 24 hours. Cleanup is limited to known app-generated file prefixes and private working directories; unrelated cache files are not intentionally removed.

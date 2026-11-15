@@ -3,7 +3,7 @@ package com.morepp.fm21touchsaveeditor
 import android.os.Bundle
 import java.io.File
 import java.io.InputStream
-import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -24,13 +26,18 @@ import com.morepp.fm21touchsaveeditor.core.FmvRebuilder
 import com.morepp.fm21touchsaveeditor.core.FmvSaveComparator
 import com.morepp.fm21touchsaveeditor.core.PersonRecordIndex
 import com.morepp.fm21touchsaveeditor.core.PersonRecordMapper
+import com.morepp.fm21touchsaveeditor.core.PersonRecordDiffAnalyzer
+import com.morepp.fm21touchsaveeditor.core.PersonSnapshotDiff
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = android.graphics.Color.rgb(16, 23, 19)
+        window.navigationBarColor = android.graphics.Color.rgb(16, 23, 19)
         setContent {
             val colors = darkColorScheme(
                 primary = Color(0xFF70C47A),
@@ -42,8 +49,6 @@ class MainActivity : ComponentActivity() {
                 surfaceVariant = Color(0xFF26332A),
                 onSurfaceVariant = Color(0xFFA0ADA2)
             )
-            window.statusBarColor = android.graphics.Color.rgb(16, 23, 19)
-            window.navigationBarColor = android.graphics.Color.rgb(16, 23, 19)
             MaterialTheme(colorScheme = colors) {
                 Surface(Modifier.fillMaxSize(), color = colors.background) { EditorHome() }
             }
@@ -63,45 +68,75 @@ private fun EditorHome() {
     var container by remember { mutableStateOf<FmvContainer?>(null) }
     var comparisonContainer by remember { mutableStateOf<FmvContainer?>(null) }
     var comparisonResults by remember { mutableStateOf(emptyList<com.morepp.fm21touchsaveeditor.core.MemberDiff>()) }
+    var personSnapshotDiff by remember { mutableStateOf<PersonSnapshotDiff?>(null) }
     var personIndex by remember { mutableStateOf<PersonRecordIndex?>(null) }
     var personSearch by remember { mutableStateOf("") }
     var personStatusFilter by remember { mutableStateOf("Semua") }
     var status by remember { mutableStateOf("Belum ada save yang dibuka") }
     var busy by remember { mutableStateOf(false) }
-    var pendingExport by remember { mutableStateOf<File?>(null) }
+    var pendingExportPath by rememberSaveable { mutableStateOf<String?>(null) }
     var filterText by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf(EditorTab.OVERVIEW) }
     var selectedCategory by remember { mutableStateOf("Semua") }
     var componentLimit by remember { mutableIntStateOf(40) }
 
-    val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
-        val payload = pendingExport
-        if (uri != null && payload != null) {
-            runCatching {
-                val output = context.contentResolver.openOutputStream(uri)
-                    ?: error("Tidak bisa menulis file")
-                output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) { cleanupStaleTemporaryFiles(context.cacheDir) }
+    }
 
-                if (payload.extension.equals("fmv", ignoreCase = true)) {
-                    val savedBytes = context.contentResolver.openInputStream(uri)?.use { readSaveBytes(it) }
-                        ?: error("File hasil ekspor tidak bisa dibaca ulang")
-                    val reopened = FmvContainer(savedBytes)
-                    val expectedHash = java.security.MessageDigest.getInstance("SHA-256")
-                        .digest(payload.readBytes())
-                    val actualHash = java.security.MessageDigest.getInstance("SHA-256")
-                        .digest(savedBytes)
-                    if (!expectedHash.contentEquals(actualHash)) {
-                        error("Pemeriksaan SHA-256 gagal. File hasil ekspor tidak identik.")
+    val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+        val payload = pendingExportPath?.let(::File)
+        pendingExportPath = null
+        if (uri != null && payload != null && payload.isFile) {
+            busy = true
+            status = "Menyimpan dan memverifikasi hasil ekspor..."
+            val exportJob = scope.launch {
+                try {
+                    val result = withContext(Dispatchers.IO) {
+                        runCatching {
+                            val expectedHash = payload.inputStream().use { sha256(it) }
+                            val output = context.contentResolver.openOutputStream(uri)
+                                ?: error("Tidak bisa menulis file")
+                            output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
+                            val actualHash = context.contentResolver.openInputStream(uri)?.use { sha256(it) }
+                                ?: error("File hasil ekspor tidak bisa dibaca ulang")
+                            if (!expectedHash.contentEquals(actualHash)) {
+                                error("Pemeriksaan SHA-256 gagal. File hasil ekspor tidak identik.")
+                            }
+
+                            if (payload.extension.equals("fmv", ignoreCase = true)) {
+                                "Salinan save berhasil disimpan dan diverifikasi dengan SHA-256"
+                            } else {
+                                "File berhasil diekspor (${payload.length()} byte) dan diverifikasi dengan SHA-256"
+                            }
+                        }
                     }
-                    "Salinan save berhasil disimpan dan diverifikasi: ${reopened.manifest.saveName}"
-                } else {
-                    "Komponen berhasil diekspor (${payload.length()} byte)"
+                    result.onSuccess { status = it }
+                        .onFailure { status = "Ekspor gagal: ${it.message}" }
+                } finally {
+                    withContext(NonCancellable + Dispatchers.IO) { payload.delete() }
+                    busy = false
                 }
-            }.onSuccess { status = it }
-                .onFailure { status = "Ekspor gagal: ${it.message}" }
+            }
+            exportJob.invokeOnCompletion { payload.delete() }
+        } else {
+            payload?.delete()
+            busy = false
+            if (uri != null) status = "Gagal: file sementara ekspor tidak tersedia. Ulangi proses ekspor."
         }
-        payload?.delete()
-        pendingExport = null
+    }
+
+    fun launchExportPicker(file: File, readyStatus: String? = null) {
+        pendingExportPath = file.absolutePath
+        try {
+            exportPicker.launch(file.name)
+            readyStatus?.let { status = it }
+        } catch (error: Exception) {
+            pendingExportPath = null
+            file.delete()
+            busy = false
+            status = "Gagal membuka dialog ekspor: ${error.message}"
+        }
     }
 
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -113,7 +148,7 @@ private fun EditorHome() {
                     runCatching {
                         val input = context.contentResolver.openInputStream(uri)
                             ?: error("File tidak dapat dibaca")
-                        val bytes = readSaveBytes(input)
+                        val bytes = readSaveBytes(input, temporaryDirectory = context.cacheDir)
                         FmvContainer(bytes)
                     }
                 }
@@ -121,6 +156,7 @@ private fun EditorHome() {
                     container = it
                     comparisonContainer = null
                     comparisonResults = emptyList()
+                    personSnapshotDiff = null
                     personIndex = null
                     personSearch = ""
                     personStatusFilter = "Semua"
@@ -147,16 +183,19 @@ private fun EditorHome() {
                     runCatching {
                         val input = context.contentResolver.openInputStream(uri)
                             ?: error("File pembanding tidak dapat dibaca")
-                        val bytes = readSaveBytes(input)
+                        val bytes = readSaveBytes(input, temporaryDirectory = context.cacheDir)
                         FmvContainer(bytes)
                     }
                 }
                 result.onSuccess {
                     comparisonContainer = it
                     comparisonResults = emptyList()
+                    personSnapshotDiff = null
                     status = "File pembanding valid: ${it.manifest.saveName}"
                 }.onFailure {
                     comparisonContainer = null
+                    comparisonResults = emptyList()
+                    personSnapshotDiff = null
                     status = "Gagal membaca save pembanding: ${it.message}"
                 }
                 busy = false
@@ -217,9 +256,15 @@ private fun EditorHome() {
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(status, style = MaterialTheme.typography.bodySmall,
-                            color = if (status.startsWith("Gagal")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+                            color = if (status.contains("gagal", ignoreCase = true)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                         Button(
-                            onClick = { picker.launch(arrayOf("*/*")) },
+                            onClick = {
+                                try {
+                                    picker.launch(arrayOf("*/*"))
+                                } catch (error: Exception) {
+                                    status = "Gagal membuka pemilih save: ${error.message}"
+                                }
+                            },
                             enabled = !busy,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp)
@@ -276,7 +321,7 @@ private fun EditorHome() {
                                 description = personIndex?.let { "${it.scannedNameEntries} nama · ${it.mappedEntries} terhubung · ${it.unresolvedEntries} belum terpetakan" }
                                     ?: "Hubungkan nama dengan data identitas internal",
                                 action = if (personIndex == null) "Buat pemetaan" else "Buka pemetaan",
-                                enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" },
+                                enabled = !busy && parsed.gameVersion == "21.4.0-0" && parsed.manifest.members.any { it.name == "game_db/.dat" },
                                 onClick = {
                                     if (personIndex != null) {
                                         selectedTab = EditorTab.PEOPLE
@@ -290,7 +335,7 @@ private fun EditorHome() {
                                                     val file = File(context.cacheDir, "fm21_components/game_db_person_map.dat")
                                                     try {
                                                         parsed.extractToFile(member, file)
-                                                        PersonRecordMapper.map(file.readBytes())
+                                                        PersonRecordMapper.mapFile(file)
                                                     } finally {
                                                         file.delete()
                                                     }
@@ -313,8 +358,13 @@ private fun EditorHome() {
                                 action = if (comparisonContainer == null) "Pilih save pembanding" else "Buka perbandingan",
                                 enabled = !busy,
                                 onClick = {
-                                    if (comparisonContainer == null) comparisonPicker.launch(arrayOf("*/*"))
-                                    else selectedTab = EditorTab.COMPARE
+                                    if (comparisonContainer == null) {
+                                        try {
+                                            comparisonPicker.launch(arrayOf("*/*"))
+                                        } catch (error: Exception) {
+                                            status = "Gagal membuka pemilih save pembanding: ${error.message}"
+                                        }
+                                    } else selectedTab = EditorTab.COMPARE
                                 }
                             )
                             ToolCard(
@@ -347,11 +397,8 @@ private fun EditorHome() {
                                             }
                                         }
                                         result.onSuccess { file ->
-                                            pendingExport = file
-                                            exportPicker.launch(file.name)
-                                            status = "Validasi berhasil. Pilih lokasi untuk menyimpan salinan FMV."
-                                        }.onFailure { status = "Validasi save gagal: ${it.message}" }
-                                        busy = false
+                                            launchExportPicker(file, "Validasi berhasil. Pilih lokasi untuk menyimpan salinan FMV.")
+                                        }.onFailure { status = "Validasi save gagal: ${it.message}"; busy = false }
                                     }
                                 }
                             )
@@ -366,12 +413,19 @@ private fun EditorHome() {
                     EditorTab.PEOPLE -> {
                         item {
                             SectionHeading("Indeks orang", "Data orang belum dipisahkan menjadi pemain dan staf")
+                            if (parsed.gameVersion != "21.4.0-0") {
+                                Text(
+                                    "Pemetaan person hanya tersedia untuk database FM21 Touch 21.4.0-0. Versi save ini: ${parsed.gameVersion ?: "tidak diketahui"}.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
                             if (personIndex == null) {
                                 ToolCard(
                                     title = "Buat indeks orang",
                                     description = "Ekstrak game_db/.dat lalu pindai indeks nama",
                                     action = "Mulai pemindaian",
-                                    enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" },
+                                    enabled = !busy && parsed.gameVersion == "21.4.0-0" && parsed.manifest.members.any { it.name == "game_db/.dat" },
                                     onClick = {
                                         busy = true
                                         status = "Menyusun pemetaan data orang..."
@@ -382,7 +436,7 @@ private fun EditorHome() {
                                                     val file = File(context.cacheDir, "fm21_components/game_db_person_map.dat")
                                                     try {
                                                         parsed.extractToFile(member, file)
-                                                        PersonRecordMapper.map(file.readBytes())
+                                                        PersonRecordMapper.mapFile(file)
                                                     } finally {
                                                         file.delete()
                                                     }
@@ -464,11 +518,8 @@ private fun EditorHome() {
                                                     }
                                                 }
                                                 exported.onSuccess {
-                                                    pendingExport = it
-                                                    exportPicker.launch(it.name)
-                                                    status = "File CSV pemetaan orang siap diekspor"
-                                                }.onFailure { status = "Gagal menyiapkan ekspor CSV: ${it.message}" }
-                                                busy = false
+                                                    launchExportPicker(it, "File CSV pemetaan orang siap diekspor")
+                                                }.onFailure { status = "Gagal menyiapkan ekspor CSV: ${it.message}"; busy = false }
                                             }
                                         },
                                         enabled = !busy,
@@ -476,7 +527,7 @@ private fun EditorHome() {
                                     ) { Text("Ekspor seluruh pemetaan ke CSV") }
                                 }
                             }
-                            items(matches.take(100), key = { "person_${it.uniqueId}" }) { person ->
+                            itemsIndexed(matches.take(100), key = { index, person -> "person_${index}_${person.uniqueId}" }) { _, person ->
                                 Card(Modifier.fillMaxWidth()) {
                                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                         Text(person.name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -532,6 +583,115 @@ private fun EditorHome() {
                                         }
                                     }, enabled = !busy, modifier = Modifier.fillMaxWidth()
                                 ) { Text(if (busy) "Membandingkan..." else "Bandingkan save") }
+                                OutlinedButton(
+                                    onClick = {
+                                        busy = true
+                                        status = "Menganalisis perubahan record orang..."
+                                        scope.launch {
+                                            val result = withContext(Dispatchers.IO) {
+                                                runCatching {
+                                                    val beforeMember = parsed.manifest.members.first { it.name == "game_db/.dat" }
+                                                    val afterMember = other.manifest.members.first { it.name == "game_db/.dat" }
+                                                    val directory = File(context.cacheDir, "fm21_person_diff").apply { mkdirs() }
+                                                    val beforeFile = File(directory, "before_game_db.dat")
+                                                    val afterFile = File(directory, "after_game_db.dat")
+                                                    try {
+                                                        parsed.extractToFile(beforeMember, beforeFile)
+                                                        other.extractToFile(afterMember, afterFile)
+                                                        PersonRecordDiffAnalyzer.compareFiles(beforeFile, afterFile)
+                                                    } finally {
+                                                        beforeFile.delete()
+                                                        afterFile.delete()
+                                                    }
+                                                }
+                                            }
+                                            result.onSuccess {
+                                                personSnapshotDiff = it
+                                                status = "Analisis record selesai: ${it.changed.size} record berubah dari ${it.compared} record yang dapat dibandingkan"
+                                            }.onFailure { status = "Analisis record gagal: ${it.message}" }
+                                            busy = false
+                                        }
+                                    },
+                                    enabled = !busy && parsed.gameVersion == "21.4.0-0" &&
+                                        parsed.gameVersion == other.gameVersion &&
+                                        parsed.manifest.members.any { it.name == "game_db/.dat" } &&
+                                        other.manifest.members.any { it.name == "game_db/.dat" },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text(if (busy) "Menganalisis..." else "Analisis perubahan data orang") }
+                                if (parsed.gameVersion == null || parsed.gameVersion != other.gameVersion) {
+                                    Text(
+                                        "Analisis record person hanya mendukung database 21.4.0-0 dan memerlukan versi yang sama. Versi save: ${parsed.gameVersion ?: "tidak diketahui"} / ${other.gameVersion ?: "tidak diketahui"}.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
+                        }
+                        personSnapshotDiff?.let { personDiff ->
+                            item {
+                                SectionHeading("Perubahan record orang", "Bukti byte mentah berdasarkan UID, bukan interpretasi atribut")
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    SummaryMetric("Berubah", personDiff.changed.size.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Tetap", personDiff.unchanged.toString(), Modifier.weight(1f))
+                                    SummaryMetric("Dibandingkan", personDiff.compared.toString(), Modifier.weight(1f))
+                                }
+                                Text("Terpetakan: ${personDiff.beforeMapped} → ${personDiff.afterMapped} · tanpa panjang record valid: ${personDiff.skippedUnknownLength}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("UID hilang: ${personDiff.missingAfter} · UID baru: ${personDiff.missingBefore} · UID ambigu: ${personDiff.ambiguousBefore}/${personDiff.ambiguousAfter} · ID berubah: ${personDiff.identityMismatch}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                OutlinedButton(
+                                    onClick = {
+                                        busy = true
+                                        scope.launch {
+                                            val report = withContext(Dispatchers.IO) {
+                                                runCatching {
+                                                    val file = File(context.cacheDir, "perubahan_record_orang_fm21.csv")
+                                                    file.bufferedWriter(Charsets.UTF_8).use { writer ->
+                                                        writer.write("nama,uid,id_internal,offset_sebelum,offset_sesudah,panjang_record,offset_byte_berubah,tag_sebelum,tag_sesudah")
+                                                        writer.newLine()
+                                                        personDiff.changed.forEach { change ->
+                                                            val cells = listOf(
+                                                                change.name,
+                                                                change.uniqueId.toString(),
+                                                                change.entityRecordId.toString(),
+                                                                change.beforeOffset.toString(),
+                                                                change.afterOffset.toString(),
+                                                                change.recordLength.toString(),
+                                                                change.changedByteOffsets.joinToString(";"),
+                                                                change.beforeTypeTag.orEmpty(),
+                                                                change.afterTypeTag.orEmpty()
+                                                            )
+                                                            writer.write(cells.joinToString(",") { csvEscape(it) })
+                                                            writer.newLine()
+                                                        }
+                                                    }
+                                                    file
+                                                }
+                                            }
+                                            report.onSuccess {
+                                                launchExportPicker(it, "CSV perubahan record orang siap diekspor")
+                                            }.onFailure { status = "Gagal membuat CSV perubahan record: ${it.message}"; busy = false }
+                                        }
+                                    },
+                                    enabled = !busy,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text(if (busy) "Menyiapkan CSV..." else "Ekspor seluruh perubahan ke CSV") }
+                            }
+                            items(personDiff.changed.take(100), key = { "person_change_${it.uniqueId}" }) { change ->
+                                Card(Modifier.fillMaxWidth()) {
+                                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        Text(change.name, fontWeight = FontWeight.SemiBold)
+                                        Text("UID ${change.uniqueId} · ID internal ${change.entityRecordId}",
+                                            style = MaterialTheme.typography.bodySmall)
+                                        Text("Offset record ${change.beforeOffset} → ${change.afterOffset} · ${change.recordLength} byte",
+                                            style = MaterialTheme.typography.bodySmall)
+                                        Text("Byte berubah: ${change.changedByteOffsets.joinToString()}",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
                             }
                         }
                         if (comparisonResults.isNotEmpty()) {
@@ -570,11 +730,8 @@ private fun EditorHome() {
                                                 }
                                             }
                                             report.onSuccess {
-                                                pendingExport = it
-                                                exportPicker.launch(it.name)
-                                                status = "File CSV perbandingan siap diekspor"
-                                            }.onFailure { status = "Gagal membuat laporan perbandingan: ${it.message}" }
-                                            busy = false
+                                                launchExportPicker(it, "File CSV perbandingan siap diekspor")
+                                            }.onFailure { status = "Gagal membuat laporan perbandingan: ${it.message}"; busy = false }
                                         }
                                     },
                                     enabled = !busy,
@@ -636,10 +793,8 @@ private fun EditorHome() {
                                                     }
                                                 }
                                                 extracted.onSuccess { file ->
-                                                    pendingExport = file
-                                                    exportPicker.launch(file.name)
-                                                }.onFailure { status = "Ekstraksi gagal: ${it.message}" }
-                                                busy = false
+                                                    launchExportPicker(file)
+                                                }.onFailure { status = "Ekstraksi gagal: ${it.message}"; busy = false }
                                             }
                                         },
                                         enabled = !busy
@@ -664,6 +819,8 @@ private fun EditorHome() {
                         style = MaterialTheme.typography.bodyMedium)
                     Text("Minimum sistem: Android 8.0 (API 26)",
                         style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                    Text("Batas ukuran file saat ini: 128 MiB",
+                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -719,23 +876,92 @@ private fun ToolCard(
  * Bounded file read for the current in-memory FMV parser.
  * The source URI is never modified and oversized inputs fail before allocation grows unchecked.
  */
-private fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 1024): ByteArray {
+internal fun readSaveBytes(
+    input: InputStream,
+    maxBytes: Long = 128L * 1024 * 1024,
+    temporaryDirectory: File = File(System.getProperty("java.io.tmpdir") ?: ".")
+): ByteArray {
     input.use { source ->
-        val output = ByteArrayOutputStream()
-        val buffer = ByteArray(64 * 1024)
-        var total = 0L
-        while (true) {
-            val count = source.read(buffer)
-            if (count < 0) break
-            total += count
-            if (total > maxBytes) {
-                throw IllegalArgumentException("Ukuran save melewati batas aman pemrosesan saat ini, yaitu 128 MB")
-            }
-            output.write(buffer, 0, count)
+        require(maxBytes >= 0) { "Batas ukuran save tidak boleh negatif" }
+        if (!temporaryDirectory.isDirectory && !temporaryDirectory.mkdirs()) {
+            throw IllegalStateException("Tidak bisa menyiapkan direktori sementara untuk membaca save")
         }
-        return output.toByteArray()
+        val temporary = File.createTempFile("fm21-input-", ".part", temporaryDirectory)
+        try {
+            java.io.BufferedOutputStream(FileOutputStream(temporary)).use { sink ->
+                val buffer = ByteArray(64 * 1024)
+                var total = 0L
+                while (true) {
+                    val count = source.read(buffer)
+                    if (count < 0) break
+                    if (count.toLong() > maxBytes - total) {
+                        val limit = if (maxBytes % (1024L * 1024L) == 0L) {
+                            "${maxBytes / (1024L * 1024L)} MB"
+                        } else {
+                            "${maxBytes} byte"
+                        }
+                        throw IllegalArgumentException("Ukuran save melewati batas aman pemrosesan saat ini: $limit")
+                    }
+                    total += count
+                    sink.write(buffer, 0, count)
+                }
+            }
+            if (temporary.length() > Int.MAX_VALUE) {
+                throw IllegalArgumentException("File save terlalu besar untuk parser memori saat ini")
+            }
+            return temporary.readBytes()
+        } finally {
+            temporary.delete()
+        }
     }
 }
 
-private fun csvEscape(value: String): String =
-    "\"" + value.replace("\"", "\"\"") + "\""
+
+internal fun cleanupStaleTemporaryFiles(
+    cacheDirectory: File,
+    nowMillis: Long = System.currentTimeMillis(),
+    maxAgeMillis: Long = 24L * 60L * 60L * 1000L
+) {
+    require(maxAgeMillis >= 0) { "Batas usia file sementara tidak boleh negatif" }
+    if (!cacheDirectory.isDirectory) return
+    val cutoff = nowMillis - maxAgeMillis
+    val rootPrefixes = listOf(
+        "fm21-input-",
+        "salinan_",
+        "perubahan_record_orang_fm21",
+        "perbandingan_save_fm21",
+        "pemetaan_data_orang_fm21"
+    )
+    cacheDirectory.listFiles().orEmpty().forEach { file ->
+        if (file.isFile && rootPrefixes.any { prefix -> file.name.startsWith(prefix) }) {
+            if (file.lastModified() in 1 until cutoff) file.delete()
+        } else if (file.isDirectory && file.name in setOf("fm21_components", "fm21_person_diff")) {
+            file.listFiles().orEmpty().filter { it.isFile }.forEach { child ->
+                if (child.lastModified() in 1 until cutoff) child.delete()
+            }
+        }
+    }
+}
+
+internal fun sha256(input: InputStream): ByteArray {
+    val digest = java.security.MessageDigest.getInstance("SHA-256")
+    input.use { source ->
+        val buffer = ByteArray(64 * 1024)
+        while (true) {
+            val count = source.read(buffer)
+            if (count < 0) break
+            if (count > 0) digest.update(buffer, 0, count)
+        }
+    }
+    return digest.digest()
+}
+
+internal fun csvEscape(value: String): String {
+    // Prevent spreadsheet formula execution when CSV contains untrusted save names.
+    val firstMeaningful = value.dropWhile { it.isWhitespace() || it == '\uFEFF' }.firstOrNull()
+    val startsWithControlPrefix = value.firstOrNull() == '\t' || value.firstOrNull() == '\r'
+    val safeValue = if (firstMeaningful in setOf('=', '+', '-', '@') || startsWithControlPrefix) {
+        "'$value"
+    } else value
+    return "\"" + safeValue.replace("\"", "\"\"") + "\""
+}

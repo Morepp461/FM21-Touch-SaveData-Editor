@@ -36,7 +36,7 @@ class FmvRebuilderTest {
             FmvRebuilder.rebuild(source, mapOf("sample_a/.dat" to replacement))
         )
 
-        assertEquals(1, rebuilt.manifest.topLevel.size)
+        assertEquals(2, rebuilt.manifest.topLevel.size)
         assertEquals(2, rebuilt.manifest.nested.size)
         assertArrayEquals(replacement, rebuilt.extractByName("sample_a/.dat"))
         assertArrayEquals(originalB, rebuilt.extractByName("archive/sample_b/.dat"))
@@ -77,11 +77,11 @@ class FmvRebuilderTest {
     @Test
     fun rebuildsEditedMemberUsingMultipleZstandardFrames() {
         val original = "small original".toByteArray()
-        val replacementChunks = listOf(
-            ByteArray(1024) { (it % 251).toByte() },
-            ByteArray(2048) { ((it + 31) % 251).toByte() }
-        )
-        val replacement = replacementChunks[0] + replacementChunks[1]
+        // FmvRebuilder currently splits edited payloads at 8 MiB. Keep this
+        // fixture larger than that boundary so the test really exercises the
+        // writer's inter-frame length prefix instead of only reading a
+        // multi-frame source fixture.
+        val replacement = ByteArray(8 * 1024 * 1024 + 4096) { (it % 251).toByte() }
         val source = FmvContainer(fixture(listOf(FixtureMember("sample/.dat", chunks = listOf(original)))))
 
         val rebuilt = FmvContainer(
@@ -89,6 +89,9 @@ class FmvRebuilderTest {
         )
 
         assertArrayEquals(replacement, rebuilt.extractByName("sample/.dat"))
+        val rebuiltMember = rebuilt.manifest.members.single { it.name == "sample/.dat" }
+        val (_, frameCount) = rebuilt.extract(rebuiltMember, ByteArrayOutputStream())
+        assertEquals(2, frameCount)
     }
 
     @Test
@@ -104,7 +107,11 @@ class FmvRebuilderTest {
     }
 
     private fun fixture(members: List<FixtureMember>): ByteArray {
-        val encoded = members.map { member ->
+        val membersWithGameVersion = members + FixtureMember(
+            "game_info/.dat",
+            chunks = listOf("21.4.0-0".toByteArray())
+        )
+        val encoded = membersWithGameVersion.map { member ->
             val frames = member.chunks.map { Zstd.compress(it, 3) }
             val stream = ByteArrayOutputStream()
             frames.forEachIndexed { index, frame ->

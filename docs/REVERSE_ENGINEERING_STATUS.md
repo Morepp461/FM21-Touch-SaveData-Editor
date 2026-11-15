@@ -56,3 +56,15 @@ The uploaded after-match fixture was validated with the repository's read-only c
 - Person index diagnostic: 17,486 accepted names, 15,235 resolved UID/entity joins, zero ambiguous joins, and 2,251 unresolved entries.
 
 This revalidation confirms container extraction and the existing person-index join. It does not establish player/staff classification, CA/PA, attribute fields, finance fields, or a safe semantic write path.
+
+
+## Dua snapshot karier Bolton lintas musim (15 November 2026)
+
+- Pengguna memberikan dua save dengan nama manifest `Coach Morepp - Bolton`, versi database `21.4.0-0`, dan menyatakan keduanya berjarak satu musim.
+- Kedua file berhasil diekstrak penuh: 852/852 komponen masing-masing; 1.610 dan 1.605 frame Zstandard; tidak ada error panjang atau batas komponen.
+- Sebanyak 688 komponen identik dan 164 berbeda; tidak ada komponen yang hanya ada pada salah satu file.
+- 17.486 UID name-index sama pada kedua file. Sebanyak 15.235 UID terhubung mempertahankan entity ID yang sama, walaupun offset record bergeser.
+- Dalam batas record person yang terpetakan secara konservatif, dua record berubah: Bozhidar Iskrenov dan Luke Duzel, masing-masing byte relatif 69 berubah dari `FF` pada backup menjadi `64` pada file pertama. Arti field tetap tidak diketahui.
+- `finance_manager/.dat` identik. Perbedaan pada komponen kompetisi, transfer, manager, sejarah, dan `game_db/.dat` tidak boleh dianggap sebagai field semantik tertentu tanpa decoding atau fixture terkontrol.
+- Pasangan lintas musim ini berguna untuk stable-UID joins dan diff lintas-save, tetapi bukan eksperimen satu-field. File asli tetap privat dan tidak masuk repository.
+- Laporan lengkap: `docs/CROSS_SEASON_FIXTURE_ANALYSIS.md`.

@@ -7,10 +7,10 @@ import java.nio.ByteOrder
 import java.util.LinkedHashMap
 
 /**
- * Rebuilds an FM21 Touch 21.4.x container while preserving untouched compressed
- * component streams byte-for-byte. Changed components are re-encoded as bounded
- * independent Zstandard frames. The output is reparsed and every component is
- * decompressed before it is returned.
+ * Rebuilds the observed FM21 Touch 21.4.0-0 container while preserving untouched
+ * compressed component streams byte-for-byte. Edited rebuilds are rejected for
+ * unknown or different database versions. Changed components are re-encoded as
+ * bounded independent Zstandard frames; output is reparsed and fully decompressed.
  */
 object FmvRebuilder {
     private val footerPrefix = byteArrayOf(
@@ -59,6 +59,11 @@ object FmvRebuilder {
         editedComponents: Map<String, ByteArray>
     ): ByteArray {
         if (editedComponents.isEmpty()) return validatedUnchangedCopy(source)
+        if (source.gameVersion != "21.4.0-0") {
+            throw FmvFormatException(
+                "Edited FMV rebuild is restricted to database version 21.4.0-0; detected: ${source.gameVersion ?: "unknown"}"
+            )
+        }
 
         val allMembers = source.manifest.members
         val byName = allMembers.associateBy { it.name }

@@ -1,5 +1,10 @@
 package com.morepp.fm21touchsaveeditor.core
 
+import java.nio.ByteBuffer
+import java.io.File
+import java.nio.channels.FileChannel
+import java.nio.file.StandardOpenOption
+
 /**
  * Evidence-based mapping between the TAD name index and person entity rows
  * observed in FM21 Touch 21.4.0 game_db/.dat.
@@ -33,10 +38,34 @@ object PersonRecordMapper {
     private const val NAME_ENTRY_KIND = 5L
     private const val MAX_ENTITY_RECORD_ID = 1_000_000L
 
-    fun map(gameDb: ByteArray): PersonRecordIndex {
-        if (gameDb.size < 64) throw FmvFormatException("game_db payload is too small")
+    fun map(gameDb: ByteArray): PersonRecordIndex = map(ByteBuffer.wrap(gameDb))
 
-        val names = scanNameIndex(gameDb)
+    /**
+     * Maps an extracted game_db component directly from a read-only memory map.
+     * This avoids allocating another full-size byte array on Android.
+     */
+    fun mapFile(file: File): PersonRecordIndex {
+        require(file.isFile) { "Database component does not exist: ${file.name}" }
+        FileChannel.open(file.toPath(), StandardOpenOption.READ).use { channel ->
+            val size = channel.size()
+            require(size > 0L && size <= Int.MAX_VALUE) {
+                "Database component has an unsupported size: $size"
+            }
+            return map(channel.map(FileChannel.MapMode.READ_ONLY, 0, size))
+        }
+    }
+
+    /**
+     * Maps directly from a read-only or memory-mapped buffer. Absolute reads
+     * preserve the caller's position and avoid copying a full 69 MB database
+     * onto the Android heap.
+     */
+    fun map(gameDb: ByteBuffer): PersonRecordIndex {
+        val data = gameDb.asReadOnlyBuffer()
+        val size = data.limit()
+        if (size < 64) throw FmvFormatException("game_db payload is too small")
+
+        val names = scanNameIndex(data, size)
         if (names.isEmpty()) {
             throw FmvFormatException("No supported FM21 name-index entries were found")
         }
@@ -47,50 +76,49 @@ object PersonRecordMapper {
         val resolved = HashMap<Long, Pair<Long, Int>>(names.size)
         val ambiguousUids = HashSet<Long>()
         var p = 4
-        while (p <= gameDb.size - 13) {
-            // Most bytes are not the start of a duplicated UID. Compare the
-            // two raw four-byte windows first to avoid allocating Long values
-            // and probing the UID set for every byte in a 69 MB database.
-            if (gameDb[p] == gameDb[p + 4] &&
-                gameDb[p + 1] == gameDb[p + 5] &&
-                gameDb[p + 2] == gameDb[p + 6] &&
-                gameDb[p + 3] == gameDb[p + 7]) {
-                val uid = u32(gameDb, p)
+        while (p <= size - 13) {
+            if (data.get(p) == data.get(p + 4) &&
+                data.get(p + 1) == data.get(p + 5) &&
+                data.get(p + 2) == data.get(p + 6) &&
+                data.get(p + 3) == data.get(p + 7)) {
+                val uid = u32(data, p)
                 if (uid in wantedUids) {
-                val afterPair = u32(gameDb, p + 8)
-                val afterMarker = gameDb[p + 12].toInt() and 0xff
-                val isNameIndexCopy = afterPair == NAME_ENTRY_KIND && afterMarker == 0
-
-                if (!isNameIndexCopy) {
-                    val entityId = u32(gameDb, p - 4)
-                    if (entityId in 1..MAX_ENTITY_RECORD_ID && uid !in ambiguousUids) {
-                        val candidate = entityId to (p - 4)
-                        val previous = resolved[uid]
-                        if (previous == null) {
-                            resolved[uid] = candidate
-                        } else if (previous != candidate) {
-                            // Multiple different entity rows for one UID are ambiguous.
-                            resolved.remove(uid)
-                            ambiguousUids.add(uid)
+                    val afterPair = u32(data, p + 8)
+                    val afterMarker = data.get(p + 12).toInt() and 0xff
+                    val isNameIndexCopy = afterPair == NAME_ENTRY_KIND && afterMarker == 0
+                    if (!isNameIndexCopy) {
+                        val entityId = u32(data, p - 4)
+                        if (entityId in 1..MAX_ENTITY_RECORD_ID && uid !in ambiguousUids) {
+                            val candidate = entityId to (p - 4)
+                            val previous = resolved[uid]
+                            if (previous == null) {
+                                resolved[uid] = candidate
+                            } else if (previous != candidate) {
+                                resolved.remove(uid)
+                                ambiguousUids.add(uid)
+                            }
                         }
                     }
-                }
                 }
             }
             p++
         }
 
-        val resolvedByEntityId = resolved.values.associateBy { it.first }
+        val resolvedByEntityId = resolved.values.groupBy { it.first }
+            .filterValues { it.size == 1 }
+            .mapValues { it.value.single() }
         val entries = names.map { name ->
             val entity = if (name.uniqueId in ambiguousUids) null else resolved[name.uniqueId]
-            val nextEntity = entity?.let { resolvedByEntityId[it.first + 1] }
+            val nextEntity = entity?.let { record ->
+                if (resolvedByEntityId.containsKey(record.first)) resolvedByEntityId[record.first + 1] else null
+            }
             val inferredLength = if (entity != null && nextEntity != null && nextEntity.second > entity.second) {
                 (nextEntity.second - entity.second).takeIf { it in 16..4096 }
             } else null
             val typeTag = entity?.let { record ->
-                if (record.second + 16 <= gameDb.size) {
-                    gameDb.copyOfRange(record.second + 12, record.second + 16)
-                        .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+                if (record.second + 16 <= size) {
+                    (record.second + 12 until record.second + 16)
+                        .joinToString("") { "%02x".format(data.get(it).toInt() and 0xff) }
                 } else null
             }
             PersonRecordMapping(
@@ -121,24 +149,22 @@ object PersonRecordMapper {
         val flags: Long
     )
 
-    private fun scanNameIndex(data: ByteArray): List<NameEntry> {
+    private fun scanNameIndex(data: ByteBuffer, size: Int): List<NameEntry> {
         val result = ArrayList<NameEntry>()
         var p = 0
-        val last = data.size - (4 + MIN_NAME_BYTES + 21)
+        val last = size - (4 + MIN_NAME_BYTES + 21)
         while (p <= last) {
-            val firstLengthByte = data[p].toInt() and 0xff
+            val firstLengthByte = data.get(p).toInt() and 0xff
             if (firstLengthByte in MIN_NAME_BYTES..MAX_NAME_BYTES &&
-                data[p + 1] == 0.toByte() && data[p + 2] == 0.toByte() &&
-                data[p + 3] == 0.toByte()) {
-                val nameLength = firstLengthByte.toLong()
-                val nameStart = p + 4
-                val tail = nameStart + nameLength.toInt()
-                if (tail + 21 <= data.size &&
+                data.get(p + 1) == 0.toByte() && data.get(p + 2) == 0.toByte() &&
+                data.get(p + 3) == 0.toByte()) {
+                val tail = p + 4 + firstLengthByte
+                if (tail + 21 <= size &&
                     u32(data, tail + 16) == NAME_ENTRY_KIND &&
-                    data[tail + 20].toInt() == 0) {
+                    data.get(tail + 20).toInt() == 0) {
                     val uniqueId = u32(data, tail + 8)
                     if (uniqueId == u32(data, tail + 12) && uniqueId > 0) {
-                        val nameBytes = data.copyOfRange(nameStart, tail)
+                        val nameBytes = ByteArray(firstLengthByte) { data.get(p + 4 + it) }
                         val name = nameBytes.toString(Charsets.UTF_8)
                         if (isPlausibleName(name)) {
                             result += NameEntry(
@@ -163,9 +189,9 @@ object PersonRecordMapper {
             value.any { it.isLetter() } &&
             value.none { it.isISOControl() }
 
-    private fun u32(data: ByteArray, at: Int): Long =
-        (data[at].toLong() and 0xff) or
-            ((data[at + 1].toLong() and 0xff) shl 8) or
-            ((data[at + 2].toLong() and 0xff) shl 16) or
-            ((data[at + 3].toLong() and 0xff) shl 24)
+    private fun u32(data: ByteBuffer, at: Int): Long =
+        (data.get(at).toLong() and 0xff) or
+            ((data.get(at + 1).toLong() and 0xff) shl 8) or
+            ((data.get(at + 2).toLong() and 0xff) shl 16) or
+            ((data.get(at + 3).toLong() and 0xff) shl 24)
 }

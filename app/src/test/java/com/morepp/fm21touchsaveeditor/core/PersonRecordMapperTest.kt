@@ -60,11 +60,76 @@ class PersonRecordMapperTest {
     }
 
     @Test
+    fun doesNotInferRecordLengthsWhenEntityIdsAreDuplicatedAcrossUids() {
+        val data = ByteArrayOutputStream()
+        writeEntityRow(data, 100L, 2_000_000_001L)
+        writeEntityRow(data, 100L, 2_000_000_002L)
+        writeEntityRow(data, 101L, 2_000_000_003L)
+        writeNameEntry(data, "First Duplicate Entity", 1L, 2_000_000_001L)
+        writeNameEntry(data, "Second Duplicate Entity", 2L, 2_000_000_002L)
+        writeNameEntry(data, "Next Entity", 3L, 2_000_000_003L)
+
+        val index = PersonRecordMapper.map(data.toByteArray())
+        val first = index.entries.single { it.name == "First Duplicate Entity" }
+        val second = index.entries.single { it.name == "Second Duplicate Entity" }
+
+        assertEquals(3, index.mappedEntries)
+        assertNull(first.entityRecordLength)
+        assertNull(second.entityRecordLength)
+    }
+
+    @Test
     fun rejectsPayloadWithoutSupportedNameIndex() {
         val error = org.junit.Assert.assertThrows(FmvFormatException::class.java) {
             PersonRecordMapper.map(ByteArray(128))
         }
         assertTrue(error.message!!.isNotBlank())
+    }
+
+    @Test
+    fun mapsReadOnlyBufferWithoutChangingCallerPosition() {
+        val data = ByteArrayOutputStream()
+        writeEntityRow(data, 51_788L, 2_000_102_078L)
+        writeNameEntry(data, "Buffer Person", 26_630L, 2_000_102_078L)
+        data.write(ByteArray(16))
+        val buffer = ByteBuffer.wrap(data.toByteArray()).asReadOnlyBuffer()
+        buffer.position(3)
+
+        val index = PersonRecordMapper.map(buffer)
+
+        assertEquals(3, buffer.position())
+        assertEquals(1, index.mappedEntries)
+        assertEquals("Buffer Person", index.entries.single().name)
+    }
+
+    @Test
+    fun mapsMemoryMappedFileWithoutCopyingDatabaseBytes() {
+        val data = ByteArrayOutputStream()
+        writeEntityRow(data, 51_788L, 2_000_102_078L)
+        writeNameEntry(data, "Mapped File Person", 26_630L, 2_000_102_078L)
+        data.write(ByteArray(16))
+        val file = java.io.File.createTempFile("fm21-person-map", ".dat")
+        try {
+            file.writeBytes(data.toByteArray())
+            val mapped = PersonRecordMapper.mapFile(file)
+            assertEquals(1, mapped.mappedEntries)
+            assertEquals("Mapped File Person", mapped.entries.single().name)
+        } finally {
+            file.delete()
+        }
+    }
+
+    @Test
+    fun rejectsEmptyPersonDatabaseFile() {
+        val file = java.io.File.createTempFile("fm21-empty-map", ".dat")
+        try {
+            val error = org.junit.Assert.assertThrows(IllegalArgumentException::class.java) {
+                PersonRecordMapper.mapFile(file)
+            }
+            assertTrue(error.message!!.contains("unsupported size"))
+        } finally {
+            file.delete()
+        }
     }
 
     private fun writeEntityRow(out: ByteArrayOutputStream, entityId: Long, uid: Long) {

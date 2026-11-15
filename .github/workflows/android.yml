@@ -1,14 +1,24 @@
 name: Android build, tests and release candidate
 
 concurrency:
-  group: android-ci-${{ github.ref }}
-  cancel-in-progress: false
+  group: android-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'README*'
+      - 'ROADMAP*'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'README*'
+      - 'ROADMAP*'
   workflow_dispatch:
 
 jobs:
@@ -52,25 +62,68 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: gradle :app:assembleDebug :app:assembleRelease :app:bundleRelease :app:testDebugUnitTest --stacktrace
-      - name: Verify Android package compatibility and runtime libraries
+      - name: Verify debug and release package compatibility and runtime libraries
         shell: bash
         run: |
-          APK=app/build/outputs/apk/debug/app-debug.apk
           AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
           test -n "$AAPT"
-          BADGING="$("$AAPT" dump badging "$APK")"
-          echo "$BADGING" | grep -q "sdkVersion:'26'"
-          echo "$BADGING" | grep -q "targetSdkVersion:'36'"
-          if ! unzip -l "$APK" | grep -Eq 'lib/(arm64-v8a|armeabi-v7a|x86|x86_64)/libzstd-jni.*\.so'; then
-            echo "Android Zstandard native runtime libraries are missing"
-            exit 1
+          DEBUG_APK=app/build/outputs/apk/debug/app-debug.apk
+          RELEASE_APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          if [[ -f app/build/outputs/apk/release/app-release.apk ]]; then
+            RELEASE_APK=app/build/outputs/apk/release/app-release.apk
           fi
-          echo "Minimum SDK 26, target SDK 36, Android Zstandard runtime libraries present."
+          test -f "$DEBUG_APK"
+          test -f "$RELEASE_APK"
+          test -f app/build/outputs/bundle/release/app-release.aab
+          grep -q 'android:allowBackup="false"' app/src/main/AndroidManifest.xml
+          for APK in "$DEBUG_APK" "$RELEASE_APK"; do
+            PERMISSIONS="$("$AAPT" dump permissions "$APK")"
+            if echo "$PERMISSIONS" | grep -q "android.permission.INTERNET"; then
+              echo "Unexpected Internet permission in offline-first app package: $APK"
+              exit 1
+            fi
+            BADGING="$("$AAPT" dump badging "$APK")"
+            echo "$BADGING" | grep -q "sdkVersion:'26'"
+            echo "$BADGING" | grep -q "targetSdkVersion:'36'"
+            if ! unzip -l "$APK" | grep -Eq 'lib/(arm64-v8a|armeabi-v7a|x86|x86_64)/libzstd-jni.*\.so'; then
+              echo "Android Zstandard native runtime libraries are missing from $APK"
+              exit 1
+            fi
+          done
+          echo "Debug and release APKs: minimum SDK 26, target SDK 36, native Zstandard runtime present."
+      - name: Generate release checksums and build metadata
+        shell: bash
+        run: |
+          mkdir -p app/build/outputs/release-metadata
+          RELEASE_APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          if [[ -f app/build/outputs/apk/release/app-release.apk ]]; then
+            RELEASE_APK=app/build/outputs/apk/release/app-release.apk
+          fi
+          sha256sum app/build/outputs/apk/debug/app-debug.apk "$RELEASE_APK" app/build/outputs/bundle/release/app-release.aab > app/build/outputs/release-metadata/SHA256SUMS.txt
+          VERSION_NAME="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts)"
+          VERSION_CODE="$(sed -n 's/.*versionCode = \([0-9]*\).*/\1/p' app/build.gradle.kts)"
+          test -n "$VERSION_NAME"
+          test -n "$VERSION_CODE"
+          CHECKED_OUT_COMMIT="$(git rev-parse HEAD)"
+          SOURCE_COMMIT="${{ github.event.pull_request.head.sha || github.sha }}"
+          BASE_COMMIT="${{ github.event.pull_request.base.sha || '' }}"
+          {
+            echo "source_commit=$SOURCE_COMMIT"
+            echo "checked_out_commit=$CHECKED_OUT_COMMIT"
+            echo "base_commit=$BASE_COMMIT"
+            echo "version_name=$VERSION_NAME"
+            echo "version_code=$VERSION_CODE"
+            echo "min_sdk=26"
+            echo "target_sdk=36"
+          } > app/build/outputs/release-metadata/BUILD-METADATA.txt
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: fm21-touch-save-editor-0.8.0-alpha-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/release-metadata/SHA256SUMS.txt
+            app/build/outputs/release-metadata/BUILD-METADATA.txt
           if-no-files-found: error
       - name: Upload unsigned release APK and AAB
         if: env.HAS_RELEASE_KEYSTORE != 'true'
@@ -80,13 +133,16 @@ jobs:
           path: |
             app/build/outputs/apk/release/app-release-unsigned.apk
             app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/release-metadata/SHA256SUMS.txt
+            app/build/outputs/release-metadata/BUILD-METADATA.txt
           if-no-files-found: error
-      - name: Verify signed release APK
+      - name: Verify signed release APK and AAB
         if: env.HAS_RELEASE_KEYSTORE == 'true'
         shell: bash
         run: |
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           "$APKSIGNER" verify --verbose app/build/outputs/apk/release/app-release.apk
+          jarsigner -verify -verbose -certs app/build/outputs/bundle/release/app-release.aab
       - name: Upload signed release APK and AAB
         if: env.HAS_RELEASE_KEYSTORE == 'true'
         uses: actions/upload-artifact@v4
@@ -95,6 +151,8 @@ jobs:
           path: |
             app/build/outputs/apk/release/app-release.apk
             app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/release-metadata/SHA256SUMS.txt
+            app/build/outputs/release-metadata/BUILD-METADATA.txt
           if-no-files-found: error
 
   android-api26-smoke:

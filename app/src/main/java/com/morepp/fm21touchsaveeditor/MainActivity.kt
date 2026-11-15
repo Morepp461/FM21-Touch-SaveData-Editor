@@ -3,6 +3,7 @@ package com.morepp.fm21touchsaveeditor
 import android.os.Bundle
 import java.io.File
 import java.io.InputStream
+import java.io.FileOutputStream
 import java.io.ByteArrayOutputStream
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -137,7 +138,7 @@ private fun EditorHome() {
                     runCatching {
                         val input = context.contentResolver.openInputStream(uri)
                             ?: error("File tidak dapat dibaca")
-                        val bytes = readSaveBytes(input)
+                        val bytes = readSaveBytes(input, temporaryDirectory = context.cacheDir)
                         FmvContainer(bytes)
                     }
                 }
@@ -172,7 +173,7 @@ private fun EditorHome() {
                     runCatching {
                         val input = context.contentResolver.openInputStream(uri)
                             ?: error("File pembanding tidak dapat dibaca")
-                        val bytes = readSaveBytes(input)
+                        val bytes = readSaveBytes(input, temporaryDirectory = context.cacheDir)
                         FmvContainer(bytes)
                     }
                 }
@@ -852,27 +853,43 @@ private fun ToolCard(
  * Bounded file read for the current in-memory FMV parser.
  * The source URI is never modified and oversized inputs fail before allocation grows unchecked.
  */
-internal fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 1024): ByteArray {
+internal fun readSaveBytes(
+    input: InputStream,
+    maxBytes: Long = 128L * 1024 * 1024,
+    temporaryDirectory: File = File(System.getProperty("java.io.tmpdir") ?: ".")
+): ByteArray {
     input.use { source ->
         require(maxBytes >= 0) { "Batas ukuran save tidak boleh negatif" }
-        val output = ByteArrayOutputStream()
-        val buffer = ByteArray(64 * 1024)
-        var total = 0L
-        while (true) {
-            val count = source.read(buffer)
-            if (count < 0) break
-            if (count.toLong() > maxBytes - total) {
-                val limit = if (maxBytes % (1024L * 1024L) == 0L) {
-                    "${maxBytes / (1024L * 1024L)} MB"
-                } else {
-                    "${maxBytes} byte"
-                }
-                throw IllegalArgumentException("Ukuran save melewati batas aman pemrosesan saat ini: $limit")
-            }
-            total += count
-            output.write(buffer, 0, count)
+        if (!temporaryDirectory.isDirectory && !temporaryDirectory.mkdirs()) {
+            throw IllegalStateException("Tidak bisa menyiapkan direktori sementara untuk membaca save")
         }
-        return output.toByteArray()
+        val temporary = File.createTempFile("fm21-input-", ".part", temporaryDirectory)
+        try {
+            java.io.BufferedOutputStream(FileOutputStream(temporary)).use { sink ->
+                val buffer = ByteArray(64 * 1024)
+                var total = 0L
+                while (true) {
+                    val count = source.read(buffer)
+                    if (count < 0) break
+                    if (count.toLong() > maxBytes - total) {
+                        val limit = if (maxBytes % (1024L * 1024L) == 0L) {
+                            "${maxBytes / (1024L * 1024L)} MB"
+                        } else {
+                            "${maxBytes} byte"
+                        }
+                        throw IllegalArgumentException("Ukuran save melewati batas aman pemrosesan saat ini: $limit")
+                    }
+                    total += count
+                    sink.write(buffer, 0, count)
+                }
+            }
+            if (temporary.length() > Int.MAX_VALUE) {
+                throw IllegalArgumentException("File save terlalu besar untuk parser memori saat ini")
+            }
+            return temporary.readBytes()
+        } finally {
+            temporary.delete()
+        }
     }
 }
 

@@ -109,7 +109,9 @@ object PersonRecordMapper {
             .mapValues { it.value.single() }
         val entries = names.map { name ->
             val entity = if (name.uniqueId in ambiguousUids) null else resolved[name.uniqueId]
-            val nextEntity = entity?.let { resolvedByEntityId[it.first + 1] }
+            val nextEntity = entity?.let { record ->
+                if (resolvedByEntityId.containsKey(record.first)) resolvedByEntityId[record.first + 1] else null
+            }
             val inferredLength = if (entity != null && nextEntity != null && nextEntity.second > entity.second) {
                 (nextEntity.second - entity.second).takeIf { it in 16..4096 }
             } else null

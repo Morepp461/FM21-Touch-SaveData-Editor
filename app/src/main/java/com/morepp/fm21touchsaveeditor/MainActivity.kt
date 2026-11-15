@@ -853,8 +853,8 @@ private fun ToolCard(
  * The source URI is never modified and oversized inputs fail before allocation grows unchecked.
  */
 internal fun readSaveBytes(input: InputStream, maxBytes: Long = 128L * 1024 * 1024): ByteArray {
-    require(maxBytes >= 0) { "Batas ukuran save tidak boleh negatif" }
     input.use { source ->
+        require(maxBytes >= 0) { "Batas ukuran save tidak boleh negatif" }
         val output = ByteArrayOutputStream()
         val buffer = ByteArray(64 * 1024)
         var total = 0L

@@ -319,3 +319,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Menambahkan tes penolakan untuk versi `22.0.0-0` dan fixture writer dengan versi yang terdeteksi. Tes belum dijalankan oleh Gradle CI.
 
 - Regresi version gate mencakup versi tidak diketahui dan versi `22.0.0-0`; kedua edited rebuild harus ditolak. Jalur no-op fixture tanpa versi tetap mempertahankan byte sumber.
+
+## Perbaikan concurrency CI — 15 November 2026
+- Diagnosis run 382–387 menunjukkan status cancelled pada run yang menunggu antrean setelah commit berurutan. Workflow sebelumnya mengelompokkan seluruh commit branch dalam satu concurrency group berbasis ref.
+- Concurrency group diubah menjadi unik per commit SHA dengan `cancel-in-progress: false`. Perubahan ini mencegah run pending commit baru menggantikan run sebelumnya; belum membuktikan runner tersedia atau build berhasil.

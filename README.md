@@ -221,3 +221,7 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Parser FMV kini memakai pointer footer pada header sebagai lokasi manifest dan memverifikasi marker di posisi tersebut. Tes menolak pointer di luar file maupun pointer yang menunjuk ke data biasa. Actions run 336 tetap gagal tanpa step/log.
 
 - Run Actions 340 pada head `3ea07f39ed0aaabb1026e886fb67d69af19206fe` kembali gagal tanpa langkah job atau URL log. Parser pointer-footer sudah dicatat, tetapi tes Gradle belum berjalan.
+
+### Pemeriksaan privasi paket Android — 15 November 2026
+- CI kini memeriksa `allowBackup=false` pada manifest aplikasi dan memastikan APK debug/release tidak meminta permission `android.permission.INTERNET`, agar perilaku offline-first yang dijelaskan kebijakan privasi ikut diverifikasi pada paket hasil build.
+- Pemeriksaan ini belum dijalankan karena GitHub Actions masih gagal sebelum runner dan langkah tersedia.

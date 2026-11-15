@@ -186,3 +186,12 @@ Current state: **not ready for public publication**. The app is a read-only save
 
 - Follow-up mapper guard: both the current entity ID and the next contiguous entity ID must be unique before a record length is inferred. Duplicate current IDs cannot borrow the next row's offset. Regression test: `doesNotInferRecordLengthsWhenEntityIdsAreDuplicatedAcrossUids`.
 - Latest source commit for this guard: `fa1ffa34ce9e70869dea1d163aa2a5435b215d51`. CI status for this exact head is pending/no workflow run returned at the time of this update.
+
+
+## Follow-up regression-test correction — 15 November 2026
+
+- Corrected the CSV formula-neutralization regression assertions to compare actual tab and BOM characters rather than literal backslash sequences.
+- A local Kotlin smoke test passed for tab-prefixed formulas, BOM-prefixed formulas, whitespace-prefixed formulas, and ordinary text. This is a focused helper check only, not a repository Gradle build.
+- Commit: \`71ba9430ee199a6e22c32814c2312f78a9103329\`.
+- GitHub Actions run 255 (\`43674537532\`) again failed both jobs before runner allocation. The job API returned no runner IDs, steps, or log URLs; Gradle, unit tests, and the API 26 emulator did not execute.
+- The app remains read-only and is not ready for public publication. All save-format, semantic mapping, real-device, in-game reload, and signed-release gates remain open.

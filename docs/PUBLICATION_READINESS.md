@@ -298,3 +298,7 @@ Current state: **not ready for public publication**. The app is a read-only save
 
 ## CI terbaru setelah pemeriksaan privasi paket — 15 November 2026
 - Run 350 (`43676715152`) untuk head `96451025a044db9f45dd52e307f29b61f7e16b71` gagal pada kedua job sebelum langkah tersedia. Tidak ada hasil build, unit test, pemeriksaan permission APK, checksum, atau emulator.
+
+## Cleanup ekspor pada cancellation — 15 November 2026
+- Cleanup payload ekspor dipindah ke `finally` non-cancellable dan completion handler job agar pembatalan coroutine tidak melewatkan penghapusan file cache.
+- Perubahan memerlukan uji Activity recreation dan cancellation pada Android; belum tervalidasi karena CI belum menjalankan emulator.

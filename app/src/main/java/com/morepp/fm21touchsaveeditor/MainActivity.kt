@@ -373,12 +373,19 @@ private fun EditorHome() {
                     EditorTab.PEOPLE -> {
                         item {
                             SectionHeading("Indeks orang", "Data orang belum dipisahkan menjadi pemain dan staf")
+                            if (parsed.gameVersion != "21.4.0-0") {
+                                Text(
+                                    "Pemetaan person hanya tersedia untuk database FM21 Touch 21.4.0-0. Versi save ini: ${parsed.gameVersion ?: "tidak diketahui"}.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
                             if (personIndex == null) {
                                 ToolCard(
                                     title = "Buat indeks orang",
                                     description = "Ekstrak game_db/.dat lalu pindai indeks nama",
                                     action = "Mulai pemindaian",
-                                    enabled = !busy && parsed.manifest.members.any { it.name == "game_db/.dat" },
+                                    enabled = !busy && parsed.gameVersion == "21.4.0-0" && parsed.manifest.members.any { it.name == "game_db/.dat" },
                                     onClick = {
                                         busy = true
                                         status = "Menyusun pemetaan data orang..."

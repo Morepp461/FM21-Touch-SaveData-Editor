@@ -5,7 +5,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import java.io.ByteArrayInputStream
-import java.io.File
 
 class SaveReadLimitTest {
     private class CloseTrackingInputStream(bytes: ByteArray) : ByteArrayInputStream(bytes) {
@@ -21,7 +20,7 @@ class SaveReadLimitTest {
     @Test
     fun acceptsInputExactlyAtConfiguredLimitAndRemovesTemporaryFile() {
         val input = CloseTrackingInputStream(byteArrayOf(1, 2, 3, 4, 5))
-        val directory = createTempDirectory("fm21-read-limit").toFile()
+        val directory = java.nio.file.Files.createTempDirectory("fm21-read-limit").toFile()
 
         try {
             val result = readSaveBytes(input, maxBytes = 5, temporaryDirectory = directory)
@@ -37,7 +36,7 @@ class SaveReadLimitTest {
     @Test
     fun rejectsInputBeyondConfiguredLimitAndRemovesTemporaryFile() {
         val input = CloseTrackingInputStream(byteArrayOf(1, 2, 3, 4, 5, 6))
-        val directory = createTempDirectory("fm21-read-limit").toFile()
+        val directory = java.nio.file.Files.createTempDirectory("fm21-read-limit").toFile()
 
         try {
             val error = assertThrows(IllegalArgumentException::class.java) {
@@ -55,7 +54,7 @@ class SaveReadLimitTest {
     @Test
     fun rejectsNegativeLimitAndStillClosesInput() {
         val input = CloseTrackingInputStream(byteArrayOf(1))
-        val directory = createTempDirectory("fm21-read-limit").toFile()
+        val directory = java.nio.file.Files.createTempDirectory("fm21-read-limit").toFile()
 
         try {
             assertThrows(IllegalArgumentException::class.java) {

@@ -36,7 +36,7 @@ class FmvContainerTest {
     fun noOpRebuildPreservesEveryOriginalByte() {
         val fixture = fixture(listOf("unchanged FM21 component".toByteArray()))
         val parsed = FmvContainer(fixture)
-        assertArrayEquals(fixture, FmvRebuilder.rebuild(parsed, emptyMap()))
+        assertArrayEquals(fixture, FmvRebuilder.rebuildExperimental(parsed, emptyMap()))
     }
 
     @Test
@@ -45,7 +45,7 @@ class FmvContainerTest {
         val parsed = FmvContainer(fixture)
         val versionedReplacement = "21.4.0-0|edited".toByteArray()
 
-        val rebuiltBytes = FmvRebuilder.rebuild(parsed, mapOf("game_info/.dat" to versionedReplacement))
+        val rebuiltBytes = FmvRebuilder.rebuildExperimental(parsed, mapOf("game_info/.dat" to versionedReplacement))
         val reopened = FmvContainer(rebuiltBytes)
 
         assertArrayEquals(versionedReplacement, reopened.extractByName("game_info/.dat"))
@@ -57,7 +57,7 @@ class FmvContainerTest {
     fun rejectsEditedRebuildWhenDatabaseVersionIsUnknown() {
         val unknown = FmvContainer(fixture(listOf("opaque component".toByteArray())))
         val error = assertThrows(FmvFormatException::class.java) {
-            FmvRebuilder.rebuild(unknown, mapOf("sample/.dat" to "edited".toByteArray()))
+            FmvRebuilder.rebuildExperimental(unknown, mapOf("sample/.dat" to "edited".toByteArray()))
         }
         assertEquals(true, error.message!!.contains("detected: unknown"))
     }
@@ -68,7 +68,7 @@ class FmvContainerTest {
             fixture(listOf("22.0.0-0|original".toByteArray()), memberName = "game_info/.dat")
         )
         val error = assertThrows(FmvFormatException::class.java) {
-            FmvRebuilder.rebuild(
+            FmvRebuilder.rebuildExperimental(
                 unsupported,
                 mapOf("game_info/.dat" to "22.0.0-0|edited".toByteArray())
             )

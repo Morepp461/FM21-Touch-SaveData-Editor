@@ -37,6 +37,7 @@ This checklist is intentionally strict. A successful APK build is not equivalent
 - [ ] Verify every untouched component remains byte-identical after an edited Kotlin rebuild against real fixtures.
 - [ ] Verify all frame prefixes, footer metadata and checksums/stamps after Kotlin rebuild against real fixtures.
 - [x] Validate all components and export a byte-identical no-op FMV copy with post-export SHA-256 verification.
+- [x] Production FMV rebuild entry point rejects all edited component payloads until controlled semantic field fixtures and successful in-game reload validation exist; experimental structural writer is isolated from the production entry point.
 - [ ] Open a rebuilt no-op save in FM21 Touch 2021.
 - [ ] Open an edited test save in FM21 Touch 2021.
 
@@ -340,3 +341,12 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Batas manifest FMV — 15 November 2026
 - Parser kini menerapkan batas total 20.000 komponen terhadap gabungan top-level dan nested sebelum mengalokasikan record nested.
 - Tes regresi sintetis mencakup 20.000 top-level ditambah satu nested. Menunggu hasil Gradle CI pada head terbaru.
+
+
+## Production write-gate hardening (15 November 2026)
+
+- The public production `FmvRebuilder.rebuild` entry point now accepts only an empty edit map and performs the validated byte-identical copy path.
+- Any non-empty edited-component map is rejected with an explicit explanation that controlled field mapping and in-game validation are still missing.
+- The container-layout writer remains available only as an internal experimental method for synthetic structural tests. It is not wired to the Android UI and does not establish editable FM21 database fields.
+- Regression tests cover both production behaviors: no-op copy remains byte-identical, and edited component payloads fail closed.
+- This is a safety hardening change, not a claim that the requested player/club editors are complete.

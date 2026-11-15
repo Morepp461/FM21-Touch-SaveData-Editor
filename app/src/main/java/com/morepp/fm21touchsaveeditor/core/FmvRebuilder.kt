@@ -54,7 +54,29 @@ object FmvRebuilder {
         return source.originalBytes()
     }
 
+    /**
+     * Production entry point. Until field semantics and a real-game edited-save
+     * round-trip are verified, this API intentionally permits only validated
+     * byte-identical copies. Experimental structural tests use
+     * [rebuildExperimental] explicitly and must never be wired to the UI.
+     */
     fun rebuild(
+        source: FmvContainer,
+        editedComponents: Map<String, ByteArray>
+    ): ByteArray {
+        if (editedComponents.isNotEmpty()) {
+            throw FmvFormatException(
+                "Edited save writing is disabled: no FM21 field mapping has passed controlled-fixture and in-game validation."
+            )
+        }
+        return validatedUnchangedCopy(source)
+    }
+
+    /**
+     * Experimental container-layout writer used only by synthetic structural tests.
+     * It does not authorize semantic database edits or production save export.
+     */
+    internal fun rebuildExperimental(
         source: FmvContainer,
         editedComponents: Map<String, ByteArray>
     ): ByteArray {

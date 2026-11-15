@@ -233,3 +233,8 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Run 282 (`43675541726`) pada head `123f06f5e538e754ecfea3af6e73f9c7f7c76438` gagal pada job `build` dan `android-api26-smoke`.
 - Kedua job tidak menyediakan langkah eksekusi maupun URL log (`steps: []`, `logs_url: null`). Tidak ada dasar untuk menyimpulkan Gradle atau emulator berjalan; penyebab tetap masalah alokasi/eksekusi runner yang belum terdiagnosis.
 - Pembaca save berbatas sudah diuji dengan smoke test Kotlin terisolasi, termasuk cleanup setelah kegagalan I/O. Seluruh build, unit test proyek, dan QA perangkat tetap terbuka.
+
+## Lifecycle ekspor dan Activity recreation — 15 November 2026
+- Path payload ekspor disimpan menggunakan Compose rememberSaveable, bukan state objek File yang hilang ketika Activity dibuat ulang.
+- Callback memvalidasi bahwa file sementara masih tersedia sebelum menyalin ke URI tujuan. File yang hilang menghasilkan status error eksplisit.
+- Perubahan ini belum diverifikasi lewat Android instrumentation/device test karena job emulator CI masih gagal sebelum menyediakan langkah atau log.

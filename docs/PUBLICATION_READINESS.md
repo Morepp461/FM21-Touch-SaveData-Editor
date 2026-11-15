@@ -293,3 +293,5 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Verifikasi kebijakan offline-first — 15 November 2026
 - CI memeriksa `allowBackup=false` dan memeriksa permission pada APK debug/release untuk menolak `android.permission.INTERNET`.
 - Pemeriksaan ini selaras dengan kebijakan privasi offline-first, tetapi belum dieksekusi karena Actions gagal sebelum runner/steps tersedia.
+
+- Bagian retensi pada privacy policy diselaraskan dengan implementasi: file staging dihapus setelah parsing dan payload ekspor setelah callback/cancel, dengan pengecualian jika proses terhenti sebelum cleanup.

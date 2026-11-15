@@ -94,20 +94,20 @@ private fun EditorHome() {
                 try {
                     val result = withContext(Dispatchers.IO) {
                         runCatching {
+                            val expectedHash = payload.inputStream().use { sha256(it) }
                             val output = context.contentResolver.openOutputStream(uri)
                                 ?: error("Tidak bisa menulis file")
                             output.use { sink -> payload.inputStream().use { source -> source.copyTo(sink) } }
+                            val actualHash = context.contentResolver.openInputStream(uri)?.use { sha256(it) }
+                                ?: error("File hasil ekspor tidak bisa dibaca ulang")
+                            if (!expectedHash.contentEquals(actualHash)) {
+                                error("Pemeriksaan SHA-256 gagal. File hasil ekspor tidak identik.")
+                            }
 
                             if (payload.extension.equals("fmv", ignoreCase = true)) {
-                                val expectedHash = payload.inputStream().use { sha256(it) }
-                                val actualHash = context.contentResolver.openInputStream(uri)?.use { sha256(it) }
-                                    ?: error("File hasil ekspor tidak bisa dibaca ulang")
-                                if (!expectedHash.contentEquals(actualHash)) {
-                                    error("Pemeriksaan SHA-256 gagal. File hasil ekspor tidak identik.")
-                                }
                                 "Salinan save berhasil disimpan dan diverifikasi dengan SHA-256"
                             } else {
-                                "Komponen berhasil diekspor (${payload.length()} byte)"
+                                "File berhasil diekspor (${payload.length()} byte) dan diverifikasi dengan SHA-256"
                             }
                         }
                     }

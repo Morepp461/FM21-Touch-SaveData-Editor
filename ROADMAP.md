@@ -305,3 +305,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Artefak unsigned tersedia: artifact ID `14146648401` (debug) dan `14146094473` (unsigned release). API 26 emulator job masih berjalan saat pencatatan.
 - Metadata awal merekam merge commit PR sebagai commit checkout; workflow kini membedakan `source_commit`, `checked_out_commit`, dan `base_commit` agar provenance jelas.
 - Tetap bukan publikasi final: field semantik belum terpetakan, FMV rebuild belum lolos real-save/in-game validation, signing key belum tersedia, dan materi/kontak publik belum siap.
+
+## Verifikasi integritas semua hasil ekspor — 15 November 2026
+- Semua hasil ekspor kini dihitung SHA-256 sebelum penyalinan dan dibaca ulang dari URI tujuan untuk dibandingkan setelah penyalinan, termasuk komponen dan CSV, bukan hanya salinan FMV.
+- Jika provider penyimpanan tidak mengizinkan hasil dibaca ulang atau hash tidak cocok, aplikasi melaporkan ekspor gagal alih-alih menyatakan sukses.

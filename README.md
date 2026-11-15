@@ -157,3 +157,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Export copying and FMV integrity revalidation execute off the UI thread to keep large file operations responsive.
 
 - Aksi ekspor tetap terkunci sampai pengguna menyelesaikan atau membatalkan pemilihan lokasi dokumen, mencegah dua dialog ekspor saling menimpa file sementara.
+
+- Inferensi panjang record person dibatalkan jika beberapa UID berbeda menunjuk entity ID yang sama; panjang record tetap tidak diketahui daripada memilih offset secara arbitrer.

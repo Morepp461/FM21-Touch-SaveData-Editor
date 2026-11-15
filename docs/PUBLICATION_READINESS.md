@@ -228,3 +228,8 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Tetap belum siap publikasi: parser masih menyimpan seluruh save di memori, field semantik belum dipetakan, Kotlin rebuild belum divalidasi pada fixture nyata, in-game reload dan QA perangkat fisik belum dilakukan, serta APK/AAB release bertanda tangan belum tersedia.
 
 - Menambahkan kasus uji kegagalan I/O di tengah stream dan menampilkan batas 128 MiB pada layar awal aplikasi. Smoke test Kotlin 1.9 untuk helper pembaca termasuk cleanup setelah kegagalan I/O lulus; validasi Gradle dan Android tetap tertunda.
+
+## CI setelah pembacaan save berbasis file sementara — 15 November 2026
+- Run 282 (`43675541726`) pada head `123f06f5e538e754ecfea3af6e73f9c7f7c76438` gagal pada job `build` dan `android-api26-smoke`.
+- Kedua job tidak menyediakan langkah eksekusi maupun URL log (`steps: []`, `logs_url: null`). Tidak ada dasar untuk menyimpulkan Gradle atau emulator berjalan; penyebab tetap masalah alokasi/eksekusi runner yang belum terdiagnosis.
+- Pembaca save berbatas sudah diuji dengan smoke test Kotlin terisolasi, termasuk cleanup setelah kegagalan I/O. Seluruh build, unit test proyek, dan QA perangkat tetap terbuka.

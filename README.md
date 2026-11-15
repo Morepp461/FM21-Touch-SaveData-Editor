@@ -248,3 +248,5 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 ### Gerbang versi untuk penulisan FMV — 15 November 2026
 - Rebuild dengan komponen yang diubah kini ditolak kecuali `game_info/.dat` mengidentifikasi database tepat `21.4.0-0`. Jalur salinan tanpa perubahan tetap tersedia karena hanya mengembalikan byte sumber setelah validasi penuh.
 - Tes sintetis kini menyertakan versi database dan memverifikasi bahwa rebuild edit pada versi `22.0.0-0` ditolak. Ini membatasi writer eksperimental ke satu versi yang telah diamati, bukan klaim bahwa writer sudah siap produksi.
+
+- Gerbang writer juga memiliki tes untuk versi yang tidak terdeteksi; edit ditolak, sementara no-op copy pada fixture tanpa versi tetap lulus jalur salinan identik.

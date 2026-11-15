@@ -41,8 +41,6 @@ class FmvContainerTest {
 
     @Test
     fun rebuildsEditedComponentAndReopensTheContainer() {
-        val original = "original component payload".toByteArray()
-        val replacement = "edited component payload with a different length".toByteArray()
         val fixture = fixture(listOf("21.4.0-0|original".toByteArray()), memberName = "game_info/.dat")
         val parsed = FmvContainer(fixture)
         val versionedReplacement = "21.4.0-0|edited".toByteArray()

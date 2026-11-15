@@ -280,3 +280,5 @@ Current state: **not ready for public publication**. The app is a read-only save
 
 - Validasi footer diperketat: pointer header menjadi sumber lokasi footer, lalu marker diverifikasi tepat di posisi itu. Tes mencakup pointer di luar area file dan pointer yang menunjuk ke byte non-footer.
 - Perubahan ini memperkuat parser tetapi belum lulus Gradle test karena runner CI masih gagal sebelum langkah berjalan.
+
+- Empat kasus SaveReadLimitTest berhasil dijalankan lokal dengan Kotlin 1.9 dan assertion shim (bukan JUnit/Gradle). Build aplikasi, seluruh unit test, dan emulator API 26 masih belum terverifikasi.

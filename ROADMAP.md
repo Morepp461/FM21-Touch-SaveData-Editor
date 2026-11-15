@@ -262,3 +262,6 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Gerbang privasi paket Android — 15 November 2026
 - Workflow memeriksa `android:allowBackup="false"` pada manifest sumber dan memeriksa permission hasil merge pada APK debug/release untuk memastikan tidak ada `android.permission.INTERNET`.
 - Ini menambahkan pemeriksaan otomatis atas klaim offline-first dan mencegah permission jaringan muncul diam-diam melalui manifest dependency. Validasi menunggu runner CI.
+
+## Akurasi kebijakan retensi file — 15 November 2026
+- Privacy policy kini menjelaskan kapan file staging impor dan payload ekspor dihapus, serta kondisi ketika proses terhenti sebelum cleanup sehingga cache mungkin masih berisi file sementara.

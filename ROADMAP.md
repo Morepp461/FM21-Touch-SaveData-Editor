@@ -237,3 +237,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 - Smoke test shell untuk langkah checksum/provenance berhasil pada tiga file dummy. Pemeriksaan `test -n` ditambahkan agar metadata versi tidak diam-diam kosong jika format `app/build.gradle.kts` berubah.
 
 - Menambahkan dependency Compose `runtime-saveable` secara eksplisit untuk fitur pemulihan path payload ekspor. Kompilasi tetap harus dibuktikan oleh Gradle CI.
+
+## CI terbaru — 15 November 2026
+- Actions run 322 (`43676170041`) pada head `aa43f3fc5c1e663e4a1b6949324ea0d9c93ac2f5` gagal pada kedua job.
+- Job API kembali memberikan `steps: []` dan `logs_url: null`. Tidak ada bukti bahwa Gradle, Python diagnostics, atau Android emulator mulai berjalan.

@@ -298,3 +298,10 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 ## Koreksi antrean GitHub Actions — 15 November 2026
 - Run 382–387 yang berstatus cancelled bertepatan dengan beberapa commit berurutan pada branch yang sama. Workflow memakai satu concurrency group berbasis `github.ref`; GitHub dapat mengganti run pending lama ketika run baru masuk ke group tersebut.
 - Group concurrency kini menggunakan `github.sha`, sehingga setiap commit memiliki group terpisah dan run pending tidak saling menggantikan. Hasil CI pada head terbaru tetap harus ditunggu dan diperiksa.
+
+## Build release candidate berhasil — 15 November 2026
+- Run 392 (`43677617481`) menyelesaikan job `build` dengan sukses pada head PR `4c59fda18277abd9eaed824849b7baa94a0958e7`.
+- Yang berhasil dijalankan: Python read-only diagnostics, Gradle `assembleDebug`, `assembleRelease`, `bundleRelease`, `testDebugUnitTest`, pemeriksaan minSdk/targetSdk, permission offline-first, library Zstandard native, SHA-256, metadata build, dan upload APK/AAB.
+- Artefak unsigned tersedia: artifact ID `14146648401` (debug) dan `14146094473` (unsigned release). API 26 emulator job masih berjalan saat pencatatan.
+- Metadata awal merekam merge commit PR sebagai commit checkout; workflow kini membedakan `source_commit`, `checked_out_commit`, dan `base_commit` agar provenance jelas.
+- Tetap bukan publikasi final: field semantik belum terpetakan, FMV rebuild belum lolos real-save/in-game validation, signing key belum tersedia, dan materi/kontak publik belum siap.

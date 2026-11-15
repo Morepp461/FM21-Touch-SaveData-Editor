@@ -51,6 +51,25 @@ class PersonRecordDiffAnalyzerTest {
     }
 
     @Test
+    fun doesNotSilentlyCompareDuplicateUidEntries() {
+        val beforeOut = ByteArrayOutputStream()
+        writeEntity(beforeOut, 51_788, 2_000_102_078, 0x11)
+        writeEntity(beforeOut, 51_789, 2_000_102_079, 0x33)
+        writeName(beforeOut, "Bob Fullam", 26_630, 2_000_102_078)
+        writeName(beforeOut, "Other Person", 26_631, 2_000_102_079)
+        writeName(beforeOut, "Bob Alias", 26_632, 2_000_102_078)
+
+        val after = fixture(firstPrefix = 0, firstChangedByte = 0x11)
+        val result = PersonRecordDiffAnalyzer.compare(beforeOut.toByteArray(), after)
+
+        assertEquals(1, result.ambiguousBefore)
+        assertEquals(0, result.ambiguousAfter)
+        assertEquals(0, result.missingBefore)
+        assertEquals(0, result.missingAfter)
+        assertEquals(0, result.compared)
+    }
+
+    @Test
     fun rejectsEmptyMappedDatabaseFiles() {
         val empty = java.io.File.createTempFile("fm21-empty", ".dat")
         val valid = java.io.File.createTempFile("fm21-data", ".dat")

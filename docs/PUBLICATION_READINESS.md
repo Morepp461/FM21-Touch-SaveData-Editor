@@ -317,3 +317,5 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Gerbang versi untuk FMV writer — 15 November 2026
 - Jalur edit writer kini dibatasi ke database `21.4.0-0`; versi lain/unknown ditolak. No-op copy tetap diperbolehkan melalui validasi penuh tanpa menulis ulang container.
 - Menambahkan tes penolakan untuk versi `22.0.0-0` dan fixture writer dengan versi yang terdeteksi. Tes belum dijalankan oleh Gradle CI.
+
+- Regresi version gate mencakup versi tidak diketahui dan versi `22.0.0-0`; kedua edited rebuild harus ditolak. Jalur no-op fixture tanpa versi tetap mempertahankan byte sumber.

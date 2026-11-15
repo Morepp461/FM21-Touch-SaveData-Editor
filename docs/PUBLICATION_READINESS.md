@@ -135,3 +135,15 @@ Current state: **not ready for public publication**. The app is a read-only save
 
 
 - Run 183 (43646522974) for the duplicate-name parser guard also failed before runner allocation. Both job records report `runner_id: 0`, empty runner names, zero executed steps, and no log URLs. No Kotlin unit test, Android package build, or emulator launch has been executed for the latest branch head.
+
+## Memory-mapped diagnostics update (15 November 2026)
+
+- Person indexing now uses a read-only memory map through `PersonRecordMapper.mapFile`; the People tab no longer allocates another full `game_db/.dat` byte array.
+- Cross-save person comparison maps both extracted `game_db/.dat` files and joins unique UID groups only when their entity IDs match.
+- Person diff is restricted to the observed FM21 Touch `21.4.0-0` database version. Unknown/different versions disable the action.
+- Duplicate UID groups and UID-to-entity-ID mismatches are counted separately rather than being silently collapsed.
+- The Compare tab exports all changed mapped person rows to CSV. Changed offsets remain opaque evidence, not semantic field labels.
+- Added tests for memory-mapped file loading/comparison, empty files, offset shifts, duplicate UIDs, and entity-ID mismatches.
+- Latest branch head `f1fc0f6ff45bc1663f87951c7c6311e365ee9f67` is committed but still requires an actual passing Gradle/unit-test/API 26 run.
+- The latest observed Actions run for the preceding head still failed before runner allocation (`runner_id: 0`, no runner name, no steps). The current branch must not be marked build-verified or publication-ready.
+- The release blockers listed above remain: semantic field mapping, Kotlin writer validation against a real save, successful in-game load, Android device QA, and a valid signed release artifact.

@@ -215,11 +215,17 @@ class FmvContainer(private val bytes: ByteArray) {
     }
 
     private fun readManifest(): FmvManifest {
-        val footer = lastIndexOf(bytes, FMF_PREFIX)
-        if (footer < HEADER_SIZE) throw FmvFormatException("Footer manifest header not found")
         val declaredFooterOffset = littleEndianU32(bytes, 9)
-        if (declaredFooterOffset != footer.toLong() - 9L) {
-            throw FmvFormatException("Header footer offset does not match manifest footer")
+        if (declaredFooterOffset > Int.MAX_VALUE.toLong() - 9L) {
+            throw FmvFormatException("Header footer offset is outside the supported range")
+        }
+        val footerLong = declaredFooterOffset + 9L
+        if (footerLong < HEADER_SIZE || footerLong + FMF_PREFIX.size > bytes.size.toLong()) {
+            throw FmvFormatException("Header footer offset points outside the save")
+        }
+        val footer = footerLong.toInt()
+        if (!bytes.copyOfRange(footer, footer + FMF_PREFIX.size).contentEquals(FMF_PREFIX)) {
+            throw FmvFormatException("Header footer offset does not point to the manifest footer")
         }
         val lengthAt = footer + FMF_PREFIX.size
         if (lengthAt + 4 > bytes.size) throw FmvFormatException("Truncated footer length")
@@ -383,14 +389,6 @@ class FmvContainer(private val bytes: ByteArray) {
     private fun littleEndianU32(data: ByteArray, at: Int): Long =
         ByteBuffer.wrap(data, at, 4).order(ByteOrder.LITTLE_ENDIAN).int.toLong() and 0xffffffffL
 
-    private fun lastIndexOf(haystack: ByteArray, needle: ByteArray): Int {
-        for (i in haystack.size - needle.size downTo 0) {
-            var match = true
-            for (j in needle.indices) if (haystack[i + j] != needle[j]) { match = false; break }
-            if (match) return i
-        }
-        return -1
-    }
 }
 
 data class TadHeaderInfo(val signature: String, val versionBytes: String, val preambleHex: String)

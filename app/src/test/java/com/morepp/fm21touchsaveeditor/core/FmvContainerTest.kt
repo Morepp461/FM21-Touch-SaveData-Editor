@@ -147,6 +147,43 @@ class FmvContainerTest {
     }
 
     @Test
+    fun rejectsTotalMemberCountAcrossTopLevelAndNestedEntries() {
+        val manifest = ByteArrayOutputStream()
+        writeString(manifest, "Oversized Manifest")
+        manifest.write(le32(20_000))
+        repeat(20_000) { index ->
+            writeString(manifest, "entry_$index")
+            writeString(manifest, ".dat")
+            manifest.write(le64(0))
+            manifest.write(le64(4))
+            manifest.write(le64(0))
+            manifest.write(ByteArray(16))
+        }
+        manifest.write(le32(1))
+        writeString(manifest, "archive")
+        manifest.write(le32(1))
+
+        val compressedManifest = Zstd.compress(manifest.toByteArray(), 1)
+        val header = ByteArray(30)
+        header[0] = 0x02
+        header[1] = 0x01
+        "fmf.".toByteArray().copyInto(header, 2)
+        le32(21).copyInto(header, 9)
+
+        val malformed = ByteArrayOutputStream().apply {
+            write(header)
+            write(footerPrefix)
+            write(le32(compressedManifest.size))
+            write(compressedManifest)
+        }.toByteArray()
+
+        val error = assertThrows(FmvFormatException::class.java) {
+            FmvContainer(malformed)
+        }
+        assertEquals(true, error.message!!.contains("Total manifest member count"))
+    }
+
+    @Test
     fun rejectsInvalidHeader() {
         val exception = assertThrows(FmvFormatException::class.java) {
             FmvContainer(ByteArray(64))

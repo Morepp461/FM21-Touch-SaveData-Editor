@@ -594,7 +594,7 @@ private fun EditorHome() {
                                 Text("Terpetakan: ${personDiff.beforeMapped} → ${personDiff.afterMapped} · tanpa panjang record valid: ${personDiff.skippedUnknownLength}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("UID hilang: ${personDiff.missingAfter} · UID baru: ${personDiff.missingBefore} · UID ambigu: ${personDiff.ambiguousBefore}/${personDiff.ambiguousAfter}",
+                                Text("UID hilang: ${personDiff.missingAfter} · UID baru: ${personDiff.missingBefore} · UID ambigu: ${personDiff.ambiguousBefore}/${personDiff.ambiguousAfter} · ID berubah: ${personDiff.identityMismatch}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 OutlinedButton(

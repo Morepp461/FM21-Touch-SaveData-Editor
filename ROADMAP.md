@@ -284,3 +284,7 @@ Jangan mempublikasikan versi yang mengaku sebagai editor penuh sebelum seluruh g
 
 ## Status runner setelah audit person lintas snapshot — 15 November 2026
 - Run 366 (`43677123810`) gagal pada kedua job tanpa step summary/log. Audit struktural UID/tag/offset sudah dicatat, tetapi build dan tes Android tetap belum dijalankan oleh CI.
+
+## Pembersihan cache sementara saat startup — 15 November 2026
+- Menambahkan cleanup pada startup untuk file sementara aplikasi yang lebih tua dari 24 jam. Cleanup dibatasi pada prefix file impor/ekspor yang diketahui dan direktori kerja internal aplikasi; file lain di cache tidak disentuh.
+- Menambahkan dua tes untuk penghapusan file stale, retensi file fresh/tidak terkait, dan validasi umur negatif. Harness Kotlin 1.9 lokal dengan assertion shim lulus untuk kedua kasus; Gradle belum berjalan.

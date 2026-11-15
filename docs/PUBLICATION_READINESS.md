@@ -323,3 +323,12 @@ Current state: **not ready for public publication**. The app is a read-only save
 ## Perbaikan concurrency CI — 15 November 2026
 - Diagnosis run 382–387 menunjukkan status cancelled pada run yang menunggu antrean setelah commit berurutan. Workflow sebelumnya mengelompokkan seluruh commit branch dalam satu concurrency group berbasis ref.
 - Concurrency group diubah menjadi unik per commit SHA dengan `cancel-in-progress: false`. Perubahan ini mencegah run pending commit baru menggantikan run sebelumnya; belum membuktikan runner tersedia atau build berhasil.
+
+## Validasi release candidate terbaru — 15 November 2026
+
+- GitHub Actions run 392 (`43677617481`) untuk PR head `4c59fda18277abd9eaed824849b7baa94a0958e7` menyelesaikan job `build` dengan sukses.
+- Langkah yang lulus: Python read-only reverse-engineering tests; Gradle `assembleDebug`, `assembleRelease`, `bundleRelease`, `testDebugUnitTest`; verifikasi minSdk 26/targetSdk 36; pemeriksaan permission Internet tidak ada pada APK; pemeriksaan native Zstandard runtime; SHA-256 dan metadata; upload debug APK serta unsigned release APK/AAB.
+- Artefak run 392: debug artifact `14146648401`, unsigned release artifact `14146094473`. Release APK/AAB belum ditandatangani karena private keystore belum disediakan.
+- Job emulator Android 8.0/API 26 pada run 392 masih `in_progress` saat update ini ditulis; jangan tandai lulus sebelum hasil job final.
+- File metadata dari artifact unsigned yang pertama merekam `fc7f11bf...` sebagai commit checkout (merge commit PR), bukan source branch head. Workflow diperbaiki agar artifact berikutnya memisahkan source PR commit, checked-out merge commit, dan base commit.
+- Release tetap belum siap publikasi: aplikasi masih read-only; CA/PA/atribut/keuangan belum dipetakan; Kotlin FMV rebuild belum divalidasi pada save nyata dan game; instalasi perangkat fisik belum dilakukan; signed APK/AAB dan informasi publik aplikasi belum tersedia.

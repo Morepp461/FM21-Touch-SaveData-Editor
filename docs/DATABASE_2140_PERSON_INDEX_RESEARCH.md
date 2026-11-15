@@ -42,3 +42,17 @@ The database fixture provides an additional identity cross-reference by UID. It 
 - No save write is authorized by this research.
 
 The production writer must remain fail-closed for non-empty edits until a field is independently mapped, read back, and validated by loading the edited save in FM21 Touch.
+
+
+## Reproducibility
+
+The structural counts can be regenerated locally with:
+
+```bash
+python tools/fm21_database_person_index.py /path/to/extracted-2140-database \
+  --game-db /path/to/extracted/game_db.dat \
+  --json database-person-index-report.json
+python -m unittest discover -s tools -p 'test_*.py' -v
+```
+
+The parser emits hashes and aggregate counts only. It does not export names or UIDs, does not modify source files, and deliberately leaves all player-field semantics unresolved.

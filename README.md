@@ -270,3 +270,11 @@ Proyek ini merupakan proyek komunitas independen dan tidak berafiliasi dengan Sp
 - Sebanyak 1.567 dari 1.569 UID hasil ekstraksi juga cocok dengan person-name index pada save Bolton. Ini menambah jalur cross-reference identitas, bukan pemetaan atribut.
 - Detail hash, struktur, dan batas interpretasi: `docs/DATABASE_2140_PERSON_INDEX_RESEARCH.md`.
 - CA, PA, atribut individu, dan offset tulis tetap belum tervalidasi. Gerbang writer produksi tetap menolak edit payload.
+
+
+### Parser riset person index 21.4
+
+- Ditambahkan `tools/fm21_database_person_index.py` untuk mengulang ekstraksi UID dari `people_db.dat` dan indeks `basic_people_db.dat`.
+- Tool hanya mengeluarkan metadata, hash, dan jumlah kecocokan; tidak menulis atau mengubah file database.
+- Tes sintetik ditambahkan ke rangkaian `unittest` CI.
+- Tool ini membantu riset identitas, bukan fitur edit pemain dan bukan bukti offset CA/PA.

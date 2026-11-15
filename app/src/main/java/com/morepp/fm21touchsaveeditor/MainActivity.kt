@@ -235,7 +235,7 @@ private fun EditorHome() {
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(status, style = MaterialTheme.typography.bodySmall,
-                            color = if (status.startsWith("Gagal")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+                            color = if (status.contains("gagal", ignoreCase = true)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                         Button(
                             onClick = { picker.launch(arrayOf("*/*")) },
                             enabled = !busy,

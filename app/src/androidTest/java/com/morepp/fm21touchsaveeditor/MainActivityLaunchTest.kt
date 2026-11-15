@@ -28,5 +28,7 @@ class MainActivityLaunchTest {
         composeRule.onNodeWithText("Buka save FMV").assertExists()
         composeRule.onNodeWithText("FOOTBALL MANAGEMENT SAVE DATA").assertIsDisplayed()
         composeRule.onNodeWithText("MODE HANYA-BACA").assertIsDisplayed()
+        composeRule.onNodeWithText("Minimum sistem: Android 8.0 (API 26)").assertIsDisplayed()
+        composeRule.onNodeWithText("Batas ukuran file saat ini: 128 MiB").assertIsDisplayed()
     }
 }

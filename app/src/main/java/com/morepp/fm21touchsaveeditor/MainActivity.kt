@@ -249,7 +249,13 @@ private fun EditorHome() {
                         Text(status, style = MaterialTheme.typography.bodySmall,
                             color = if (status.contains("gagal", ignoreCase = true)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
                         Button(
-                            onClick = { picker.launch(arrayOf("*/*")) },
+                            onClick = {
+                                try {
+                                    picker.launch(arrayOf("*/*"))
+                                } catch (error: Exception) {
+                                    status = "Gagal membuka pemilih save: ${error.message}"
+                                }
+                            },
                             enabled = !busy,
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp)
@@ -343,8 +349,13 @@ private fun EditorHome() {
                                 action = if (comparisonContainer == null) "Pilih save pembanding" else "Buka perbandingan",
                                 enabled = !busy,
                                 onClick = {
-                                    if (comparisonContainer == null) comparisonPicker.launch(arrayOf("*/*"))
-                                    else selectedTab = EditorTab.COMPARE
+                                    if (comparisonContainer == null) {
+                                        try {
+                                            comparisonPicker.launch(arrayOf("*/*"))
+                                        } catch (error: Exception) {
+                                            status = "Gagal membuka pemilih save pembanding: ${error.message}"
+                                        }
+                                    } else selectedTab = EditorTab.COMPARE
                                 }
                             )
                             ToolCard(

@@ -183,3 +183,6 @@ Current state: **not ready for public publication**. The app is a read-only save
 - Latest PR head: `1de6f4854256ae498e176ed4bbc39a27e6432194`.
 - GitHub Actions run 251 (`43674363556`) failed both jobs without step records or downloadable job logs. No Gradle, unit-test, or API 26 emulator execution is confirmed.
 - No publication gate is cleared by these source changes. The app remains read-only and unsigned; real-save Kotlin rebuild validation, successful in-game load, verified semantic field mappings, Android device QA, and signed release artifacts remain required.
+
+- Follow-up mapper guard: both the current entity ID and the next contiguous entity ID must be unique before a record length is inferred. Duplicate current IDs cannot borrow the next row's offset. Regression test: `doesNotInferRecordLengthsWhenEntityIdsAreDuplicatedAcrossUids`.
+- Latest source commit for this guard: `fa1ffa34ce9e70869dea1d163aa2a5435b215d51`. CI status for this exact head is pending/no workflow run returned at the time of this update.
